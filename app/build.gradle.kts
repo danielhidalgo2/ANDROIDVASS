@@ -30,9 +30,19 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        compose = true
+        viewBinding = true
+    }
 }
 
 dependencies {
+    //COMPOSE
+    implementation ("androidx.compose.ui:ui:1.6.2")
+    implementation ("androidx.compose.material:material:1.6.2")
+    implementation ("androidx.activity:activity-compose:1.8.2")
+    implementation ("androidx.core:core-ktx:1.12.0")
+    implementation ("androidx.appcompat:appcompat:1.6.1")
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")

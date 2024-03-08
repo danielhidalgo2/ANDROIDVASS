@@ -12,7 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WhatsVass"
         tools:targetApi="31">
-
+        <activity
+            android:name=".SplashView"
+            android:exported="false" />
         <activity
             android:name=".LoginView"
             android:exported="true">

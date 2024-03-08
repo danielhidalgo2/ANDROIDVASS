@@ -1,4 +1,4 @@
-package com.chat.whatsvass
+package com.chat.whatsvass.ui.theme.login
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,9 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,18 +26,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.chat.whatsvass.R
+
 
 class LoginView : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            LoginScreen()
+
+            val viewModel: LoginViewModel = viewModel()
+
+            LoginScreen(viewModel = viewModel)
         }
     }
 }
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(viewModel: LoginViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -53,18 +57,19 @@ fun LoginScreen() {
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.logo), // Asegúrate de tener tu logo en res/drawable
+                painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo",
                 modifier = Modifier.size(218.dp),
                 contentScale = ContentScale.Fit
             )
             Spacer(modifier = Modifier.height(16.dp))
-            UserTextField()
+            UserTextField(viewModel)
             Spacer(modifier = Modifier.height(16.dp))
-            PasswordTextField()
+            PasswordTextField(viewModel)
             Spacer(modifier = Modifier.height(16.dp))
             LoginButton(onClick = {
-                // Lógica para manejar el inicio de sesión
+
+                viewModel.loginUser("usuario", "contraseña")
             })
             Spacer(modifier = Modifier.height(16.dp))
             CreateAccountText()
@@ -73,40 +78,42 @@ fun LoginScreen() {
 }
 
 @Composable
-fun UserTextField() {
+fun UserTextField(viewModel: LoginViewModel) {
     var user by remember { mutableStateOf("") }
     TextField(
         value = user,
         onValueChange = { user = it },
-        label = { Text("Usuario") }
+        label = { androidx.compose.material.Text("Usuario") }
     )
 }
 
 @Composable
-fun PasswordTextField() {
+fun PasswordTextField(viewModel: LoginViewModel) {
     var password by remember { mutableStateOf("") }
     TextField(
         value = password,
         onValueChange = { password = it },
-        label = { Text("Contraseña") }
+        label = { androidx.compose.material.Text("Contraseña") }
     )
-}
-
-@Composable
-fun LoginButton(onClick: () -> Unit) {
-    Button(onClick = onClick) {
-        Text("Login")
-    }
 }
 
 @Composable
 fun CreateAccountText() {
-    Text(
+    androidx.compose.material.Text(
         text = "Crear usuario",
         color = Color.White,
         modifier = Modifier.clickable {
-            // Lógica para manejar el click en el texto "Crear usuario"
+
         }
     )
 }
+@Composable
+fun LoginButton(onClick: () -> Unit) {
+    androidx.compose.material.Button(onClick = onClick) {
+        androidx.compose.material.Text("Login")
+    }
+}
+
+
+
 

@@ -1,6 +1,6 @@
 package com.chat.whatsvass.data.domain.model
 
-data class Login(
+data class LoginResponse(
     val token: String,
     val user: User
 )

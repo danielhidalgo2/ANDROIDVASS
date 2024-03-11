@@ -2,4 +2,6 @@
     <string name="app_name">WhatsVass</string>
     <string name="title_activity_logo">Logo</string>
     <string name="title_activity_login_view">LoginView</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

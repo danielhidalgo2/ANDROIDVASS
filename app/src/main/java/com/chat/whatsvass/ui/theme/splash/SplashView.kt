@@ -5,7 +5,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.chat.whatsvass.ui.theme.profile.ProfileView
+import com.chat.whatsvass.R
+import com.chat.whatsvass.ui.theme.login.LoginView
 
 class SplashView : AppCompatActivity() {
 
@@ -15,7 +16,7 @@ class SplashView : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         splashScreen.setKeepOnScreenCondition { true }
-            startActivity(Intent(this, ProfileView::class.java))
+            startActivity(Intent(this, LoginView::class.java))
             finish()
     }
 }

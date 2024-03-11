@@ -4,6 +4,7 @@ package com.chat.whatsvass.ui.theme.login
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
 import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Oscuro
+import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 
 const val Shape = 20
 
@@ -50,7 +52,13 @@ class LoginView : ComponentActivity() {
         setContent {
             val viewModel = remember { LoginViewModel() }
 
-            LoginScreen(viewModel)
+            val username = remember { mutableStateOf("") }
+            val password = remember { mutableStateOf("") }
+
+            LoginScreen(viewModel, username.value, password.value) { newUser, newPassword ->
+                username.value = newUser
+                password.value = newPassword
+            }
         }
 
         window.decorView.setOnTouchListener { _, _ ->
@@ -61,18 +69,20 @@ class LoginView : ComponentActivity() {
 }
 
 fun hideKeyboard(activity: Activity) {
-    val inputMethodManager = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    val inputMethodManager =
+        activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.hideSoftInputFromWindow(activity.currentFocus?.windowToken, 0)
 }
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel) {
+fun LoginScreen(
+    viewModel: LoginViewModel,
+    username: String,
+    password: String,
+    onCredentialsChange: (String, String) -> Unit
+) {
+    var errorMessage by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
-    val loginResult by viewModel.loginResult.collectAsState()
-    // Variables de estado para almacenar el usuario y la contraseña
-    val username by remember { mutableStateOf("") }
-    val password by remember { mutableStateOf("") }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -91,13 +101,24 @@ fun LoginScreen(viewModel: LoginViewModel) {
                 .fillMaxWidth()
                 .padding(horizontal = 70.dp)
                 .height(60.dp)
-            UserTextField(modifier = textFieldModifier)
+            UserTextField(
+                value = username,
+                onValueChange = { onCredentialsChange(it, password) },
+                modifier = textFieldModifier
+            )
             Spacer(modifier = Modifier.height(40.dp))
-            PasswordTextField(modifier = textFieldModifier)
+            PasswordTextField(
+                value = password,
+                onValueChange = { onCredentialsChange(username, it) },
+                modifier = textFieldModifier
+            )
+
             Spacer(modifier = Modifier.height(90.dp))
             LoginButton(
                 onClick = {
-                    viewModel.loginUser(username, password) // Pasar las cadenas de usuario y contraseña
+                    viewModel.loginUser(username, password)
+
+
                 }, modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 95.dp)
@@ -107,29 +128,31 @@ fun LoginScreen(viewModel: LoginViewModel) {
             CreateAccountText()
             Spacer(modifier = Modifier.height(40.dp))
 
+            // Mostrar mensaje de error si existe
+            errorMessage?.let {
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
         }
     }
 
-    if (loginResult != null) {
-        // Manejar el resultado del inicio de sesión aquí
-        when (loginResult) {
-            is LoginViewModel.LoginResult.Success -> {
-                // Inicio de sesión exitoso, hacer algo con la respuesta
-                val loginResponse = (loginResult as LoginViewModel.LoginResult.Success).login
-                // Por ejemplo, mostrar un mensaje de éxito
-                showMessage(context, "Inicio de sesión exitoso. Token: ${loginResponse.token}")
-            }
-
+    viewModel._loginResult.collectAsState().value?.let { result ->
+        when (result) {
             is LoginViewModel.LoginResult.Error -> {
-                // Error en el inicio de sesión, mostrar mensaje de error
-                val errorMessage = (loginResult as LoginViewModel.LoginResult.Error).message
-                showMessage(context, "Error al iniciar sesión: $errorMessage")
+                errorMessage = "Los credenciales no son correctos"
             }
-
-            else -> {}
+            else -> {
+                val intent = Intent(context, LoadingActivity::class.java)
+                context.startActivity(intent)
+                errorMessage = null
+            }
         }
     }
 }
+
 
 @Composable
 fun Logo() {
@@ -143,12 +166,15 @@ fun Logo() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserTextField(modifier: Modifier = Modifier) {
-    var user by remember { mutableStateOf("") }
+fun UserTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     TextField(
-        value = user,
-        onValueChange = { user = it },
-        label = { androidx.compose.material.Text("Ingrese su usuario") }, // Usar androidx.compose.material.Text
+        value = value,
+        onValueChange = onValueChange,
+        label = { androidx.compose.material.Text("Ingrese su usuario") },
         shape = RoundedCornerShape(20.dp),
         singleLine = true,
         modifier = modifier,
@@ -161,14 +187,16 @@ fun UserTextField(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PasswordTextField(modifier: Modifier = Modifier) {
-    var password by remember { mutableStateOf("") }
+fun PasswordTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var passwordVisibility by remember { mutableStateOf(false) }
-
     TextField(
-        value = password,
-        onValueChange = { password = it },
-        label = { androidx.compose.material.Text("Ingrese su contraseña") }, // Usar androidx.compose.material.Text
+        value = value,
+        onValueChange = onValueChange,
+        label = { androidx.compose.material.Text("Ingrese su contraseña") },
         shape = RoundedCornerShape(Shape.dp),
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -196,8 +224,6 @@ fun PasswordTextField(modifier: Modifier = Modifier) {
             }
         }
     )
-
-
 }
 
 @Composable
@@ -207,7 +233,7 @@ fun LoginButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         modifier = modifier,
         shape = RoundedCornerShape(Shape.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Oscuro),
-        ) {
+    ) {
         Text(
             text = "Login",
             modifier = Modifier.align(Alignment.CenterVertically)

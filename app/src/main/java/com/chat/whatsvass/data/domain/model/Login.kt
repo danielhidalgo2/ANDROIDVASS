@@ -1,6 +1,6 @@
-package com.chat.whatsvass.data.domain.repository.remote.response.login
+package com.chat.whatsvass.data.domain.model
 
-data class LoginRequest(
+data class Login(
     val password: String,
     val login: String,
     val platform: String = "and",

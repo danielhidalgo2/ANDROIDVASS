@@ -1,4 +1,4 @@
-package com.chat.whatsvass
+package com.chat.whatsvass.ui.theme.splash
 
 import android.content.Intent
 import android.os.Bundle

@@ -138,19 +138,24 @@ fun LoginScreen(
             }
         }
     }
-
     viewModel._loginResult.collectAsState().value?.let { result ->
         when (result) {
             is LoginViewModel.LoginResult.Error -> {
                 errorMessage = "Los credenciales no son correctos"
             }
-            else -> {
-                val intent = Intent(context, LoadingActivity::class.java)
-                context.startActivity(intent)
-                errorMessage = null
+            is LoginViewModel.LoginResult.Success -> {
+                if (username.isNotEmpty() && password.isNotEmpty()) {
+                    val intent = Intent(context, LoadingActivity::class.java)
+                    context.startActivity(intent)
+                    errorMessage = null
+                } else {
+                    errorMessage = "Por favor, introduce usuario y contraseña"
+                }
             }
         }
     }
+
+
 }
 
 

@@ -1,11 +1,14 @@
 package com.chat.whatsvass.ui.theme.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -26,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -38,11 +42,13 @@ import com.chat.whatsvass.R
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.login.Shape
+import com.chat.whatsvass.ui.theme.login.showMessage
 
 
 object GeneralComponents {
     @Composable
     fun NavigationBarCustom(text: String) {
+        val context = LocalContext.current
         NavigationBar(
             modifier = Modifier
                 .fillMaxWidth()
@@ -53,9 +59,13 @@ object GeneralComponents {
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Spacer(modifier = Modifier.width(40.dp))
                 Image(
                     modifier = Modifier
-                        .padding(start = 40.dp),
+                        .clickable {
+                            // IR HACIA PANTALLA ANTERIOR
+                            showMessage(context, "Imagen presionada")
+                        },
                     painter = painterResource(id = R.drawable.icon_arrow_back),
                     contentDescription = ""
                 )
@@ -74,15 +84,15 @@ object GeneralComponents {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun TextFieldCustom(label: String) {
-        var user by remember { mutableStateOf("") }
+    fun TextFieldCustom(label: String): String {
+        var data by remember { mutableStateOf("") }
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 70.dp)
                 .height(60.dp),
-            value = user,
-            onValueChange = { user = it },
+            value = data,
+            onValueChange = { data = it },
             label = { androidx.compose.material.Text(label)}, // Usar androidx.compose.material.Text
             shape = RoundedCornerShape(20.dp),
             singleLine = true,
@@ -91,11 +101,12 @@ object GeneralComponents {
                 unfocusedIndicatorColor = Color.Transparent
             )
         )
+        return data
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun PasswordTextFieldCustom(label: String) {
+    fun PasswordTextFieldCustom(label: String): String {
         var password by remember { mutableStateOf("") }
         var passwordVisibility by remember { mutableStateOf(false) }
 
@@ -133,6 +144,7 @@ object GeneralComponents {
                 }
             }
         )
+        return password
     }
 
     @Composable

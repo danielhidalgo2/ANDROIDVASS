@@ -26,6 +26,10 @@
             android:name=".LoginView"
             android:exported="true">
         </activity>
+        <activity
+            android:name=".ProfileView"
+            android:exported="true">
+        </activity>
     </application>
 
 </manifest>

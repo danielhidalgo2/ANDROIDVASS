@@ -14,7 +14,7 @@ class SplashView : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         splashScreen.setKeepOnScreenCondition { true }
-            startActivity(Intent(this, LoginView::class.java))
+            startActivity(Intent(this, ProfileView::class.java))
             finish()
     }
 }

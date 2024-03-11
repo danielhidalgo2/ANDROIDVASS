@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <!-- Añade el permiso de INTERNET aquí -->
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,9 +14,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WhatsVass"
         tools:targetApi="31">
-
         <activity
-            android:name=".SplashView"
+            android:name=".ui.theme.loading.LoadingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.theme.splash.SplashView"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">
             <intent-filter>
@@ -26,8 +29,7 @@
         </activity>
         <activity
             android:name=".ui.theme.login.LoginView"
-            android:exported="true">
-        </activity>
+            android:exported="true"></activity>
     </application>
 
 </manifest>

@@ -1,15 +1,10 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.WhatsVass" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:statusBarColor">@color/light</item>
-    </style>
-
-    <style name="Theme.WhatsVass" parent="Base.Theme.WhatsVass" />
-
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/light</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/logo_splash</item>
         <item name="windowSplashScreenAnimationDuration">300</item>
         <item name="postSplashScreenTheme">@style/Theme.WhatsVass</item>
+        <item name="android:windowSplashScreenBrandingImage">@drawable/vass_splash</item>
     </style>
 </resources>

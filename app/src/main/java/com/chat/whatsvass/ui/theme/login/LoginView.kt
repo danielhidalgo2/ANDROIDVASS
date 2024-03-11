@@ -70,8 +70,8 @@ fun LoginScreen(viewModel: LoginViewModel) {
     val context = LocalContext.current
     val loginResult by viewModel.loginResult.collectAsState()
     // Variables de estado para almacenar el usuario y la contraseña
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val username by remember { mutableStateOf("") }
+    val password by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -84,16 +84,17 @@ fun LoginScreen(viewModel: LoginViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            Spacer(modifier = Modifier.height(60.dp))
             Logo()
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(60.dp))
             val textFieldModifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 65.dp)
-                .height(50.dp)
+                .padding(horizontal = 70.dp)
+                .height(60.dp)
             UserTextField(modifier = textFieldModifier)
             Spacer(modifier = Modifier.height(40.dp))
             PasswordTextField(modifier = textFieldModifier)
-            Spacer(modifier = Modifier.height(70.dp))
+            Spacer(modifier = Modifier.height(90.dp))
             LoginButton(
                 onClick = {
                     viewModel.loginUser(username, password) // Pasar las cadenas de usuario y contraseña
@@ -102,9 +103,10 @@ fun LoginScreen(viewModel: LoginViewModel) {
                     .padding(horizontal = 95.dp)
                     .height(60.dp)
             )
-            Spacer(modifier = Modifier.height(70.dp))
-            Spacer(modifier = Modifier.padding(bottom = 16.dp)) // Agrega un margen desde abajo
+            Spacer(modifier = Modifier.weight(0.3f))
             CreateAccountText()
+            Spacer(modifier = Modifier.height(40.dp))
+
         }
     }
 

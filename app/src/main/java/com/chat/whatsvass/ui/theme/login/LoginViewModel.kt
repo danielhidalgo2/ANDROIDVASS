@@ -19,13 +19,14 @@ class LoginViewModel : ViewModel() {
 
     val _loginResult = MutableStateFlow<LoginResult?>(null)
 
-    fun loginUser(username: String, password: String) {
+    fun loginUser(username: String, password: String)  {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val login = userRepository.loginUser(username, password)
                 if (login.token.isNotEmpty()) {
                     _loginResult.value = LoginResult.Success(login)
                     Log.d("LoginViewModel", "Inicio de sesión exitoso. Token: ${login.token}")
+
                 } else {
                     _loginResult.value = LoginResult.Error("Usuario o contraseña incorrectos")
                     Log.d(

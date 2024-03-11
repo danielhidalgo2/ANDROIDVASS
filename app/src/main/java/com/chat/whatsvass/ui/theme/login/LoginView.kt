@@ -51,8 +51,6 @@ class LoginView : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val viewModel = remember { LoginViewModel() }
-            LoginScreen(viewModel)
-
 
             val username = remember { mutableStateOf("") }
             val password = remember { mutableStateOf("") }
@@ -84,7 +82,7 @@ fun LoginScreen(
     onCredentialsChange: (String, String) -> Unit
 ) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
-
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -118,9 +116,9 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(90.dp))
             LoginButton(
                 onClick = {
-                    val intent = Intent(context, LoadingActivity::class.java)
-                    context.startActivity(intent)
-                    viewModel.loginUser(username, password) // Pasar las cadenas de usuario y contraseña
+                    viewModel.loginUser(username, password)
+
+
                 }, modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 95.dp)
@@ -146,9 +144,9 @@ fun LoginScreen(
             is LoginViewModel.LoginResult.Error -> {
                 errorMessage = "Los credenciales no son correctos"
             }
-
             else -> {
-
+                val intent = Intent(context, LoadingActivity::class.java)
+                context.startActivity(intent)
                 errorMessage = null
             }
         }
@@ -194,7 +192,7 @@ fun PasswordTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var passwordVisibility by remember{ mutableStateOf(false) }
+    var passwordVisibility by remember { mutableStateOf(false) }
     TextField(
         value = value,
         onValueChange = onValueChange,

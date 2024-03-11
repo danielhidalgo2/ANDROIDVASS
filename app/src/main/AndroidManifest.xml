@@ -29,7 +29,7 @@
             android:exported="true">
         </activity>
         <activity
-            android:name=".ProfileView"
+            android:name=".ui.theme.profile.ProfileView"
             android:exported="true">
         </activity>
     </application>

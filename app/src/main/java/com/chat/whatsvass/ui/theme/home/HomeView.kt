@@ -46,12 +46,42 @@ class HomeView : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
 
-                
+
+        }
+
+
+    }
+}
+
+
+@Composable
+fun HomeScreen(nombres: List<String>, onSettingsClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            TopBarHome("Buscar", onSettingsClick)
+            ChatList(nombres)
+            Spacer(modifier = Modifier.weight(1f))
+            FloatingActionButton(
+                onClick = { /* Acción al hacer clic en el botón flotante */ },
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(16.dp)
+                    .size(56.dp)
+                    .background(Color.Red, shape = CircleShape),
+                contentColor = Color.White
+            ) {
+                Text("+", fontSize = 30.sp)
             }
-                
-            
         }
     }
+}
+
 
 
 
@@ -91,7 +121,10 @@ fun TopBarHome(text: String, onSettingsClick: () -> Unit) {
                     textColor = Color.Black,
                     placeholderColor = Color.Gray
                 ),
-                textStyle = TextStyle(color = Color.Black, fontSize = 12.sp), // Tamaño de texto ajustado
+                textStyle = TextStyle(
+                    color = Color.Black,
+                    fontSize = 12.sp
+                ), // Tamaño de texto ajustado
                 leadingIcon = {
                     // Icono de búsqueda
                     Icon(
@@ -125,10 +158,10 @@ fun ChatList(nombres: List<String>) {
     LazyColumn {
         items(nombres) { nombre ->
             ChatItem(nombre = nombre)
-            Divider(color = Color.Gray, thickness = 1.dp)
         }
     }
 }
+
 
 @Composable
 fun ChatItem(nombre: String) {
@@ -200,43 +233,12 @@ fun ChatItem(nombre: String) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @Preview
 @Composable
-fun ListaDeNombresPreview() {
+fun HomeScreenPreview() {
     val nombres = listOf("Juan", "María", "Pedro", "Ana", "Luis")
-    ChatList(nombres = nombres)
-}
+    HomeScreen(nombres = nombres) {
 
-@Preview
-@Composable
-fun TopBarPreview() {
-    TopBarHome(text = "") {
-        
     }
 }
 

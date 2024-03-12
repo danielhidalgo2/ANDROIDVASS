@@ -3,6 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools">
     <!-- Añade el permiso de INTERNET aquí -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,7 +24,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WhatsVass"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ui.theme.settings.SettingsView"
+            android:exported="false" />
         <activity
             android:name=".ui.theme.loading.LoadingActivity"
             android:exported="false" />
@@ -29,8 +42,10 @@
         </activity>
         <activity
             android:name=".ui.theme.login.LoginView"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
+        <activity
+            android:name=".ui.theme.profile.ProfileView"
+            android:exported="true"></activity>
     </application>
 
 </manifest>

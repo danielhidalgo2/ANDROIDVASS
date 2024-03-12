@@ -53,7 +53,6 @@ import com.chat.whatsvass.ui.theme.components.GeneralComponents.PasswordTextFiel
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.TextFieldCustom
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.login.showMessage
-
 class ProfileView : ComponentActivity() {
 
     private var imageUri: Uri? = null
@@ -229,7 +228,7 @@ class ProfileView : ComponentActivity() {
                                 .show()
                             Log.d("contraseña", password)
                         } else {
-                            viewModel.registerUser(user, nick, password)
+                            viewModel.registerUser(user, password, nick)
                             Log.d("contraseña", password)
                         }
 
@@ -271,7 +270,7 @@ class ProfileView : ComponentActivity() {
     @Composable
     fun ImageProfile() {
         val context = LocalContext.current
-        var image by remember { mutableStateOf("") }
+        var image by remember { mutableStateOf<Uri?>(null)}
 
         Box(
             modifier = Modifier
@@ -285,8 +284,8 @@ class ProfileView : ComponentActivity() {
                     .width(152.dp)
                     .padding(top = 24.dp),
                 painter =
-                if (!image.isNullOrBlank()){
-                    rememberImagePainter(image.toUri())
+                if (image != null){
+                    rememberImagePainter(image)
                 } else {
                     painterResource(id = R.drawable.image_person)
                 },
@@ -298,7 +297,8 @@ class ProfileView : ComponentActivity() {
                 modifier = Modifier
                     .clickable {
                         showMessage(context, "Imagen presionada")
-                        image = showDialogToTakeOrSelectImage(this@ProfileView)
+                        image = showDialogToTakeOrSelectImage(this@ProfileView).toUri()
+                        Log.d("Imagen Uri" , image.toString())
                     }
                     .clip(CircleShape)
                     .background(Principal)

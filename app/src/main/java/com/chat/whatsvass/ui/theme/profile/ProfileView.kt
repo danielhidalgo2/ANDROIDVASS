@@ -1,14 +1,12 @@
 package com.chat.whatsvass.ui.theme.profile
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.FrameLayout
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,75 +19,46 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Text
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.fragment.app.FragmentManager
+import androidx.navigation.NavController
 import com.chat.whatsvass.R
-import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
-import com.chat.whatsvass.ui.theme.components.GeneralComponents
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.ButtonCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.NavigationBarCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.PasswordTextFieldCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.TextFieldCustom
-import com.chat.whatsvass.ui.theme.login.LoginViewModel
-import com.chat.whatsvass.ui.theme.login.Shape
-import com.chat.whatsvass.ui.theme.login.hideKeyboard
+import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.login.showMessage
 
 class ProfileView : ComponentActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.statusBarColor = ContextCompat.getColor(this, R.color.main)
         super.onCreate(savedInstanceState)
         setContent {
-            val viewModel = remember { ProfileViewModel() }
-            ProfileScreen(viewModel)
-        }
-        window.decorView.setOnTouchListener { _, _ ->
-            hideKeyboard(this)
-            false
         }
     }
 }
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel) {
+fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
+
     val context = LocalContext.current
     val registerResult by viewModel.registerResult.collectAsState()
+    val keyboardController = LocalSoftwareKeyboardController.current
+
 
     Box(
         modifier = Modifier
@@ -102,17 +71,48 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            NavigationBarCustom(text = "Crear Perfil")
+            NavigationBarCustom(text = "Crear Perfil", onBackClick = { navController.popBackStack() })
             Spacer(modifier = Modifier.height(20.dp))
             ImageProfile()
             Spacer(modifier = Modifier.height(40.dp))
-            val user = TextFieldCustom("Usuario")
+            val user = TextFieldCustom(
+                "Usuario",
+                onImeActionPerformed = { action ->
+                    if (action == ImeAction.Done || action == ImeAction.Next) {
+                        keyboardController?.hide()
+                    }
+                },
+            )
             Spacer(modifier = Modifier.height(20.dp))
-            val nick = TextFieldCustom("Nick")
+            val nick = TextFieldCustom(
+                "Nick",
+                onImeActionPerformed = { action ->
+                    if (action == ImeAction.Done || action == ImeAction.Next) {
+                        keyboardController?.hide()
+                    }
+                },
+            )
             Spacer(modifier = Modifier.height(20.dp))
-            val password = PasswordTextFieldCustom("Contraseña")
+            val password = PasswordTextFieldCustom(
+                "Contraseña",
+                onImeActionPerformed = { action ->
+                    if (action == ImeAction.Done || action == ImeAction.Next) {
+
+                        keyboardController?.hide()
+                    }
+                },
+            )
             Spacer(modifier = Modifier.height(20.dp))
-            val confirmPassword = PasswordTextFieldCustom("Repetir Contraseña")
+            val confirmPassword = PasswordTextFieldCustom(
+                "Repetir Contraseña",
+                onImeActionPerformed = { action ->
+                    if (action == ImeAction.Done || action == ImeAction.Next) {
+                        viewModel.registerUser(user, nick, password)
+
+                        keyboardController?.hide()
+                    }
+                },
+            )
             Spacer(modifier = Modifier.weight(0.3f))
             ButtonCustom(
                 onClick = {
@@ -158,7 +158,8 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                     context,
                     "Usuario creado correctamente. Token: ${registerResponse.user.token}"
                 )
-                //  IR HACIA HOME
+                val intent = Intent(context, LoadingActivity::class.java)
+                context.startActivity(intent)
 
             }
 

@@ -121,26 +121,26 @@ fun TopBarHome(text: String, onSettingsClick: () -> Unit) {
 
 
 @Composable
-fun ListaDeNombres(nombres: List<String>) {
+fun ChatList(nombres: List<String>) {
     LazyColumn {
         items(nombres) { nombre ->
-            ListaItem(nombre = nombre)
+            ChatItem(nombre = nombre)
             Divider(color = Color.Gray, thickness = 1.dp)
         }
     }
 }
 
 @Composable
-fun ListaItem(nombre: String) {
+fun ChatItem(nombre: String) {
     Row(
         modifier = Modifier
-            .padding(vertical = 12.dp, horizontal = 16.dp) // Margen dentro del ítem
+            .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
-            .requiredWidth(width = 368.dp) // Ancho requerido
-            .requiredHeight(height = 74.dp) // Altura requerida
-            .shadow(4.dp, shape = RoundedCornerShape(20.dp)) // Sombrero para efecto de flotación
-            .clip(shape = RoundedCornerShape(20.dp)) // Recorte redondeado
-            .background(Transparencia), // Color de fondo
+            .requiredWidth(width = 368.dp)
+            .requiredHeight(height = 74.dp)
+            .shadow(4.dp, shape = RoundedCornerShape(20.dp))
+            .clip(shape = RoundedCornerShape(20.dp))
+            .background(Transparencia),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.weight(0.1f))
@@ -151,48 +151,47 @@ fun ListaItem(nombre: String) {
                 .background(Color.Gray),
             contentAlignment = Alignment.Center
         ) {
-            // Aquí puedes colocar la imagen de perfil
-            // Por ejemplo: Image(...)
+
             Image(
-                painter = painterResource(id = R.drawable.image_person), // Cambia por la imagen de perfil real
+                painter = painterResource(id = R.drawable.image_person),
                 contentDescription = "Foto de perfil",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
         }
 
-        // Espacio entre la foto de perfil y el nombre
+
         Spacer(modifier = Modifier.width(16.dp))
 
-        // Columna para el nombre y el texto "Último mensaje"
+
         Column(
-            modifier = Modifier.weight(1f) // Para ocupar todo el espacio restante
+            modifier = Modifier.weight(1f)
         ) {
-            // Nombre
+
             Text(
                 text = nombre,
                 style = TextStyle(fontSize = 16.sp, color = Oscuro)
             )
 
-            // Espacio entre el nombre y el texto "Último mensaje"
+
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Texto "Último mensaje"
+
             Text(
                 text = "Último mensaje",
                 style = TextStyle(fontSize = 14.sp, color = Claro)
             )
         }
 
-        // Espacio entre el texto "Último mensaje" y la hora
+
         Spacer(modifier = Modifier.weight(1f))
 
-        // Texto de la hora
+
         Text(
 
             text = "22:00",
             style = TextStyle(fontSize = 14.sp, color = Claro),
-            modifier = Modifier.align(Alignment.CenterVertically) // Alineación vertical con el nombre
+            modifier = Modifier.align(Alignment.CenterVertically)
         )
 
         Spacer(modifier = Modifier.weight(0.1f))
@@ -230,7 +229,7 @@ fun ListaItem(nombre: String) {
 @Composable
 fun ListaDeNombresPreview() {
     val nombres = listOf("Juan", "María", "Pedro", "Ana", "Luis")
-    ListaDeNombres(nombres = nombres)
+    ChatList(nombres = nombres)
 }
 
 @Preview

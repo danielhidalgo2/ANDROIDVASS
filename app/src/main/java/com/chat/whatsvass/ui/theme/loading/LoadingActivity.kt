@@ -1,9 +1,12 @@
 package com.chat.whatsvass.ui.theme.loading
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
-import com.chat.whatsvass.R
+import android.os.Handler
+import android.os.Looper
+import androidx.appcompat.app.AppCompatActivity
 import com.chat.whatsvass.databinding.ActivityLoadingBinding
+import com.chat.whatsvass.ui.theme.home.HomeView
 
 class LoadingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoadingBinding
@@ -12,5 +15,10 @@ class LoadingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoadingBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            startActivity(Intent(this, HomeView::class.java))
+            finish()
+        }, 2000)
     }
 }

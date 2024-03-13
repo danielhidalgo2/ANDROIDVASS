@@ -9,21 +9,22 @@ import java.time.LocalDateTime
 class ChatMapper {
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun ChatResponse.toDomainModel(): Chat {
+    fun mapResponse(response: ChatResponse): Chat {
         return Chat(
-            chatId = chat,
-            sourceId = source,
-            sourceNick = sourcenick,
-            sourceAvatar = sourceavatar,
-            sourceOnline = sourceonline,
-            sourceToken = sourcetoken,
-            targetId = target,
-            targetNick = targetnick,
-            targetAvatar = targetavatar,
-            targetOnline = targetonline,
-            targetToken = targettoken,
-            chatCreated = LocalDateTime.parse(chatcreated)
+            chatId = response.chat,
+            sourceId = response.source,
+            sourceNick = response.sourcenick,
+            sourceAvatar = response.sourceavatar,
+            sourceOnline = response.sourceonline,
+            sourceToken = response.sourcetoken,
+            targetId = response.target,
+            targetNick = response.targetnick,
+            targetAvatar = response.targetavatar,
+            targetOnline = response.targetonline,
+            targetToken = response.targettoken,
+            chatCreated = LocalDateTime.parse(response.chatcreated)
         )
     }
 }
+
 

@@ -171,11 +171,7 @@ fun TopBarHome() {
     }
 }
 
-@Preview
-@Composable
-fun PreviewTopBar() {
-    TopBarHome()
-}
+
 
 @Composable
 fun ChatList(nombres: List<String>) {

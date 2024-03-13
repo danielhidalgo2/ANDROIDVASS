@@ -200,7 +200,8 @@ fun ChatItem(nombre: String) {
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
             .background(colorWithOpacity),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+
     ) {
         Spacer(modifier = Modifier.weight(0.1f))
         Box(

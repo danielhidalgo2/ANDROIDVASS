@@ -11,7 +11,6 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val Claro = Color(0xFF8091F2)
-val Transparencia = Color(0x40B3ADD0)
 val Oscuro = Color(0xFF274073)
 val Contraste = Color(0xFFB3ADD9)
 val White = Color(0xFFF2F2F2)

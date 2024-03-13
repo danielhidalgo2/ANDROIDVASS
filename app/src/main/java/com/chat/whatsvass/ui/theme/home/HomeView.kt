@@ -84,7 +84,7 @@ fun HomeScreen(nombres: List<String>, onSettingsClick: () -> Unit) {
             modifier = Modifier.fillMaxSize()
         ) {
             //TopBarHome("Buscar", onSettingsClick)
-            TopBar()
+            TopBarHome()
             ChatList(nombres)
             Spacer(modifier = Modifier.weight(1f))
             FloatingActionButton(
@@ -104,7 +104,7 @@ fun HomeScreen(nombres: List<String>, onSettingsClick: () -> Unit) {
 }
 
 @Composable
-fun TopBar() {
+fun TopBarHome() {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
 
     TopAppBar(
@@ -176,76 +176,8 @@ fun TopBar() {
 @Preview
 @Composable
 fun PreviewTopBar() {
-    TopBar()
+    TopBarHome()
 }
-
-@Composable
-fun TopBarHome(text: String, onSettingsClick: () -> Unit) {
-    TopAppBar(
-        modifier = Modifier
-            .fillMaxWidth(),
-        backgroundColor = Principal,
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        elevation = 4.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Barra de búsqueda
-            TextField(
-                value = "",
-                onValueChange = { /* Cambiar el valor de búsqueda */ },
-                placeholder = {
-                    Text(
-                        text = "Buscar...",
-                        style = TextStyle(color = Color.Gray, fontSize = 12.sp)
-                    )
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp)
-                    .height(32.dp) // Altura más pequeña
-                    .width(100.dp) // Ancho ajustado
-                    .clip(RoundedCornerShape(16.dp)), // Bordes redondeados
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.White, // Fondo blanco
-                    cursorColor = Color.Black,
-                    textColor = Color.Black,
-                    placeholderColor = Color.Gray
-                ),
-                textStyle = TextStyle(
-                    color = Color.Black,
-                    fontSize = 12.sp
-                ), // Tamaño de texto ajustado
-                leadingIcon = {
-                    // Icono de búsqueda
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_search),
-                        contentDescription = "Buscar",
-                        tint = Color.Black
-                    )
-                }
-            )
-
-            // Espacio entre la barra de búsqueda y el botón de ajustes
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Botón de ajustes
-            IconButton(
-                onClick = onSettingsClick,
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_settings),
-                    contentDescription = "Ajustes",
-                    tint = Color.Black
-                )
-            }
-        }
-    }
-}
-
 
 @Composable
 fun ChatList(nombres: List<String>) {

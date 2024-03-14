@@ -268,7 +268,7 @@ fun ChatItem(chat: Chat) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = chat.chatCreated,
+                text = "Ultimo mensaje",
                 style = TextStyle(fontSize = 14.sp, color = Claro)
             )
         }

@@ -6,7 +6,7 @@ import com.chat.whatsvass.data.domain.repository.remote.response.chat.ChatRespon
 import com.chat.whatsvass.data.domain.model.register.Register
 import com.chat.whatsvass.data.domain.repository.remote.response.logout.LogoutResponse
 import com.chat.whatsvass.data.domain.repository.remote.response.message.MessagesResponse
-import com.chat.whatsvass.data.domain.repository.remote.response.register.RegisterRequest
+import com.chat.whatsvass.data.domain.repository.remote.response.register.RegisterResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -20,7 +20,7 @@ interface ApiService {
     suspend fun loginUser(@Body request: Login): LoginResponse
 
     @POST("users/register")
-    suspend fun registerUser(@Body post: RegisterRequest): Register
+    suspend fun registerUser(@Body post: RegisterResponse): Register
 
     @POST("users/logout")
     suspend fun logoutUser(@Header("Authorization") token: String): LogoutResponse

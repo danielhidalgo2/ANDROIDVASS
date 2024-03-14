@@ -8,7 +8,4 @@ class MessageMapper {
         return response.rows
     }
 
-    fun toResponse(messages: List<Message>): MessagesResponse {
-        return MessagesResponse(messages.size, messages)
-    }
 }

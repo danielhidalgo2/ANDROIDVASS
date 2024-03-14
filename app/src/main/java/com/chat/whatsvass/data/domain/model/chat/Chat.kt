@@ -1,6 +1,5 @@
 package com.chat.whatsvass.data.domain.model.chat
 
-import java.time.LocalDateTime
 
 data class Chat(
     val chatId: String,
@@ -14,6 +13,6 @@ data class Chat(
     val targetAvatar: String?,
     val targetOnline: Boolean,
     val targetToken: String?,
-    val chatCreated: LocalDateTime
+    val chatCreated: String
 )
 

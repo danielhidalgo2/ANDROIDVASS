@@ -1,8 +1,12 @@
 package com.chat.whatsvass.ui.theme.home
 
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +35,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +54,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
+import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Contraste
 import com.chat.whatsvass.ui.theme.Oscuro
@@ -55,24 +62,46 @@ import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
 
 class HomeView : ComponentActivity() {
+    private val viewModel: HomeViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val nombres = listOf("Juan", "María", "Pedro", "Ana", "Luis")
+        val token = intent.getStringExtra("token")
+
 
         setContent {
+            // Observar el resultado del ViewModel
+            LaunchedEffect(key1 = viewModel) {
+                if (token != null) {
+                    viewModel.getChats(token)
+                    Log.d("chats", token)
 
-            HomeScreen(nombres = nombres) {
-
+                }
             }
+
+            // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
+            val chatResult by viewModel.chatResult.collectAsState(initial = null)
+
+            if (chatResult != null) {
+                val chats = when (val result = chatResult) {
+                    is HomeViewModel.ChatResult.Success -> result.chats
+                    else -> emptyList() // Puedes manejar el caso de error aquí si es necesario
+                }
+                Log.d("chats", chats.toString())
+
+                HomeScreen(chats = chats) {
+                    // Aquí puedes manejar alguna acción, si es necesario
+                }
+            }
+
+
         }
-
-
     }
 }
 
-
 @Composable
-fun HomeScreen(nombres: List<String>, onSettingsClick: () -> Unit) {
+fun HomeScreen(chats: List<Chat>, onSettingsClick: () -> Unit) {
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -81,9 +110,9 @@ fun HomeScreen(nombres: List<String>, onSettingsClick: () -> Unit) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            //TopBarHome("Buscar", onSettingsClick)
-            TopBarHome()
-            ChatList(nombres)
+            TopBarHome(onSettingsClick)
+            ChatList(chats)
+
             Spacer(modifier = Modifier.weight(1f))
             FloatingActionButton(
                 onClick = { /* Acción al hacer clic en el botón flotante */ },
@@ -95,14 +124,16 @@ fun HomeScreen(nombres: List<String>, onSettingsClick: () -> Unit) {
                 contentColor = Contraste,
                 shape = CircleShape
             ) {
-                Text("+", fontSize = 30.sp, color = Contraste)
+                Icon(painter = painterResource(id = R.drawable.ic_add) , contentDescription = "add" )
+                //Text("+", fontSize = 30.sp, color = Contraste)
             }
         }
     }
 }
 
+
 @Composable
-fun TopBarHome() {
+fun TopBarHome(onSettingsClick: () -> Unit) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
 
     TopAppBar(
@@ -172,33 +203,32 @@ fun TopBarHome() {
 }
 
 
-
 @Composable
-fun ChatList(nombres: List<String>) {
+fun ChatList(chats: List<Chat>) {
     LazyColumn {
-        items(nombres) { nombre ->
-            ChatItem(nombre = nombre)
+        items(chats) { chat ->
+            ChatItem(chat = chat)
         }
     }
 }
 
 
 @Composable
-fun ChatItem(nombre: String) {
+fun ChatItem(chat: Chat) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
 
     Row(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
-            .clickable { /* Llevar a la pantalla de los chats */ }
+            .clickable { }
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
             .background(colorWithOpacity),
         verticalAlignment = Alignment.CenterVertically,
 
-    ) {
+        ) {
         Spacer(modifier = Modifier.weight(0.1f))
         Box(
             modifier = Modifier
@@ -224,14 +254,15 @@ fun ChatItem(nombre: String) {
         ) {
 
             Text(
-                text = nombre,
-                style = TextStyle(fontSize = 16.sp, color = Oscuro)
+                text = chat.sourceNick,
+                style = TextStyle(fontSize = 16.sp, color = Oscuro),
             )
+
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Último mensaje",
+                text = chat.chatCreated,
                 style = TextStyle(fontSize = 14.sp, color = Claro)
             )
         }
@@ -252,15 +283,6 @@ fun ChatItem(nombre: String) {
     }
 }
 
-
-@Preview
-@Composable
-fun HomeScreenPreview() {
-    val nombres = listOf("Juan", "María", "Pedro", "Ana", "Luis")
-    HomeScreen(nombres = nombres) {
-
-    }
-}
 
 
 

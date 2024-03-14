@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -191,7 +192,9 @@ fun LoginScreen(
             is LoginViewModel.LoginResult.Success -> {
                 if (username.isNotEmpty() && password.isNotEmpty()) {
                     val intent = Intent(context, LoadingActivity::class.java)
+                    intent.putExtra("token",result.login.token)
                     context.startActivity(intent)
+                    Log.d("token",result.login.token)
                     errorMessage = null
                 } else {
                     errorMessage = "Por favor, introduce usuario y contraseña"

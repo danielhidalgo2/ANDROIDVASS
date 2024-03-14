@@ -5,10 +5,10 @@ import androidx.annotation.RequiresApi
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.repository.remote.response.chat.ChatResponse
 import java.time.LocalDateTime
+import java.time.format.DateTimeParseException
 
 class ChatMapper {
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun mapResponse(response: ChatResponse): Chat {
         return Chat(
             chatId = response.chat,
@@ -22,7 +22,7 @@ class ChatMapper {
             targetAvatar = response.targetavatar,
             targetOnline = response.targetonline,
             targetToken = response.targettoken,
-            chatCreated = LocalDateTime.parse(response.chatcreated)
+            chatCreated  = response.chatcreated
         )
     }
 }

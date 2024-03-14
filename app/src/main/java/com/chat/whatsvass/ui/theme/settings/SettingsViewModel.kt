@@ -1,9 +1,9 @@
 package com.chat.whatsvass.ui.theme.settings
 
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.chat.whatsvass.data.domain.model.logout.Logout
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel : ViewModel() {
 
     sealed class LogoutResult {
-        data class Success(val logout: Logout) : LogoutResult()
+        data class Success(val logout: String) : LogoutResult()
         data class Error(val message: String) : LogoutResult()
     }
 
@@ -27,8 +27,9 @@ class SettingsViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val logout = userRepository.logoutUser(token)
+                Log.d("Mensaje de respuesta", logout.message)
                 if (logout.message == "Logout successful") {
-                    _logoutResult.value = LogoutResult.Success(logout)
+                    _logoutResult.value = LogoutResult.Success(logout.message)
                 } else {
                     _logoutResult.value = LogoutResult.Error("Error al cerrar sesión")
                 }

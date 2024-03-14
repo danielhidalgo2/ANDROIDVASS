@@ -21,7 +21,7 @@ class UserRepository {
         return apiService.registerUser(request)
     }
     suspend fun logoutUser(token: String): Logout {
-        val request = apiService.logoutUser("Bearer $token")
+        val request = apiService.logoutUser("$token")
         return LogoutMapper().mapResponse(request)
     }
 }

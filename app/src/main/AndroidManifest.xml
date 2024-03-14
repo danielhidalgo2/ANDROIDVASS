@@ -49,7 +49,10 @@
         </activity>
         <activity
             android:name=".ui.theme.profile.ProfileView"
-            android:exported="true"></activity>
+            android:exported="true"/>
+        <activity
+            android:name=".ui.theme.contacts.ContactsView"
+            android:exported="true"/>
     </application>
 
 </manifest>

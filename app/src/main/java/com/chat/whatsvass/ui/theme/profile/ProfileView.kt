@@ -175,7 +175,6 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
     val keyboardController = LocalSoftwareKeyboardController.current
     //Prueba
 
-
         Box(
             modifier = Modifier
                 .fillMaxSize()

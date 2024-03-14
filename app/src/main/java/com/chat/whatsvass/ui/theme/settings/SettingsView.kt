@@ -82,6 +82,7 @@ class SettingsView : AppCompatActivity() {
                     sharedPreferencesToken.edit().putString(KEY_TOKEN, null).apply()
                     Toast.makeText(this@SettingsView, "Usuario desconectado", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@SettingsView, LoginView::class.java))
+                    finish()
                 }
                 Log.d("Exitoso", it.toString())
             }

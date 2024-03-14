@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -63,6 +64,13 @@ class LoginView: ComponentActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // No hagas nada cuando se presiona el botón de retroceso
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, callback)
 
         setContent {
             val viewModel = remember { LoginViewModel(application) }
@@ -200,6 +208,7 @@ fun LoginScreen(
                 if (username.isNotEmpty() && password.isNotEmpty()) {
                     val intent = Intent(context, LoadingActivity::class.java)
                     context.startActivity(intent)
+
                     errorMessage = null
                 } else {
                     errorMessage = "Por favor, introduce usuario y contraseña"

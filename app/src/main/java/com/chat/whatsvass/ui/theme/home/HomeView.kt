@@ -10,7 +10,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,10 +54,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
@@ -71,7 +68,6 @@ import com.chat.whatsvass.ui.theme.Contraste
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
-import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -105,7 +101,6 @@ class HomeView : ComponentActivity() {
             // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
             val chats by viewModel.chats.collectAsState(emptyList())
             val messages by viewModel.messages.collectAsState(emptyMap())
-            val chatResult by viewModel.chatResult.collectAsState(initial = null)
             val navController = rememberNavController()
 
             // Llamar a la función getMessages después de obtener los chats
@@ -116,21 +111,15 @@ class HomeView : ComponentActivity() {
                 }
             }
 
-                if (chats.isEmpty()) {
-                    Toast.makeText(this, "Aún no tienes chats", Toast.LENGTH_LONG).show()
-                } else {
-                    HomeScreen(chats = chats,navController)
-                }
-            HomeScreen(chats = chats, messages = messages) {
-                // Aquí puedes manejar alguna acción, si es necesario
+            if (chats.isEmpty()) {
+                Toast.makeText(this, "Aún no tienes chats", Toast.LENGTH_LONG).show()
+            } else {
+                HomeScreen(chats = chats, messages = messages, navController)
             }
-
 
         }
     }
 }
-
-
 
 
 @Composable
@@ -185,6 +174,7 @@ fun formatTimeFromApi(dateTimeString: String): String {
     val date = inputFormat.parse(dateTimeString)
     return outputFormat.format(date)
 }
+
 @Composable
 fun ChatItem(chat: Chat, messages: List<Message>) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
@@ -253,7 +243,6 @@ fun ChatItem(chat: Chat, messages: List<Message>) {
 }
 
 
-
 @Composable
 fun TopBarHome(navigation: NavController) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
@@ -314,7 +303,8 @@ fun TopBarHome(navigation: NavController) {
             IconButton(
                 onClick = {
                     val intent = Intent(context, SettingsView::class.java)
-                    context.startActivity(intent)},
+                    context.startActivity(intent)
+                },
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_settings),

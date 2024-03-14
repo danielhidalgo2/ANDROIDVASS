@@ -42,6 +42,9 @@ class SettingsView : AppCompatActivity() {
         binding = ActivitySettingsViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.btnBack.setOnClickListener {
+            finish() // Volver a la pantalla anterior cuando se presiona el botón de retroceso
+        }
 
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
         sharedPreferencesToken =  getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
@@ -137,7 +140,10 @@ class SettingsView : AppCompatActivity() {
             }
         }
     }
-
+    override fun onSupportNavigateUp(): Boolean {
+        finish() // Volver a la pantalla anterior cuando se presiona la flecha hacia atrás en el ActionBar
+        return true
+    }
     private fun enableDarkMode(){
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         delegate.applyDayNight()

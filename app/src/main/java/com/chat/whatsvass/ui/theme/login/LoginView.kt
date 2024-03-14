@@ -54,6 +54,7 @@ import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
+import com.chat.whatsvass.ui.theme.settings.SettingsView
 
 const val Shape = 20
 
@@ -88,6 +89,9 @@ class LoginView: ComponentActivity() {
                 }
                 composable("profile") {
                     ProfileView().ProfileScreen(ProfileViewModel(), navController = navController)
+                }
+                composable("settings") {
+                    SettingsView()
                 }
                 // Agrega más composables para otras pantallas si es necesario
             }
@@ -195,14 +199,13 @@ fun LoginScreen(
             is LoginViewModel.LoginResult.Success -> {
                 if (username.isNotEmpty() && password.isNotEmpty()) {
                     val intent = Intent(context, LoadingActivity::class.java)
-                    intent.putExtra("token",result.login.token)
                     context.startActivity(intent)
-                    Log.d("token",result.login.token)
                     errorMessage = null
                 } else {
                     errorMessage = "Por favor, introduce usuario y contraseña"
                 }
             }
+
         }
     }
 

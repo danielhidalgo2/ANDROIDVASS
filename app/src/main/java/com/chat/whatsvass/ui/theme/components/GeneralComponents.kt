@@ -110,8 +110,8 @@ object GeneralComponents {
             label = { androidx.compose.material.Text(label) }, // Usar androidx.compose.material.Text
             shape = RoundedCornerShape(Shape.dp),
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { onImeActionPerformed(ImeAction.Done) }),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onDone = { onImeActionPerformed(ImeAction.Next) }),
             visualTransformation = if (passwordVisibility) {
                 VisualTransformation.None
             } else {

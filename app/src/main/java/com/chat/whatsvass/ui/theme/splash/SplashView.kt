@@ -38,14 +38,14 @@ class SplashView : AppCompatActivity() {
             disableDarkMode()
         }
 
-        var token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
         if (token.isNullOrEmpty()){
             splashScreen.setKeepOnScreenCondition { true }
             startActivity(Intent(this, LoginView::class.java))
             finish()
         } else {
             splashScreen.setKeepOnScreenCondition { true }
-            startActivity(Intent(this, SettingsView::class.java))
+            startActivity(Intent(this, HomeView::class.java))
             finish()
         }
     }

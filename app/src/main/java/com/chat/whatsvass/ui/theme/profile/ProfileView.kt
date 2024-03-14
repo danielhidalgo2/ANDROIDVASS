@@ -58,6 +58,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
     val context = LocalContext.current
     val registerResult by viewModel.registerResult.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
+    //Prueba
 
 
     Box(

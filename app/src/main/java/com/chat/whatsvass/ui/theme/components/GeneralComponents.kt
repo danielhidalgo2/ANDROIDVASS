@@ -34,7 +34,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import com.chat.whatsvass.R
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
@@ -72,7 +71,7 @@ object GeneralComponents {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun TextFieldCustom(label: String,onImeActionPerformed: (ImeAction) -> Unit): String {
+    fun TextFieldCustom(label: String, onImeActionPerformed: (ImeAction) -> Unit): String {
         var data by remember { mutableStateOf("") }
         TextField(
             modifier = Modifier
@@ -96,7 +95,7 @@ object GeneralComponents {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun PasswordTextFieldCustom(label: String,onImeActionPerformed: (ImeAction) -> Unit): String {
+    fun PasswordTextFieldCustom(label: String, onImeActionPerformed: (ImeAction) -> Unit): String {
         var password by remember { mutableStateOf("") }
         var passwordVisibility by remember { mutableStateOf(false) }
 

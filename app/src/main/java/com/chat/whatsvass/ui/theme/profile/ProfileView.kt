@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -166,10 +167,14 @@ class ProfileView : ComponentActivity() {
             }
         }
 
-    @Composable
-    fun ProfileScreen(viewModel: ProfileViewModel) {
-        val context = LocalContext.current
-        val registerResult by viewModel.registerResult.collectAsState()
+@Composable
+fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
+
+    val context = LocalContext.current
+    val registerResult by viewModel.registerResult.collectAsState()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    //Prueba
+
 
         Box(
             modifier = Modifier

@@ -45,7 +45,7 @@ class SplashView : AppCompatActivity() {
             finish()
         } else {
             splashScreen.setKeepOnScreenCondition { true }
-            startActivity(Intent(this, SettingsView::class.java))
+            startActivity(Intent(this, HomeView::class.java))
             finish()
         }
     }

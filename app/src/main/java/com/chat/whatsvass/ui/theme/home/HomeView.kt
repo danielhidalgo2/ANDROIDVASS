@@ -59,11 +59,14 @@ import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_TOKEN
 import com.chat.whatsvass.data.domain.model.chat.Chat
+import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Contraste
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class HomeView : ComponentActivity() {
     private val viewModel: HomeViewModel by viewModels()
@@ -72,42 +75,42 @@ class HomeView : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sharedPreferencesToken =  getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
+        sharedPreferencesToken = getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
         setContent {
-            // Observar el resultado del ViewModel
+            // Observar el resultado del ViewModel para obtener los chats
             LaunchedEffect(key1 = viewModel) {
                 if (token != null) {
                     viewModel.getChats(token)
-                    Log.d("chats", token)
-
+                    Log.d("HomeView", "Obteniendo chats con token: $token")
                 }
             }
 
             // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
-            val chatResult by viewModel.chatResult.collectAsState(initial = null)
+            val chats by viewModel.chats.collectAsState(emptyList())
+            val messages by viewModel.messages.collectAsState(emptyMap())
 
-            if (chatResult != null) {
-                val chats = when (val result = chatResult) {
-                    is HomeViewModel.ChatResult.Success -> result.chats
-                    else -> emptyList() // Puedes manejar el caso de error aquí si es necesario
-                }
-                Log.d("chats", chats.toString())
-
-                HomeScreen(chats = chats) {
-                    // Aquí puedes manejar alguna acción, si es necesario
+            // Llamar a la función getMessages después de obtener los chats
+            LaunchedEffect(key1 = chats) {
+                if (token != null && chats.isNotEmpty()) {
+                    val chatIds = chats.map { it.chatId }
+                    viewModel.getMessages(token, chatIds, offset = 0, limit = 1)
                 }
             }
 
-
+            HomeScreen(chats = chats, messages = messages) {
+                // Aquí puedes manejar alguna acción, si es necesario
+            }
         }
     }
 }
 
-@Composable
-fun HomeScreen(chats: List<Chat>, onSettingsClick: () -> Unit) {
 
+
+
+@Composable
+fun HomeScreen(chats: List<Chat>, messages: Map<String, List<Message>>, onSettingsClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -117,7 +120,7 @@ fun HomeScreen(chats: List<Chat>, onSettingsClick: () -> Unit) {
             modifier = Modifier.fillMaxSize()
         ) {
             TopBarHome(onSettingsClick)
-            ChatList(chats)
+            ChatList(chats = chats, messages = messages)
 
             Spacer(modifier = Modifier.weight(1f))
             FloatingActionButton(
@@ -130,12 +133,96 @@ fun HomeScreen(chats: List<Chat>, onSettingsClick: () -> Unit) {
                 contentColor = Contraste,
                 shape = CircleShape
             ) {
-                Icon(painter = painterResource(id = R.drawable.ic_add) , contentDescription = "add" )
-                //Text("+", fontSize = 30.sp, color = Contraste)
+                Icon(painter = painterResource(id = R.drawable.ic_add), contentDescription = "add")
             }
         }
     }
 }
+
+
+@Composable
+fun ChatList(chats: List<Chat>, messages: Map<String, List<Message>>) {
+    LazyColumn {
+        items(chats) { chat ->
+            val chatMessages = messages[chat.chatId] ?: emptyList()
+            ChatItem(chat = chat, messages = chatMessages)
+        }
+    }
+}
+
+fun formatTimeFromApi(dateTimeString: String): String {
+    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+    val date = inputFormat.parse(dateTimeString)
+    return outputFormat.format(date)
+}
+@Composable
+fun ChatItem(chat: Chat, messages: List<Message>) {
+    val colorWithOpacity = Contraste.copy(alpha = 0.4f)
+
+    // Obtener el último mensaje si existe
+    val lastMessage = messages.lastOrNull()
+
+    // Formatear la fecha del mensaje para mostrar solo la hora
+    val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it) } ?: "N/A"
+
+    Row(
+        modifier = Modifier
+            .padding(vertical = 12.dp, horizontal = 16.dp)
+            .fillMaxWidth()
+            .clickable { }
+            .requiredWidth(width = 368.dp)
+            .requiredHeight(height = 74.dp)
+            .clip(shape = RoundedCornerShape(20.dp))
+            .background(colorWithOpacity),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.weight(0.1f))
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .background(Color.LightGray),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.image_person),
+                contentDescription = "Foto de perfil",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(4.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = chat.sourceNick,
+                style = TextStyle(fontSize = 16.sp, color = Oscuro),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = lastMessage?.message ?: "No hay mensajes",
+                style = TextStyle(fontSize = 14.sp, color = Claro)
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Text(
+            text = formattedTime,
+            style = TextStyle(fontSize = 14.sp, color = Claro),
+            modifier = Modifier.align(Alignment.CenterVertically)
+        )
+
+        Spacer(modifier = Modifier.weight(0.1f))
+        Spacer(modifier = Modifier.height(50.dp))
+    }
+}
+
 
 
 @Composable
@@ -207,90 +294,6 @@ fun TopBarHome(onSettingsClick: () -> Unit) {
         }
     }
 }
-
-
-@Composable
-fun ChatList(chats: List<Chat>) {
-    LazyColumn {
-        items(chats) { chat ->
-            ChatItem(chat = chat)
-        }
-    }
-}
-
-
-@Composable
-fun ChatItem(chat: Chat) {
-    val colorWithOpacity = Contraste.copy(alpha = 0.4f)
-
-    Row(
-        modifier = Modifier
-            .padding(vertical = 12.dp, horizontal = 16.dp)
-            .fillMaxWidth()
-            .clickable { }
-            .requiredWidth(width = 368.dp)
-            .requiredHeight(height = 74.dp)
-            .clip(shape = RoundedCornerShape(20.dp))
-            .background(colorWithOpacity),
-        verticalAlignment = Alignment.CenterVertically,
-
-        ) {
-        Spacer(modifier = Modifier.weight(0.1f))
-        Box(
-            modifier = Modifier
-                .size(50.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .background(Color.LightGray),
-            contentAlignment = Alignment.Center
-        ) {
-
-            Image(
-                painter = painterResource(id = R.drawable.image_person),
-                contentDescription = "Foto de perfil",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(4.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-
-            Text(
-                text = chat.sourceNick,
-                style = TextStyle(fontSize = 16.sp, color = Oscuro),
-            )
-
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Ultimo mensaje",
-                style = TextStyle(fontSize = 14.sp, color = Claro)
-            )
-        }
-
-
-        Spacer(modifier = Modifier.weight(1f))
-
-
-        Text(
-
-            text = "22:00",
-            style = TextStyle(fontSize = 14.sp, color = Claro),
-            modifier = Modifier.align(Alignment.CenterVertically)
-        )
-
-        Spacer(modifier = Modifier.weight(0.1f))
-        Spacer(modifier = Modifier.height(50.dp))
-    }
-}
-
-
-
 
 
 

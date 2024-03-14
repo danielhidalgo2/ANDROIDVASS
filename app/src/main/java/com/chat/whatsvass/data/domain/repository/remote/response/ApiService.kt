@@ -30,7 +30,7 @@ interface ApiService {
 
     @GET("messages/list/{chatId}")
     suspend fun getMessages(
-        @Path("chatId") chatId: Int,
+        @Path("chatId") chatId: String,
         @Query("offset") offset: Int,
         @Query("limit") limit: Int,
         @Header("Authorization") token: String

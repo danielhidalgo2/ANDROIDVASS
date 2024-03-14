@@ -1,57 +1,52 @@
 package com.chat.whatsvass.ui.theme.home
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.ChatRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
 
-    sealed class ChatResult {
-        data class Success(val chats: List<Chat>, val messages: List<Message>) : ChatResult()
-        data class Error(val message: String) : ChatResult()
-    }
-
     private val chatRepository = ChatRepository()
 
-    private val _chatResult = MutableStateFlow<ChatResult?>(null)
-    val chatResult: StateFlow<ChatResult?> = _chatResult
+    private val _chats = MutableStateFlow<List<Chat>>(emptyList())
+    val chats: StateFlow<List<Chat>> = _chats
+
+    private val _messages = MutableStateFlow<Map<String, List<Message>>>(emptyMap())
+    val messages: StateFlow<Map<String, List<Message>>> = _messages
 
     fun getChats(token: String) {
         viewModelScope.launch {
             try {
                 val chats = chatRepository.getChats(token)
-                _chatResult.value = ChatResult.Success(chats, emptyList()) // Llamamos a Success con una lista de mensajes vacía
+                _chats.value = chats
                 Log.d("HomeViewModel", "Chats obtenidos correctamente")
-
             } catch (e: Exception) {
-                _chatResult.value = ChatResult.Error("Error al obtener los chats: ${e.message}")
                 Log.e("HomeViewModel", "Error al obtener los chats", e)
             }
         }
     }
 
-    // Nuevo método para obtener los mensajes
-    fun getMessages(token: String, chatId: Int, offset: Int, limit: Int) {
+    fun getMessages(token: String, chatIds: List<String>, offset: Int, limit: Int) {
         viewModelScope.launch {
             try {
-                val messages = chatRepository.getMessages(token, chatId, offset, limit)
-                _chatResult.value = ChatResult.Success(emptyList(), messages) // Llamamos a Success con una lista de chats vacía y los mensajes obtenidos
+                val messagesMap = mutableMapOf<String, List<Message>>()
+                chatIds.forEach { chatId ->
+                    val messages = chatRepository.getMessages(token, chatId, offset, limit)
+                    messagesMap[chatId] = messages
+                }
+                _messages.value = messagesMap
                 Log.d("HomeViewModel", "Mensajes obtenidos correctamente")
-
             } catch (e: Exception) {
-                _chatResult.value = ChatResult.Error("Error al obtener los mensajes: ${e.message}")
                 Log.e("HomeViewModel", "Error al obtener los mensajes", e)
             }
         }
     }
 }
+
 

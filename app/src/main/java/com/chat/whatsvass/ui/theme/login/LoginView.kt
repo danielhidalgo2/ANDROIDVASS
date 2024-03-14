@@ -52,7 +52,7 @@ import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
-import com.chat.whatsvass.ui.theme.profile.ProfileScreen
+import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
 
 const val Shape = 20
@@ -87,7 +87,7 @@ class LoginView: ComponentActivity() {
                     }
                 }
                 composable("profile") {
-                    ProfileScreen(ProfileViewModel(), navController = navController)
+                    ProfileView().ProfileScreen(ProfileViewModel(), navController = navController)
                 }
                 // Agrega más composables para otras pantallas si es necesario
             }

@@ -53,9 +53,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.chat.whatsvass.R
@@ -77,8 +79,6 @@ class ProfileView : ComponentActivity() {
         window.statusBarColor = ContextCompat.getColor(this, R.color.main)
         super.onCreate(savedInstanceState)
         setContent {
-            val viewModel = remember { ProfileViewModel() }
-            ProfileScreen(viewModel)
         }
         window.decorView.setOnTouchListener { _, _ ->
             hideKeyboard(this)
@@ -187,17 +187,46 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                NavigationBarCustom(text = "Crear Perfil")
+                NavigationBarCustom(text = "Crear Perfil", onBackClick = { navController.popBackStack() })
                 Spacer(modifier = Modifier.height(20.dp))
                 ImageProfile()
                 Spacer(modifier = Modifier.height(40.dp))
-                val user = TextFieldCustom("Usuario")
+                val user = TextFieldCustom(
+                    "Usuario",
+                    onImeActionPerformed = { action ->
+                        if (action == ImeAction.Done || action == ImeAction.Next) {
+                            keyboardController?.hide()
+                        }
+                    },
+                )
                 Spacer(modifier = Modifier.height(20.dp))
-                val nick = TextFieldCustom("Nick")
+                val nick = TextFieldCustom(
+                    "Nick",
+                    onImeActionPerformed = { action ->
+                        if (action == ImeAction.Done || action == ImeAction.Next) {
+                            keyboardController?.hide()
+                        }
+                    },
+                )
                 Spacer(modifier = Modifier.height(20.dp))
-                val password = PasswordTextFieldCustom("Contraseña")
+                val password = PasswordTextFieldCustom(
+                    "Contraseña",
+                    onImeActionPerformed = { action ->
+                        if (action == ImeAction.Done || action == ImeAction.Next) {
+                            keyboardController?.hide()
+                        }
+                    },
+                )
                 Spacer(modifier = Modifier.height(20.dp))
-                val confirmPassword = PasswordTextFieldCustom("Repetir Contraseña")
+                val confirmPassword = PasswordTextFieldCustom(
+                    "Repetir Contraseña",
+                    onImeActionPerformed = { action ->
+                        if (action == ImeAction.Done || action == ImeAction.Next) {
+                            viewModel.registerUser(user, nick, password)
+                            keyboardController?.hide()
+                        }
+                    },
+                )
                 Spacer(modifier = Modifier.weight(0.3f))
                 ButtonCustom(
                     onClick = {

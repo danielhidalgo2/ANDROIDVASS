@@ -42,6 +42,7 @@ class SettingsView : AppCompatActivity() {
         binding = ActivitySettingsViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
         sharedPreferencesToken =  getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)

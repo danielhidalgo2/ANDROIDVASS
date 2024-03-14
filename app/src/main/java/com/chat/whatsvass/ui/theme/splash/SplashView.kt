@@ -13,6 +13,8 @@ import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_TOKEN
+import com.chat.whatsvass.ui.theme.home.HomeView
+import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.login.LoginView
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.settings.SettingsView
@@ -22,8 +24,6 @@ class SplashView : AppCompatActivity() {
     private lateinit var sharedPreferencesToken: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.statusBarColor = ContextCompat.getColor(this, R.color.light)
-        window.navigationBarColor = ContextCompat.getColor(this, R.color.light)
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 

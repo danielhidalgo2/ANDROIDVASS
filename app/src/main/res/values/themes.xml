@@ -1,7 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.WhatsVass" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:navigationBarColor">@color/light</item>
         <item name="android:statusBarColor">@color/main</item>
     </style>
 

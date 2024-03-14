@@ -28,7 +28,12 @@ class LoginViewModel(application: Application): AndroidViewModel(application) {
 
     val _loginResult = MutableStateFlow<LoginResult?>(null)
 
-    fun loginUser(username: String, password: String)  {
+    fun loginUser(username: String, password: String) {
+        if (username.isEmpty() || password.isEmpty()) {
+            _loginResult.value = LoginResult.Error("Por favor, ingrese su usuario y contraseña")
+            return
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val login = userRepository.loginUser(username, password)

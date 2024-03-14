@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
@@ -47,21 +48,23 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
+import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
-import com.chat.whatsvass.ui.theme.profile.ProfileScreen
+import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
 
 const val Shape = 20
 
-class LoginView : ComponentActivity() {
+class LoginView: ComponentActivity() {
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val viewModel = remember { LoginViewModel() }
+            val viewModel = remember { LoginViewModel(application) }
 
             val username = remember { mutableStateOf("") }
             val password = remember { mutableStateOf("") }
@@ -84,7 +87,7 @@ class LoginView : ComponentActivity() {
                     }
                 }
                 composable("profile") {
-                    ProfileScreen(ProfileViewModel(), navController = navController)
+                    ProfileView().ProfileScreen(ProfileViewModel(), navController = navController)
                 }
                 // Agrega más composables para otras pantallas si es necesario
             }

@@ -1,5 +1,7 @@
 package com.chat.whatsvass.ui.theme.home
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -54,6 +56,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
+import com.chat.whatsvass.commons.KEY_TOKEN
+import com.chat.whatsvass.commons.SHARED_TOKEN
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Contraste
@@ -63,11 +67,13 @@ import com.chat.whatsvass.ui.theme.White
 
 class HomeView : ComponentActivity() {
     private val viewModel: HomeViewModel by viewModels()
+    private lateinit var sharedPreferencesToken: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val token = intent.getStringExtra("token")
 
+        sharedPreferencesToken =  getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
+        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
         setContent {
             // Observar el resultado del ViewModel

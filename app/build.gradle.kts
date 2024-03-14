@@ -63,7 +63,7 @@ dependencies {
     implementation ("androidx.appcompat:appcompat:1.6.1")
     implementation ("androidx.navigation:navigation-compose:2.7.7")
     implementation ("androidx.compose.ui:ui-tooling:1.6.2")
-
+    implementation("io.coil-kt:coil-compose:1.3.1")
 
     //SPLASH SCREEN
     implementation("androidx.core:core-splashscreen:1.0.1")

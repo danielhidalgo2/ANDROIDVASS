@@ -37,6 +37,7 @@ interface ApiService {
         @Query("limit") limit: Int,
         @Header("Authorization") token: String
     ): MessagesResponse
+
     @DELETE("chats/{chatId}")
     suspend fun deleteChat(
         @Path("chatId") chatId: String,

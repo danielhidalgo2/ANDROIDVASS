@@ -1,14 +1,15 @@
 package com.chat.whatsvass.ui.theme.home
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,13 +49,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_TOKEN
@@ -65,6 +68,7 @@ import com.chat.whatsvass.ui.theme.Contraste
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
+import com.chat.whatsvass.ui.theme.settings.SettingsView
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -78,6 +82,13 @@ class HomeView : ComponentActivity() {
         sharedPreferencesToken = getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // No hagas nada cuando se presiona el botón de retroceso
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, callback)
+
         setContent {
             // Observar el resultado del ViewModel para obtener los chats
             LaunchedEffect(key1 = viewModel) {
@@ -90,6 +101,7 @@ class HomeView : ComponentActivity() {
             // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
             val chats by viewModel.chats.collectAsState(emptyList())
             val messages by viewModel.messages.collectAsState(emptyMap())
+            val navController = rememberNavController()
 
             // Llamar a la función getMessages después de obtener los chats
             LaunchedEffect(key1 = chats) {
@@ -99,18 +111,17 @@ class HomeView : ComponentActivity() {
                 }
             }
 
-            HomeScreen(chats = chats, messages = messages) {
-                // Aquí puedes manejar alguna acción, si es necesario
-            }
+            HomeScreen(chats = chats, messages = messages, navController)
+
+
         }
     }
 }
 
 
-
-
 @Composable
-fun HomeScreen(chats: List<Chat>, messages: Map<String, List<Message>>, onSettingsClick: () -> Unit) {
+fun HomeScreen(chats: List<Chat>, messages: Map<String, List<Message>>, navigation: NavController) {
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -119,12 +130,12 @@ fun HomeScreen(chats: List<Chat>, messages: Map<String, List<Message>>, onSettin
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TopBarHome(onSettingsClick)
+            TopBarHome(navigation)
             ChatList(chats = chats, messages = messages)
 
             Spacer(modifier = Modifier.weight(1f))
             FloatingActionButton(
-                onClick = { /* Acción al hacer clic en el botón flotante */ },
+                onClick = { navigation.navigate("lista_usuarios") },
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(16.dp)
@@ -133,7 +144,11 @@ fun HomeScreen(chats: List<Chat>, messages: Map<String, List<Message>>, onSettin
                 contentColor = Contraste,
                 shape = CircleShape
             ) {
-                Icon(painter = painterResource(id = R.drawable.ic_add), contentDescription = "add")
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_add),
+                    contentDescription = "add",
+                    modifier = Modifier.size(32.dp)
+                )
             }
         }
     }
@@ -156,6 +171,7 @@ fun formatTimeFromApi(dateTimeString: String): String {
     val date = inputFormat.parse(dateTimeString)
     return outputFormat.format(date)
 }
+
 @Composable
 fun ChatItem(chat: Chat, messages: List<Message>) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
@@ -224,10 +240,10 @@ fun ChatItem(chat: Chat, messages: List<Message>) {
 }
 
 
-
 @Composable
-fun TopBarHome(onSettingsClick: () -> Unit) {
+fun TopBarHome(navigation: NavController) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
+    val context = LocalContext.current
 
     TopAppBar(
         backgroundColor = Principal,
@@ -282,7 +298,10 @@ fun TopBarHome(onSettingsClick: () -> Unit) {
             Spacer(modifier = Modifier.width(80.dp))
 
             IconButton(
-                onClick = { /* Handle settings button click */ },
+                onClick = {
+                    val intent = Intent(context, SettingsView::class.java)
+                    context.startActivity(intent)
+                },
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_settings),

@@ -42,15 +42,18 @@ class SettingsView : AppCompatActivity() {
         binding = ActivitySettingsViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.btnBack.setOnClickListener {
+            finish() // Volver a la pantalla anterior cuando se presiona el botón de retroceso
+        }
 
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
-        sharedPreferencesToken =  getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
+        sharedPreferencesToken = getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
         initVars(sharedPreferencesSettings)
         setUpSwitchs(sharedPreferencesSettings)
 
         binding.btnLogout.setOnClickListener {
-            if (token != null){
+            if (token != null) {
                 setUpViewModel()
                 viewModel.logoutUser(token)
             } else {
@@ -59,7 +62,7 @@ class SettingsView : AppCompatActivity() {
         }
     }
 
-    private fun initVars(sharedPreferences: SharedPreferences){
+    private fun initVars(sharedPreferences: SharedPreferences) {
         isNotificationsChecked = sharedPreferences.getBoolean(KEY_NOTIFICATIONS, false)
         isDarkModeChecked = sharedPreferences.getBoolean(KEY_MODE, false)
         isBiometricChecked = sharedPreferences.getBoolean(KEY_BIOMETRIC, false)
@@ -75,17 +78,18 @@ class SettingsView : AppCompatActivity() {
     private fun setUpViewModel() {
         lifecycleScope.launch {
             viewModel.logoutResult.collect {
-                if (it.toString() == "Success(logout=Logout successful)"){
+                if (it.toString() == "Success(logout=Logout successful)") {
                     sharedPreferencesToken.edit().putString(KEY_TOKEN, null).apply()
                     Toast.makeText(this@SettingsView, "Usuario desconectado", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@SettingsView, LoginView::class.java))
+                    finish()
                 }
                 Log.d("Exitoso", it.toString())
             }
         }
     }
 
-    private fun setUpSwitchs(sharedPreferences: SharedPreferences){
+    private fun setUpSwitchs(sharedPreferences: SharedPreferences) {
         val edit = sharedPreferences.edit()
 
         isNotificationsChecked = sharedPreferences.getBoolean(KEY_NOTIFICATIONS, false)
@@ -138,12 +142,17 @@ class SettingsView : AppCompatActivity() {
         }
     }
 
-    private fun enableDarkMode(){
+    override fun onSupportNavigateUp(): Boolean {
+        finish() // Volver a la pantalla anterior cuando se presiona la flecha hacia atrás en el ActionBar
+        return true
+    }
+
+    private fun enableDarkMode() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         delegate.applyDayNight()
     }
 
-    private fun disableDarkMode(){
+    private fun disableDarkMode() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         delegate.applyDayNight()
     }

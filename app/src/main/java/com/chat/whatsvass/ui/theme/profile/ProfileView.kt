@@ -48,18 +48,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
 import com.chat.whatsvass.R
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
@@ -167,13 +163,13 @@ class ProfileView : ComponentActivity() {
             }
         }
 
-@Composable
-fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
+    @Composable
+    fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
 
-    val context = LocalContext.current
-    val registerResult by viewModel.registerResult.collectAsState()
-    val keyboardController = LocalSoftwareKeyboardController.current
-    //Prueba
+        val context = LocalContext.current
+        val registerResult by viewModel.registerResult.collectAsState()
+        val keyboardController = LocalSoftwareKeyboardController.current
+        //Prueba
 
 
         Box(
@@ -294,7 +290,6 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
         }
     }
 
-    @OptIn(ExperimentalCoilApi::class)
     @Composable
     fun ImageProfile() {
         val context = LocalContext.current
@@ -303,7 +298,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
 
         if (isImagePressed) {
             AlertDialogImage(context)
-               {
+            {
                 isImagePressed = false
             }
         }
@@ -313,7 +308,6 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                 .width(152.dp)
         ) {
 
-            val painter = rememberImagePainter(image)
             Log.d("Imagen", image.toString())
 
             Image(
@@ -322,12 +316,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                     .height(152.dp)
                     .width(152.dp)
                     .padding(top = 24.dp),
-                painter =
-                if (image != null) {
-                    painter
-                } else {
-                    painterResource(id = R.drawable.image_person)
-                },
+                painter = painterResource(id = R.drawable.image_person),
                 contentDescription = "",
                 contentScale = ContentScale.Crop
             )
@@ -359,7 +348,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
     @Composable
     fun AlertDialogImage(
         context: Context,
-        onDismiss:() -> Unit
+        onDismiss: () -> Unit
     ) {
         AlertDialog(onDismissRequest = onDismiss) {
             Surface(
@@ -389,19 +378,20 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                                 .padding(start = 16.dp),
                             onClick = {
                                 if (ContextCompat.checkSelfPermission(
-                                    context,
-                                    Manifest.permission.READ_MEDIA_IMAGES
-                                ) == PackageManager.PERMISSION_GRANTED
-                            ) {
-                                openGallery()
-                               // image = imageUri
-                            } else {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    requestGalleryPermission.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                                        context,
+                                        Manifest.permission.READ_MEDIA_IMAGES
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                ) {
+                                    openGallery()
+                                    // image = imageUri
                                 } else {
-                                    requestGalleryPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                        requestGalleryPermission.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                                    } else {
+                                        requestGalleryPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                                    }
                                 }
-                            } },
+                            },
                             colors = ButtonDefaults.buttonColors(containerColor = Oscuro)
                         ) {
                             Text("Galería")
@@ -423,20 +413,22 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                         Button(
                             modifier = Modifier
                                 .padding(start = 16.dp),
-                            onClick = { if (ContextCompat.checkSelfPermission(
-                                    context,
-                                    Manifest.permission.READ_MEDIA_IMAGES
-                                ) == PackageManager.PERMISSION_GRANTED
-                            ) {
-                                openGallery()
-                                // image = imageUri
-                            } else {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    requestGalleryPermission.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                            onClick = {
+                                if (ContextCompat.checkSelfPermission(
+                                        context,
+                                        Manifest.permission.READ_MEDIA_IMAGES
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                ) {
+                                    openGallery()
+                                    // image = imageUri
                                 } else {
-                                    requestGalleryPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                        requestGalleryPermission.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                                    } else {
+                                        requestGalleryPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                                    }
                                 }
-                            } },
+                            },
                             colors = ButtonDefaults.buttonColors(containerColor = Oscuro)
                         ) {
                             Text("Cámara")
@@ -451,8 +443,8 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
     @Composable
     fun AlertDialogExample(
         onDismissRequest: () -> Unit,
-        onCameraClick:() -> Unit,
-        onGalleryClick:() -> Unit,
+        onCameraClick: () -> Unit,
+        onGalleryClick: () -> Unit,
         onConfirmation: () -> Unit,
         dialogTitle: String,
         dialogText: String,

@@ -197,7 +197,7 @@ fun formatTimeFromApi(dateTimeString: String): String {
 fun ChatItem(
     chat: Chat,
     messages: List<Message>,
-    onDeleteChat: () -> Unit // Callback para eliminar el chat
+    onDeleteChat: (chatId: String) -> Unit // Modificación del parámetro onDeleteChat
 ) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
 
@@ -207,10 +207,10 @@ fun ChatItem(
     // Formatear la fecha del mensaje para mostrar solo la hora
     val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it) } ?: "N/A"
 
-    // Estado para controlar si el dialogo está mostrándose
+    // Estado para controlar si el diálogo está mostrándose
     val showDialog = remember { mutableStateOf(false) }
 
-    // Agregar un evento LongPress para mostrar el dialogo de confirmación
+    // Agregar un evento LongPress para mostrar el diálogo de confirmación
     Row(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
@@ -272,7 +272,7 @@ fun ChatItem(
         Spacer(modifier = Modifier.weight(0.1f))
         Spacer(modifier = Modifier.height(50.dp))
 
-        // Dialogo de confirmación
+        // Diálogo de confirmación
         if (showDialog.value) {
             AlertDialog(
                 onDismissRequest = { showDialog.value = false },
@@ -282,7 +282,7 @@ fun ChatItem(
                     Button(
                         onClick = {
                             showDialog.value = false
-                            onDeleteChat()
+                            onDeleteChat(chat.chatId) // Llamada al callback con el chatId
                         }
                     ) {
                         Text("Sí")
@@ -299,6 +299,7 @@ fun ChatItem(
         }
     }
 }
+
 
 
 

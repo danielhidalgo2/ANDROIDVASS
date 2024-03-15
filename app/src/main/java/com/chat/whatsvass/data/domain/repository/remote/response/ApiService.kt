@@ -2,11 +2,13 @@ package com.chat.whatsvass.data.domain.repository.remote.response
 
 import com.chat.whatsvass.data.domain.repository.remote.response.login.LoginResponse
 import com.chat.whatsvass.data.domain.repository.remote.response.chat.ChatResponse
-import com.chat.whatsvass.data.domain.model.Login
+import com.chat.whatsvass.data.domain.model.login.Login
 import com.chat.whatsvass.data.domain.model.register.Register
-import com.chat.whatsvass.data.domain.model.register.RegisterResponse
 import com.chat.whatsvass.data.domain.repository.remote.response.contacts.ContactsResponse
+import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.ChatRequest
+import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.CreatedChatResponse
 import com.chat.whatsvass.data.domain.repository.remote.response.logout.LogoutResponse
+import com.chat.whatsvass.data.domain.repository.remote.response.message.MessagesResponse
 import com.chat.whatsvass.data.domain.repository.remote.response.register.RegisterRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -21,7 +23,7 @@ interface ApiService {
     suspend fun loginUser(@Body request: Login): LoginResponse
 
     @POST("users/register")
-    suspend fun registerUser(@Body post: RegisterResponse): Register
+    suspend fun registerUser(@Body request: RegisterRequest): Register
 
     @POST("users/logout")
     suspend fun logoutUser(@Header("Authorization") token: String): LogoutResponse
@@ -37,7 +39,13 @@ interface ApiService {
         @Header("Authorization") token: String
     ): MessagesResponse
 
-    @GET("/users")
+    @GET("users")
     suspend fun getContacts(@Header("Authorization") token: String): List<ContactsResponse>
+
+    @POST("chats")
+    suspend fun createChat(
+        @Header("Authorization") token: String,
+        @Body request: ChatRequest
+    ): CreatedChatResponse
 }
 

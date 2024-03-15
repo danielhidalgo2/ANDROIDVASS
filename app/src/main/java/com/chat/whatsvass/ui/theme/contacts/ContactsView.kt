@@ -3,7 +3,6 @@ package com.chat.whatsvass.ui.theme.contacts
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -53,7 +52,6 @@ import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_TOKEN
-import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.contacts.Contacts
 import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Contraste
@@ -78,22 +76,9 @@ class ContactsView : ComponentActivity() {
                     viewModel.getContacts(token)
                 }
             }
-
             // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
-            val contactsResult by viewModel.contactsResult.collectAsState(initial = null)
-
-            if (contactsResult != null) {
-                val contacts = when (val result = contactsResult) {
-                    is ContactsViewModel.ContactsResult.Success -> result.contacts
-                    else -> null //emptyList() // Puedes manejar el caso de error aquí si es necesario
-                }
-                Log.d("Contactos", contacts.toString())
-
-                ContactsScreen(contacts = contacts!!) {
-                    // Aquí puedes manejar alguna acción, si es necesario
-                }
-            }
-
+            val contactsResult by viewModel.contactsResult.collectAsState(emptyList())
+            ContactsScreen(contactsResult, onSettingsClick = {})
 
         }
     }

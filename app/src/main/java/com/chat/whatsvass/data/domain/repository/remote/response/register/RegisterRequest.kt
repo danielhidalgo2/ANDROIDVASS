@@ -1,6 +1,6 @@
 package com.chat.whatsvass.data.domain.repository.remote.response.register
 
-data class RegisterResponse(
+data class RegisterRequest(
     val login: String,
     val password: String,
     val nick: String,

@@ -24,16 +24,16 @@ class ProfileViewModel : ViewModel() {
     fun registerUser(username: String, password: String, nick: String) {
         viewModelScope.launch(Dispatchers.IO) {
 
-                try {
-                    val register = userRepository.registerUser(username, password, nick)
-                    if (register.user.token.isNotEmpty()) {
-                        _registerResult.value = RegisterResult.Success(register)
-                    } else {
-                        _registerResult.value = RegisterResult.Error("Error al crear usuario")
-                    }
-                } catch (e: Exception) {
-                    _registerResult.value = RegisterResult.Error("Error al crear usuario: ${e.message}")
+            try {
+                val register = userRepository.registerUser(username, password, nick)
+                if (register.user.token.isNotEmpty()) {
+                    _registerResult.value = RegisterResult.Success(register)
+                } else {
+                    _registerResult.value = RegisterResult.Error("Error al crear usuario")
                 }
+            } catch (e: Exception) {
+                _registerResult.value = RegisterResult.Error("Error al crear usuario: ${e.message}")
+            }
 
         }
     }

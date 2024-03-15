@@ -11,9 +11,7 @@ import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_TOKEN
-import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.home.HomeView
-import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.login.LoginView
 
 class SplashView : AppCompatActivity() {
@@ -35,24 +33,24 @@ class SplashView : AppCompatActivity() {
             disableDarkMode()
         }
 
-        var token = sharedPreferencesToken.getString(KEY_TOKEN, null)
-        if (token.isNullOrEmpty()){
+        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        if (token.isNullOrEmpty()) {
             splashScreen.setKeepOnScreenCondition { true }
             startActivity(Intent(this, LoginView::class.java))
             finish()
         } else {
             splashScreen.setKeepOnScreenCondition { true }
-            startActivity(Intent(this, ContactsView::class.java))
+            startActivity(Intent(this, HomeView::class.java))
             finish()
         }
     }
 
-    private fun enableDarkMode(){
+    private fun enableDarkMode() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         delegate.applyDayNight()
     }
 
-    private fun disableDarkMode(){
+    private fun disableDarkMode() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         delegate.applyDayNight()
     }

@@ -25,10 +25,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -50,22 +48,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_TOKEN
 import com.chat.whatsvass.data.domain.model.chat.Chat
+import com.chat.whatsvass.data.domain.model.contacts.Contacts
 import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Contraste
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
-import com.chat.whatsvass.ui.theme.home.HomeViewModel
 
 class ContactsView : ComponentActivity() {
-    private val viewModel: HomeViewModel by viewModels()
+    private val viewModel: ContactsViewModel by viewModels()
     private lateinit var sharedPreferencesToken: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,23 +75,21 @@ class ContactsView : ComponentActivity() {
             // Observar el resultado del ViewModel
             LaunchedEffect(key1 = viewModel) {
                 if (token != null) {
-                    viewModel.getChats(token)
-                    Log.d("chats", token)
-
+                    viewModel.getContacts(token)
                 }
             }
 
             // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
-            val chatResult by viewModel.chatResult.collectAsState(initial = null)
+            val contactsResult by viewModel.contactsResult.collectAsState(initial = null)
 
-            if (chatResult != null) {
-                val chats = when (val result = chatResult) {
-                    is HomeViewModel.ChatResult.Success -> result.chats
-                    else -> emptyList() // Puedes manejar el caso de error aquí si es necesario
+            if (contactsResult != null) {
+                val contacts = when (val result = contactsResult) {
+                    is ContactsViewModel.ContactsResult.Success -> result.contacts
+                    else -> null //emptyList() // Puedes manejar el caso de error aquí si es necesario
                 }
-                Log.d("chats", chats.toString())
+                Log.d("Contactos", contacts.toString())
 
-                HomeScreen(chats = chats) {
+                ContactsScreen(contacts = contacts!!) {
                     // Aquí puedes manejar alguna acción, si es necesario
                 }
             }
@@ -105,7 +100,7 @@ class ContactsView : ComponentActivity() {
 }
 
 @Composable
-fun HomeScreen(chats: List<Chat>, onSettingsClick: () -> Unit) {
+fun ContactsScreen(contacts: List<Contacts>, onSettingsClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -115,7 +110,7 @@ fun HomeScreen(chats: List<Chat>, onSettingsClick: () -> Unit) {
             modifier = Modifier.fillMaxSize()
         ) {
             TopBarHome(onSettingsClick)
-            ChatList(chats)
+            ChatList(contacts)
 
             Spacer(modifier = Modifier.weight(1f))
         }
@@ -195,17 +190,17 @@ fun TopBarHome(onSettingsClick: () -> Unit) {
 
 
 @Composable
-fun ChatList(chats: List<Chat>) {
+fun ChatList(contacts: List<Contacts>) {
     LazyColumn {
-        items(chats) { chat ->
-            ChatItem(chat = chat)
+        items(contacts) { contact ->
+            ChatItem(contact)
         }
     }
 }
 
 
 @Composable
-fun ChatItem(chat: Chat) {
+fun ChatItem(contact: Contacts) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
 
     Row(
@@ -245,7 +240,7 @@ fun ChatItem(chat: Chat) {
         ) {
 
             Text(
-                text = chat.sourceNick,
+                text = contact.nick,
                 style = TextStyle(fontSize = 16.sp, color = Oscuro),
             )
 
@@ -253,7 +248,7 @@ fun ChatItem(chat: Chat) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = chat.chatCreated,
+                text =  contact.id,
                 style = TextStyle(fontSize = 14.sp, color = Claro)
             )
         }

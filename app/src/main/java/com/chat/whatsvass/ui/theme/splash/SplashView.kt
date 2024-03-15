@@ -6,9 +6,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_SETTINGS
@@ -17,8 +15,6 @@ import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.login.LoginView
-import com.chat.whatsvass.ui.theme.profile.ProfileView
-import com.chat.whatsvass.ui.theme.settings.SettingsView
 
 class SplashView : AppCompatActivity() {
     private lateinit var sharedPreferencesSettings: SharedPreferences

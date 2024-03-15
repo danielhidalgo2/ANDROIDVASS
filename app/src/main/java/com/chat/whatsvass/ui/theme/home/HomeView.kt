@@ -111,11 +111,8 @@ class HomeView : ComponentActivity() {
                 }
             }
 
-            if (chats.isEmpty()) {
-                Toast.makeText(this, "Aún no tienes chats", Toast.LENGTH_LONG).show()
-            } else {
-                HomeScreen(chats = chats, messages = messages, navController)
-            }
+            HomeScreen(chats = chats, messages = messages, navController)
+
 
         }
     }

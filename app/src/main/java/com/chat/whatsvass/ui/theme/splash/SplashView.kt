@@ -13,6 +13,7 @@ import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_TOKEN
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.LoginView
+import com.chat.whatsvass.ui.theme.settings.SettingsView
 
 class SplashView : AppCompatActivity() {
     private lateinit var sharedPreferencesSettings: SharedPreferences

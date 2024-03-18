@@ -29,15 +29,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.PullRefreshState
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,7 +57,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -108,11 +114,12 @@ class HomeView : ComponentActivity() {
             val chats by viewModel.chats.collectAsState(emptyList())
             val messages by viewModel.messages.collectAsState(emptyMap())
             val navController = rememberNavController()
+            var chatIds = listOf<String>()
 
             // Llamar a la función getMessages después de obtener los chats
             LaunchedEffect(key1 = chats) {
                 if (token != null && chats.isNotEmpty()) {
-                    val chatIds = chats.map { it.chatId }
+                    chatIds = chats.map { it.chatId }
                     viewModel.getMessages(token, chatIds, offset = 0, limit = 1)
                 }
             }
@@ -144,6 +151,7 @@ fun HomeScreen(
     viewModel: HomeViewModel,
     onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
 ) {
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -152,7 +160,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TopBarHomeAndList(navigation, chats, messages, viewModel, onDeleteChat)
+            TopBarHomeAndList(chats, messages, viewModel, onDeleteChat)
             Spacer(modifier = Modifier.weight(1f))
             FloatingActionButton(
                 onClick = { navigation.navigate("lista_usuarios") },
@@ -289,9 +297,9 @@ fun ChatItem(
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TopBarHomeAndList(
-    navigation: NavController,
     chats: List<Chat>,
     messages: Map<String, List<Message>>,
     viewModel: HomeViewModel,
@@ -371,7 +379,7 @@ fun TopBarHomeAndList(
     }
 
     // Comprobar si es targetnick o sourcenick
-    LazyColumn {
+    LazyColumn () {
         if (searchText.text.isEmpty()) {
             items(chats) { chat ->
                 val chatMessages = messages[chat.chatId] ?: emptyList()
@@ -385,7 +393,9 @@ fun TopBarHomeAndList(
                 ChatItem(chat, chatMessages, onDeleteChat = { onDeleteChat(chat.chatId) })
             }
         }
+
     }
+
     // Si no hay chats se muestra: "No tienes chats"
     if (isTextWithOutChatsVisible) {
         Column(

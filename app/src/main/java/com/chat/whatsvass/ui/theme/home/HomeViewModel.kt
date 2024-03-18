@@ -7,6 +7,7 @@ import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.ChatRepository
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,8 +46,15 @@ class HomeViewModel : ViewModel() {
             }
     }
 
-    fun getMessages(token: String, chatIds: List<String>, offset: Int, limit: Int) {
+    fun getMessages(token: String, chatIds: List<String>, offset: Int, limit: Int){
         viewModelScope.launch {
+            async {
+                getMessagesList(token, chatIds, offset, limit)
+            }.await()
+        }
+    }
+
+    private suspend fun getMessagesList(token: String, chatIds: List<String>, offset: Int, limit: Int) {
             try {
                 val messagesMap = mutableMapOf<String, List<Message>>()
                 chatIds.forEach { chatId ->
@@ -58,7 +66,6 @@ class HomeViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error al obtener los mensajes", e)
             }
-        }
     }
 
     fun deleteChat(token: String?, chatId: String) {

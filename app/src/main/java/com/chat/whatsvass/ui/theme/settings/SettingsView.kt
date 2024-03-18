@@ -18,7 +18,7 @@ import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_NOTIFICATIONS
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_SETTINGS
-import com.chat.whatsvass.commons.SHARED_TOKEN
+import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.databinding.ActivitySettingsViewBinding
 import com.chat.whatsvass.ui.theme.login.LoginView
 import kotlinx.coroutines.launch
@@ -36,7 +36,6 @@ class SettingsView : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.statusBarColor = ContextCompat.getColor(this, R.color.main)
         window.navigationBarColor = ContextCompat.getColor(this, R.color.light)
 
         binding = ActivitySettingsViewBinding.inflate(layoutInflater)
@@ -47,7 +46,7 @@ class SettingsView : AppCompatActivity() {
         }
 
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
-        sharedPreferencesToken = getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
+        sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
         initVars(sharedPreferencesSettings)
         setUpSwitchs(sharedPreferencesSettings)
@@ -71,7 +70,6 @@ class SettingsView : AppCompatActivity() {
         binding.switchNotifications.isChecked = isNotificationsChecked
         binding.switchMode.isChecked = isDarkModeChecked
         binding.switchBiometric.isChecked = isBiometricChecked
-        binding.switchLanguage.isChecked = isLanguageChecked
 
     }
 
@@ -100,7 +98,6 @@ class SettingsView : AppCompatActivity() {
         binding.switchNotifications.isChecked = isNotificationsChecked
         binding.switchMode.isChecked = isDarkModeChecked
         binding.switchBiometric.isChecked = isBiometricChecked
-        binding.switchLanguage.isChecked = isLanguageChecked
 
         binding.switchNotifications.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -128,15 +125,6 @@ class SettingsView : AppCompatActivity() {
                 edit.commit()
             } else {
                 edit.putBoolean(KEY_BIOMETRIC, false)
-                edit.commit()
-            }
-        }
-        binding.switchLanguage.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                edit.putBoolean(KEY_LANGUAGE, true)
-                edit.commit()
-            } else {
-                edit.putBoolean(KEY_LANGUAGE, false)
                 edit.commit()
             }
         }

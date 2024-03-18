@@ -7,4 +7,5 @@
     <color name="contrast">#FFB3ADD9</color>
     <color name="white">#FFF2F2F2</color>
     <color name="main">#FF4B61A6</color>
+    <color name="transparent">#004B61A6</color>
 </resources>

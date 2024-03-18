@@ -5,19 +5,24 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import androidx.biometric.BiometricManager
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,25 +47,48 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
+import com.chat.whatsvass.commons.KEY_BIOMETRIC
+import com.chat.whatsvass.commons.KEY_ID
+import com.chat.whatsvass.commons.KEY_PASSWORD
+import com.chat.whatsvass.commons.KEY_USERNAME
+import com.chat.whatsvass.commons.SHARED_SETTINGS
+import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Oscuro
+import com.chat.whatsvass.ui.theme.Principal
+import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
 import com.chat.whatsvass.ui.theme.settings.SettingsView
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 const val Shape = 20
 
-class LoginView : ComponentActivity() {
+// Hay que utilizar AppCompatActivity (En lugar de ComponentActivity) para que cuncione el biometrico
+class LoginView : AppCompatActivity() {
+
+    private lateinit var sharedPreferencesSettings: SharedPreferences
+    private lateinit var sharedPreferencesUserData: SharedPreferences
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.statusBarColor = ContextCompat.getColor(this, R.color.light)
+        window.navigationBarColor = ContextCompat.getColor(this, R.color.light)
+
         super.onCreate(savedInstanceState)
+
+        sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
+        val isBiometricActive = sharedPreferencesSettings.getBoolean(KEY_BIOMETRIC, false)
+
+        sharedPreferencesUserData = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
 
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -85,7 +113,10 @@ class LoginView : ComponentActivity() {
                         viewModel,
                         username.value,
                         password.value,
-                        navController = navController
+                        navController = navController,
+                        isBiometricActive,
+                        this@LoginView,
+                        sharedPreferencesUserData
                     ) { newUser, newPassword ->
                         username.value = newUser
                         password.value = newPassword
@@ -94,6 +125,7 @@ class LoginView : ComponentActivity() {
                 }
                 composable("profile") {
                     ProfileView().ProfileScreen(ProfileViewModel(), navController = navController)
+
                 }
                 composable("settings") {
                     SettingsView()
@@ -106,8 +138,61 @@ class LoginView : ComponentActivity() {
             hideKeyboard(this)
             false
         }
+
+        setupAuthBiometric(this)
     }
 
+}
+
+private var canAuthenticate = false
+private lateinit var prompt: BiometricPrompt.PromptInfo
+fun setupAuthBiometric(context: Context): Boolean {
+    if (BiometricManager.from(context).canAuthenticate(
+            BiometricManager.Authenticators.BIOMETRIC_STRONG
+                    or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        ) == BiometricManager.BIOMETRIC_SUCCESS
+    ) {
+        canAuthenticate = true
+
+        prompt = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Login con tus credenciales")
+            //.setSubtitle("Método alternativo")
+            .setAllowedAuthenticators(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG
+                        or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            )
+            .build()
+        return true
+    } else {
+        return false
+    }
+}
+
+fun loginBiometric(
+    navController: NavController,
+    username: String,
+    password: String,
+    viewModel: LoginViewModel,
+    activity: LoginView,
+    context: Context,
+    auth: (auth: Boolean) -> Unit
+) {
+    if (canAuthenticate) {
+        BiometricPrompt(activity, ContextCompat.getMainExecutor(context),
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    viewModel.loginUser(username, password)
+                    // Ir hacia la siguiente pantalla
+                    val intent = Intent(context, LoadingActivity::class.java)
+                    context.startActivity(intent)
+                    showMessage(context, "¡Bienvenido $username!")
+                    auth(true)
+                }
+            }).authenticate(prompt)
+    } else {
+        auth(true)
+    }
 }
 
 fun hideKeyboard(activity: Activity) {
@@ -122,12 +207,17 @@ fun LoginScreen(
     username: String,
     password: String,
     navController: NavController,
+    isBiometricActive: Boolean,
+    activity: LoginView,
+    sharedPreferences: SharedPreferences,
     onCredentialsChange: (String, String) -> Unit
+
 ) {
 
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
+
 
     Box(
         modifier = Modifier
@@ -171,11 +261,66 @@ fun LoginScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(90.dp))
+            var auth by remember { mutableStateOf(false) }
+            val isBiometricActiveInDispositive = setupAuthBiometric(context)
+            val myUsername = sharedPreferences.getString(KEY_USERNAME, null)
+            val myPassword = sharedPreferences.getString(KEY_PASSWORD, null)
+
+            if (isBiometricActive &&  myUsername != null) {
+                Spacer(modifier = Modifier.height(10.dp))
+                FloatingActionButton(
+                    onClick = {
+                        if (isBiometricActiveInDispositive) {
+                            if (auth) {
+                                auth = false
+                            } else {
+
+                                if (myUsername != null && myPassword != null) {
+                                    loginBiometric(
+                                        navController,
+                                        myUsername,
+                                        myPassword,
+                                        viewModel,
+                                        activity,
+                                        context
+                                    ) { auth = it }
+                                } else {
+                                    showMessage(
+                                        context,
+                                        "No se pudo iniciar sesión, intente nuevamente."
+                                    )
+                                }
+                            }
+                        } else {
+                            showMessage(context, "Habilita el sensor biométrico en tu dispositivo.")
+                        }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp)
+                        .size(70.dp),
+                    backgroundColor = Claro,
+                    contentColor = White,
+                    shape = CircleShape
+                ) {
+                    androidx.compose.material.Icon(
+                        painter = painterResource(id = R.drawable.icon_fingerprint),
+                        contentDescription = "biometric",
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.height(90.dp))
+            }
+
             LoginButton(
                 onClick = {
-                    viewModel.loginUser(username, password)
+                    // Guardar datos en sharedPreferences para utilizarlos en el biometrico
+                    val edit = sharedPreferences.edit()
+                    edit.putString(KEY_USERNAME, username).apply()
+                    edit.putString(KEY_PASSWORD, password).apply()
 
+                    viewModel.loginUser(username, password)
                 }, modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 95.dp)
@@ -269,7 +414,10 @@ fun PasswordTextField(
         label = { androidx.compose.material.Text("Ingrese su contraseña") },
         shape = RoundedCornerShape(Shape.dp),
         singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = ImeAction.Done
+        ),
         keyboardActions = KeyboardActions(onDone = { onImeActionPerformed(ImeAction.Done) }),
         visualTransformation = if (passwordVisibility) {
             VisualTransformation.None
@@ -332,3 +480,5 @@ fun CreateAccountText(navController: NavController) {
 fun showMessage(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
+
+

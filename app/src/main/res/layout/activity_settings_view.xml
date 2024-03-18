@@ -49,21 +49,23 @@
         android:layout_marginTop="40dp"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/toolbarMain"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/switchNotifications"/>
 
 
-    <Switch
+    <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/switchNotifications"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:thumb="@drawable/switch_custom"
-        app:track="@drawable/switch_track_custom"
+        app:thumbTint="@color/dark"
+        app:trackTint="@color/light"
+        android:layout_marginBottom="50dp"
+        app:trackDecorationTint="@color/dark"
         tools:ignore="UseSwitchCompatOrMaterialXml"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtNotifications"/>
+        app:layout_constraintBottom_toTopOf="@id/txtMode"/>
 
     <TextView
         android:id="@+id/txtMode"
@@ -71,24 +73,26 @@
         android:layout_height="wrap_content"
         android:text="Tema oscuro"
         android:textColor="@color/white"
-        android:layout_marginTop="10dp"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/switchNotifications"
+        android:layout_marginBottom="100dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 
-    <Switch
+    <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/switchMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:thumb="@drawable/switch_custom"
-        app:track="@drawable/switch_track_custom"
-        tools:ignore="UseSwitchCompatOrMaterialXml"
+        app:thumbTint="@color/dark"
+        app:trackTint="@color/light"
+        app:trackDecorationTint="@color/dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtMode"/>
+        app:layout_constraintTop_toBottomOf="@+id/txtMode"
+        app:layout_constraintBottom_toTopOf="@id/txtBiometric"/>
 
     <TextView
         android:id="@+id/txtBiometric"
@@ -96,7 +100,7 @@
         android:layout_height="wrap_content"
         android:text="Biométrico"
         android:textColor="@color/white"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="50dp"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/switchMode"
@@ -104,13 +108,13 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
 
-    <Switch
+    <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/switchBiometric"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:thumb="@drawable/switch_custom"
-        app:track="@drawable/switch_track_custom"
-        tools:ignore="UseSwitchCompatOrMaterialXml"
+        app:thumbTint="@color/dark"
+        app:trackTint="@color/light"
+        app:trackDecorationTint="@color/dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtBiometric"/>
@@ -124,19 +128,11 @@
         android:layout_marginTop="10dp"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/switchBiometric"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <Switch
-        android:id="@+id/switchLanguage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:thumb="@drawable/switch_custom"
-        tools:ignore="UseSwitchCompatOrMaterialXml"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtLanguage"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnLogout"

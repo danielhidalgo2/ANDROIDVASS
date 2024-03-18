@@ -1,7 +1,9 @@
 package com.chat.whatsvass.ui.theme.contacts
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,6 +33,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,24 +54,29 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
+import com.chat.whatsvass.commons.KEY_ID
 import com.chat.whatsvass.commons.KEY_TOKEN
-import com.chat.whatsvass.commons.SHARED_TOKEN
+import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.data.domain.model.contacts.Contacts
+import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.ChatRequest
 import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Contraste
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
+import com.chat.whatsvass.ui.theme.login.hideKeyboard
+import com.chat.whatsvass.ui.theme.settings.SettingsView
 
 class ContactsView : ComponentActivity() {
     private val viewModel: ContactsViewModel by viewModels()
-    private lateinit var sharedPreferencesToken: SharedPreferences
+    private lateinit var sharedPreferencesUserData: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sharedPreferencesToken =  getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
-        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        sharedPreferencesUserData = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
+        val token = sharedPreferencesUserData.getString(KEY_TOKEN, null)
+        val myId = sharedPreferencesUserData.getString(KEY_ID, null)
 
         setContent {
             // Observar el resultado del ViewModel
@@ -78,14 +87,25 @@ class ContactsView : ComponentActivity() {
             }
             // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
             val contactsResult by viewModel.contactsResult.collectAsState(emptyList())
-            ContactsScreen(contactsResult, onSettingsClick = {})
+            ContactsScreen(this, token!!, myId!!, contactsResult, onSettingsClick = {}, viewModel)
 
+        }
+        window.decorView.setOnTouchListener { _, _ ->
+            hideKeyboard(this)
+            false
         }
     }
 }
 
 @Composable
-fun ContactsScreen(contacts: List<Contacts>, onSettingsClick: () -> Unit) {
+fun ContactsScreen(
+    context: Context,
+    token: String,
+    myId: String,
+    contacts: List<Contacts>,
+    onSettingsClick: () -> Unit,
+    viewModel: ContactsViewModel
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -94,18 +114,25 @@ fun ContactsScreen(contacts: List<Contacts>, onSettingsClick: () -> Unit) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TopBarHome(onSettingsClick)
-            ChatList(contacts)
+            TopBarAndList(context, token, myId, contacts, onSettingsClick, viewModel)
 
             Spacer(modifier = Modifier.weight(1f))
         }
     }
 }
 
-
 @Composable
-fun TopBarHome(onSettingsClick: () -> Unit) {
+fun TopBarAndList(
+    context: Context,
+    token: String,
+    myId: String,
+    contacts: List<Contacts>,
+    onSettingsClick: () -> Unit,
+    viewModel: ContactsViewModel
+) {
+    val isTextWithOutContactsVisible by viewModel.isTextWithOutVisibleFlow.collectAsState(false)
     var searchText by remember { mutableStateOf(TextFieldValue()) }
+    var listSearch by remember { mutableStateOf<List<Contacts>>(emptyList()) }
 
     TopAppBar(
         backgroundColor = Principal,
@@ -160,7 +187,10 @@ fun TopBarHome(onSettingsClick: () -> Unit) {
             Spacer(modifier = Modifier.width(80.dp))
 
             IconButton(
-                onClick = { /* Handle settings button click */ },
+                onClick = {
+                    val intent = Intent(context, SettingsView::class.java)
+                    context.startActivity(intent)
+                },
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_settings),
@@ -171,28 +201,87 @@ fun TopBarHome(onSettingsClick: () -> Unit) {
             }
         }
     }
-}
 
 
-@Composable
-fun ChatList(contacts: List<Contacts>) {
     LazyColumn {
-        items(contacts) { contact ->
-            ChatItem(contact)
+
+        if (searchText.text.isEmpty()) {
+            items(contacts) { contact ->
+                ContactItem(context, token, ChatRequest(myId, contact.id), contact, viewModel)
+            }
+        } else {
+            listSearch =
+                contacts.filter { it.nick.contains(searchText.text, ignoreCase = true) }
+            items(listSearch) { contact ->
+                ContactItem(context, token, ChatRequest(myId, contact.id), contact, viewModel)
+            }
         }
     }
+
+    // Si no hay contactos se muestra: "Sin contactos"
+    if (isTextWithOutContactsVisible) {
+        Column(
+            Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Sin contactos",
+                fontSize = 22.sp,
+                color = Oscuro
+            )
+        }
+    }
+    // Si hay contactos y el searchText esta vacio se muestra el progressBar
+    if (!isTextWithOutContactsVisible && searchText.text.isEmpty()) {
+        Column(
+            Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.width(64.dp),
+                color = Claro,
+                trackColor = Oscuro,
+            )
+        }
+    }
+    // Si no se encuentra el contacto buscado se muestra texto: "Sin coincidencias"
+    if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == "Buscar...")) {
+        Column(
+            Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Sin coincidencias",
+                fontSize = 22.sp,
+                color = Oscuro
+            )
+        }
+    }
+
+
 }
 
-
 @Composable
-fun ChatItem(contact: Contacts) {
+fun ContactItem(
+    context: Context,
+    token: String,
+    chatRequest: ChatRequest,
+    contact: Contacts,
+    viewModel: ContactsViewModel
+) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
 
     Row(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
-            .clickable { }
+            .clickable {
+                viewModel.createNewChat(context, token, chatRequest)
+                // Ir a pantalla de chat
+            }
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
@@ -221,34 +310,16 @@ fun ChatItem(contact: Contacts) {
         Spacer(modifier = Modifier.width(16.dp))
 
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center
         ) {
-
             Text(
                 text = contact.nick,
                 style = TextStyle(fontSize = 16.sp, color = Oscuro),
             )
-
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text =  contact.id,
-                style = TextStyle(fontSize = 14.sp, color = Claro)
-            )
         }
 
-
         Spacer(modifier = Modifier.weight(1f))
-
-
-        Text(
-
-            text = "22:00",
-            style = TextStyle(fontSize = 14.sp, color = Claro),
-            modifier = Modifier.align(Alignment.CenterVertically)
-        )
-
         Spacer(modifier = Modifier.weight(0.1f))
         Spacer(modifier = Modifier.height(50.dp))
     }

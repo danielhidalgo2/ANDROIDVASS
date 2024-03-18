@@ -1,21 +1,15 @@
 package com.chat.whatsvass.ui.theme.profile
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,14 +42,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImagePainter.State.Empty.painter
+import coil.compose.rememberAsyncImagePainter
 import com.chat.whatsvass.R
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
@@ -66,15 +64,17 @@ import com.chat.whatsvass.ui.theme.components.GeneralComponents.TextFieldCustom
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.login.showMessage
 
+
 class ProfileView : ComponentActivity() {
 
     private var imageUri: Uri? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.statusBarColor = ContextCompat.getColor(this, R.color.main)
         super.onCreate(savedInstanceState)
         setContent {
+            val navController = rememberNavController()
+            ProfileScreen(ProfileViewModel(), navController)
         }
         window.decorView.setOnTouchListener { _, _ ->
             hideKeyboard(this)
@@ -83,88 +83,14 @@ class ProfileView : ComponentActivity() {
 
     }
 
-    private val requestCameraPermission =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-            if (it) {
-                openCamera()
-            } else {
-                Toast.makeText(
-                    this,
-                    "!Permiso para acceder a la cámara denegado!",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-
-    private val requestGalleryPermission =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-            if (it) {
-                openGallery()
-            } else {
-                Toast.makeText(
-                    this,
-                    "!Permiso para acceder a la galería denegado!",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-
-    private fun openCamera(): String {
-        val values = ContentValues()
-        values.put(MediaStore.Images.Media.TITLE, "Titulo")
-        values.put(MediaStore.Images.Media.DESCRIPTION, "Descripción")
-        imageUri = contentResolver.insert(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            values
-        )
-
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-        cameraActivityResultLauncher.launch(intent)
-
-        return imageUri.toString()
-    }
-
-    private val cameraActivityResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == AppCompatActivity.RESULT_OK) {
-
-            } else {
-                Toast.makeText(this, "!Operación cancelada!", Toast.LENGTH_LONG).show()
-            }
-        }
-
-    private fun openGallery() {
-        val values = ContentValues()
-        values.put(MediaStore.Images.Media.TITLE, "Titulo")
-        values.put(MediaStore.Images.Media.DESCRIPTION, "Descripción")
-        imageUri = contentResolver.insert(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            values
-        )
-
-        val intent: Intent
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent = Intent(MediaStore.ACTION_PICK_IMAGES)
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-        } else {
-            intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-        }
-        galleryActivityResultLauncher.launch(intent)
-    }
-
-    private val galleryActivityResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == AppCompatActivity.RESULT_OK) {
-
-            } else {
-                Toast.makeText(this, "!Operación cancelada!", Toast.LENGTH_LONG).show()
-            }
-        }
-
     @Composable
     fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
+
+        // Cambiar color de statusBar en compose
+        /*   val systemUiController = rememberSystemUiController()
+           systemUiController.setStatusBarColor(
+               color = Principal
+           )*/
 
         val context = LocalContext.current
         val registerResult by viewModel.registerResult.collectAsState()
@@ -182,7 +108,9 @@ class ProfileView : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                NavigationBarCustom(text = "Crear Perfil", onBackClick = { navController.popBackStack() })
+                NavigationBarCustom(
+                    text = "Crear Perfil",
+                    onBackClick = { navController.popBackStack() })
                 Spacer(modifier = Modifier.height(20.dp))
                 ImageProfile()
                 Spacer(modifier = Modifier.height(40.dp))
@@ -294,28 +222,42 @@ class ProfileView : ComponentActivity() {
         val context = LocalContext.current
         var image by remember { mutableStateOf<Uri?>(null) }
         var isImagePressed by remember { mutableStateOf(false) }
+        var isImageSelected = false
 
         if (isImagePressed) {
-            AlertDialogImage(context)
-            {
-                isImagePressed = false
-            }
+            /*   AlertDialogExample(
+                   context,
+                   "Tomar imagen desde",
+                   "Selecciona una opción")
+               {
+                   isImagePressed = false
+                   image = imageUri
+               }*/
+            chooseImage()
+            isImagePressed = false
+            isImageSelected = true
+            image = imageUri
         }
+
         Box(
             modifier = Modifier
                 .height(152.dp)
                 .width(152.dp)
         ) {
 
-            Log.d("Imagen", image.toString())
+            image = imageUri
 
+            val painter = if (image != null) {
+                rememberAsyncImagePainter(image)
+            } else {
+                painterResource(id = R.drawable.image_person)
+            }
             Image(
                 modifier = Modifier
                     .clip(CircleShape)
                     .height(152.dp)
-                    .width(152.dp)
-                    .padding(top = 24.dp),
-                painter = painterResource(id = R.drawable.image_person),
+                    .width(152.dp),
+                painter = painter,
                 contentDescription = "",
                 contentScale = ContentScale.Crop
             )
@@ -323,9 +265,7 @@ class ProfileView : ComponentActivity() {
             Image(
                 modifier = Modifier
                     .clickable {
-                        showMessage(context, "Imagen presionada")
                         isImagePressed = true
-                        Log.d("Imagen Uri", imageUri.toString())
                     }
                     .clip(CircleShape)
                     .background(Principal)
@@ -376,20 +316,7 @@ class ProfileView : ComponentActivity() {
                             modifier = Modifier
                                 .padding(start = 16.dp),
                             onClick = {
-                                if (ContextCompat.checkSelfPermission(
-                                        context,
-                                        Manifest.permission.READ_MEDIA_IMAGES
-                                    ) == PackageManager.PERMISSION_GRANTED
-                                ) {
-                                    openGallery()
-                                    // image = imageUri
-                                } else {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                        requestGalleryPermission.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                                    } else {
-                                        requestGalleryPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                                    }
-                                }
+                                //  onGalleryButtonClick(context)
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Oscuro)
                         ) {
@@ -413,20 +340,7 @@ class ProfileView : ComponentActivity() {
                             modifier = Modifier
                                 .padding(start = 16.dp),
                             onClick = {
-                                if (ContextCompat.checkSelfPermission(
-                                        context,
-                                        Manifest.permission.READ_MEDIA_IMAGES
-                                    ) == PackageManager.PERMISSION_GRANTED
-                                ) {
-                                    openGallery()
-                                    // image = imageUri
-                                } else {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                        requestGalleryPermission.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                                    } else {
-                                        requestGalleryPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                                    }
-                                }
+                                //onCameraButtonClick(context )
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Oscuro)
                         ) {
@@ -438,19 +352,24 @@ class ProfileView : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun AlertDialogExample(
-        onDismissRequest: () -> Unit,
-        onCameraClick: () -> Unit,
-        onGalleryClick: () -> Unit,
-        onConfirmation: () -> Unit,
+        context: Context,
         dialogTitle: String,
         dialogText: String,
+        onDismiss: () -> Unit
     ) {
         AlertDialog(
+            onDismissRequest = onDismiss,
+            properties = DialogProperties(
+                dismissOnClickOutside = true,
+                dismissOnBackPress = true
+            ),
             icon = {
-                Icon(painter = painterResource(id = R.drawable.icon_camera), contentDescription = "Example Icon")
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_camera),
+                    contentDescription = "Camera Icon"
+                )
             },
             title = {
                 Text(text = dialogTitle)
@@ -458,28 +377,43 @@ class ProfileView : ComponentActivity() {
             text = {
                 Text(text = dialogText)
             },
-            onDismissRequest = {
-                onDismissRequest()
-            },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        onConfirmation()
+                        chooseImage()
                     }
                 ) {
-                    Text("Confirm")
+                    Text("Cámara")
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = {
-                        onDismissRequest()
+                        chooseImage()
                     }
                 ) {
-                    Text("Dismiss")
+                    Text("Galería")
                 }
             }
         )
     }
+
+    private fun chooseImage() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        galleryLauncher.launch(intent)
+    }
+
+    private val galleryLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val image = result.data
+            imageUri = image!!.data
+        }
+    }
 }
+
+
+
 

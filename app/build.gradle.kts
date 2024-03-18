@@ -63,10 +63,14 @@ dependencies {
     implementation ("androidx.appcompat:appcompat:1.6.1")
     implementation ("androidx.navigation:navigation-compose:2.7.7")
     implementation ("androidx.compose.ui:ui-tooling:1.6.2")
-    implementation("io.coil-kt:coil-compose:1.3.1")
-
-    //SPLASH SCREEN
+    implementation("io.coil-kt:coil-compose:2.0.0-rc01")
+    //Splash Screen
     implementation("androidx.core:core-splashscreen:1.0.1")
+    // Biometric
+    implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    // SystemUiController, para cambiar color de statusBar
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")

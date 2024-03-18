@@ -43,7 +43,7 @@ interface ApiService {
     suspend fun getContacts(@Header("Authorization") token: String): List<ContactsResponse>
 
     @POST("chats")
-    suspend fun createChat(
+    suspend fun createNewChat(
         @Header("Authorization") token: String,
         @Body request: ChatRequest
     ): CreatedChatResponse

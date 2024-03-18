@@ -25,6 +25,11 @@
         android:theme="@style/Theme.WhatsVass"
         tools:targetApi="31">
         <activity
+            android:name=".ui.theme.chat.ChatView"
+            android:exported="false"
+            android:label="@string/title_activity_chat_view"
+            android:theme="@style/Theme.WhatsVass" />
+        <activity
             android:name=".ui.theme.settings.SettingsView"
             android:exported="false" />
         <activity
@@ -42,14 +47,13 @@
         </activity>
         <activity
             android:name=".ui.theme.login.LoginView"
-            android:exported="true">
-        </activity>
-        <activity android:name=".ui.theme.home.HomeView"
-            android:exported="false">
-        </activity>
+            android:exported="true"></activity>
+        <activity
+            android:name=".ui.theme.home.HomeView"
+            android:exported="false"></activity>
         <activity
             android:name=".ui.theme.profile.ProfileView"
-            android:exported="true"></activity>
+            android:exported="true" />
     </application>
 
 </manifest>

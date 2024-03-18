@@ -68,6 +68,7 @@ import com.chat.whatsvass.ui.theme.Contraste
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
+import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -175,6 +176,7 @@ fun formatTimeFromApi(dateTimeString: String): String {
 @Composable
 fun ChatItem(chat: Chat, messages: List<Message>) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
+    val context = LocalContext.current
 
     // Obtener el último mensaje si existe
     val lastMessage = messages.lastOrNull()
@@ -186,7 +188,8 @@ fun ChatItem(chat: Chat, messages: List<Message>) {
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
-            .clickable { }
+            .clickable { val intent = Intent(context, ChatView::class.java)
+                context.startActivity(intent)}
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))

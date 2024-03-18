@@ -17,11 +17,11 @@ class ContactsRepository {
     private val createdChatMapper = CreatedChatMapper()
 
     suspend fun getContacts(token: String): List<Contacts> {
-        val contactsResponses = apiService.getContacts("$token")
+        val contactsResponses = apiService.getContacts(token)
         return contactsResponses.map { contactsMapper.mapResponse(it) }
     }
     suspend fun createNewChat(token: String, chatRequest: ChatRequest): CreatedChat {
-        val createdChatResponses = apiService.createNewChat("$token", chatRequest)
+        val createdChatResponses = apiService.createNewChat(token, chatRequest)
         return createdChatMapper.mapResponse(createdChatResponses)
     }
 }

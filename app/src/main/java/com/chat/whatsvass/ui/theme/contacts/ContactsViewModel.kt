@@ -56,7 +56,7 @@ class ContactsViewModel : ViewModel() {
     fun createNewChat(context: Context, token: String, chatRequest: ChatRequest) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val newChat = contactsRepository.createNewChat(token!!, chatRequest)
+                val newChat = contactsRepository.createNewChat(token, chatRequest)
                 _newChatResult.value = newChat
                 Log.d("Nuevo chat", newChat.toString())
 

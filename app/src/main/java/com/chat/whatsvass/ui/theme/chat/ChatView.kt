@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
@@ -28,10 +29,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -50,10 +53,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
-import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.message.Message
+import com.chat.whatsvass.data.domain.repository.remote.response.create_message.MessageRequest
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
@@ -72,8 +75,8 @@ class ChatView : ComponentActivity() {
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
-        val chatId = intent.getStringExtra("ChatID")
-        val nick = intent.getStringExtra("Nick")
+         val chatId = intent.getStringExtra("ChatID")
+         val nick = intent.getStringExtra("Nick")
 
         setContent {
             val messages by viewModel.message.collectAsState(emptyMap())
@@ -110,7 +113,7 @@ class ChatView : ComponentActivity() {
                 TopBarChat(nick)
                 chatId?.let { MessageList(chatId = it, messages = messages) }
             }
-            BottomBar(onSendMessage = { /* Acción al enviar el mensaje */ })
+            BottomBar(chatId,onSendMessage = { /* Acción al enviar el mensaje */ })
         }
     }
 
@@ -212,7 +215,7 @@ class ChatView : ComponentActivity() {
 
 
         val backgroundColor = White
-        val alignment = if (isSentByUser) TextAlign.End else TextAlign.Start
+        val alignment = if (isSentByUser) TextAlign.Start else TextAlign.End
         val startPadding = if (isSentByUser) horizontalPadding else 0.dp
         val endPadding = if (isSentByUser) 0.dp else horizontalPadding
 
@@ -257,9 +260,13 @@ class ChatView : ComponentActivity() {
     }
 
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun BottomBar(onSendMessage: (String) -> Unit) {
+    fun BottomBar(chatId:String?,onSendMessage: (String) -> Unit) {
         var messageText by remember { mutableStateOf("") }
+        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        val sourceID = sharedPreferencesToken.getString(SOURCE_ID, null)
+
 
         Row(
             modifier = Modifier
@@ -277,12 +284,18 @@ class ChatView : ComponentActivity() {
                     .background(Color.Transparent)
                     .clip(RoundedCornerShape(40.dp)),
                 placeholder = { Text(text = "Escribe un mensaje...") },
-                singleLine = true
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent, // Ocultar la línea de foco
+                    unfocusedIndicatorColor = Color.Transparent // Ocultar la línea de enfoque
+                )
             )
             IconButton(
                 onClick = {
+                    if (token != null) {
+                       viewModel.createNewMessage(token, MessageRequest(chat = chatId!!, source = sourceID!! ,messageText))
+                    }
                     onSendMessage(messageText)
-                    messageText = "" // Limpiar el campo de texto después de enviar el mensaje
+                    messageText = ""
                 }
             ) {
                 Icon(

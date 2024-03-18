@@ -74,6 +74,7 @@ import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.chat.ChatView
+import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -139,6 +140,8 @@ fun HomeScreen(
     navigation: NavController,
     onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -152,7 +155,8 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.weight(1f))
             FloatingActionButton(
-                onClick = { navigation.navigate("lista_usuarios") },
+                onClick = {  val intent = Intent(context, ContactsView::class.java)
+                    context.startActivity(intent) },
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(16.dp)
@@ -220,14 +224,7 @@ fun ChatItem(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
-            .clickable {
-                val intent = Intent(context, ChatView::class.java)
-                intent
-                    .putExtra("ChatID", chat.chatId)
-                    .putExtra("Nick", name)
-                context.startActivity(intent)
-                Log.d("chatid", chat.chatId)
-            }
+            .clickable { }
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
@@ -236,6 +233,14 @@ fun ChatItem(
                 detectTapGestures(
                     onLongPress = {
                         showDialog.value = true
+                    },
+                    onTap = {
+                        val intent = Intent(context, ChatView::class.java)
+                        intent
+                            .putExtra("ChatID", chat.chatId)
+                            .putExtra("Nick", name)
+                        context.startActivity(intent)
+                        Log.d("chatid", chat.chatId)
                     }
                 )
             },
@@ -270,7 +275,8 @@ fun ChatItem(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = lastMessage?.message ?: "No hay mensajes",
-                style = TextStyle(fontSize = 14.sp, color = Claro)
+                style = TextStyle(fontSize = 14.sp, color = Claro),
+                maxLines = 1
             )
         }
 

@@ -7,6 +7,8 @@ import com.chat.whatsvass.data.domain.model.register.Register
 import com.chat.whatsvass.data.domain.repository.remote.response.contacts.ContactsResponse
 import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.ChatRequest
 import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.CreatedChatResponse
+import com.chat.whatsvass.data.domain.repository.remote.response.create_message.CreateMessageResponse
+import com.chat.whatsvass.data.domain.repository.remote.response.create_message.MessageRequest
 import com.chat.whatsvass.data.domain.repository.remote.response.logout.LogoutResponse
 import com.chat.whatsvass.data.domain.repository.remote.response.message.MessagesResponse
 import com.chat.whatsvass.data.domain.repository.remote.response.register.RegisterRequest
@@ -55,5 +57,11 @@ interface ApiService {
         @Path("chatId") chatId: String,
         @Header("Authorization") token: String
     ): Response<Unit>
+
+    @POST("messages/new")
+    suspend fun createNewMessage(
+        @Header("Authorization") token: String,
+        @Body request: MessageRequest
+    ): CreateMessageResponse
 }
 

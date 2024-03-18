@@ -2,16 +2,25 @@ package com.chat.whatsvass.data.domain.repository.remote
 
 import android.util.Log
 import com.chat.whatsvass.data.domain.model.chat.Chat
+import com.chat.whatsvass.data.domain.model.create_chat.CreatedChat
+import com.chat.whatsvass.data.domain.model.create_message.CreateMessage
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.mapper.ChatMapper
+import com.chat.whatsvass.data.domain.repository.remote.mapper.CreatedChatMapper
+import com.chat.whatsvass.data.domain.repository.remote.mapper.CreatedMessageMapper
 import com.chat.whatsvass.data.domain.repository.remote.mapper.MessageMapper
 import com.chat.whatsvass.data.domain.repository.remote.response.ApiService
 import com.chat.whatsvass.data.domain.repository.remote.response.RetrofitClient
+import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.ChatRequest
+import com.chat.whatsvass.data.domain.repository.remote.response.create_message.MessageRequest
+
 class ChatRepository {
     private val apiService: ApiService = RetrofitClient.apiService
 
     private val chatMapper = ChatMapper()
     private val messageMapper = MessageMapper() // Agregado
+    private val createdMessageMapper = CreatedMessageMapper()
+
 
     suspend fun getChats(token: String): List<Chat> {
         val chatResponses = apiService.getChats(token)
@@ -31,6 +40,10 @@ class ChatRepository {
             Log.e("ChatRepository", "Error al eliminar el chat", e)
             throw e
         }
+    }
+    suspend fun createNewMessage(token: String, messageRequest: MessageRequest): CreateMessage {
+        val createdMessageResponses = apiService.createNewMessage(token, messageRequest)
+        return createdMessageMapper.mapResponse(createdMessageResponses)
     }
 }
 

@@ -1,5 +1,6 @@
 package com.chat.whatsvass.ui.theme.contacts
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -71,6 +72,7 @@ class ContactsView : ComponentActivity() {
     private val viewModel: ContactsViewModel by viewModels()
     private lateinit var sharedPreferencesUserData: SharedPreferences
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

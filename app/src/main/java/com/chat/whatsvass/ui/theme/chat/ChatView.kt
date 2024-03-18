@@ -57,16 +57,17 @@ import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
+private lateinit var sharedPreferencesToken: SharedPreferences
 
 class ChatView : ComponentActivity() {
     private val viewModel: ChatViewModel by viewModels()
-    private lateinit var sharedPreferencesToken: SharedPreferences
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferencesToken = getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+
 
         val chatId = intent.getStringExtra("ChatID")
 
@@ -175,10 +176,12 @@ fun TopBarChat() {
 
 @Composable
 fun MessageList(chatId: String, messages: Map<String, List<Message>>) {
+    val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
+
     val chatMessages = messages[chatId] ?: emptyList()
     LazyColumn {
         items(chatMessages) { message ->
-            if (message.source == SOURCE_ID) {
+            if (message.source == sourceId) {
                 MessageItem(message, true)
 
             } else {

@@ -61,6 +61,7 @@ import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_TOKEN
+import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.ui.theme.Claro
@@ -72,10 +73,10 @@ import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import java.text.SimpleDateFormat
 import java.util.Locale
+private lateinit var sharedPreferencesToken: SharedPreferences
 
 class HomeView : ComponentActivity() {
     private val viewModel: HomeViewModel by viewModels()
-    private lateinit var sharedPreferencesToken: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -161,7 +162,10 @@ fun ChatList(chats: List<Chat>, messages: Map<String, List<Message>>) {
     LazyColumn {
         items(chats) { chat ->
             val chatMessages = messages[chat.chatId] ?: emptyList()
-            ChatItem(chat = chat, messages = chatMessages)
+            val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
+            val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
+
+            ChatItem(chat = chat, messages = chatMessages, name = name)
         }
     }
 }
@@ -174,7 +178,7 @@ fun formatTimeFromApi(dateTimeString: String): String {
 }
 
 @Composable
-fun ChatItem(chat: Chat, messages: List<Message>) {
+fun ChatItem(chat: Chat, messages: List<Message>, name: String) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
     val context = LocalContext.current
 
@@ -222,7 +226,7 @@ fun ChatItem(chat: Chat, messages: List<Message>) {
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = chat.sourceNick,
+                text = name,
                 style = TextStyle(fontSize = 16.sp, color = Oscuro),
             )
             Spacer(modifier = Modifier.height(8.dp))

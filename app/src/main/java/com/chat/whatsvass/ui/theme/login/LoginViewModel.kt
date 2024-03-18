@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.commons.KEY_ID
 import com.chat.whatsvass.commons.KEY_TOKEN
+import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import com.chat.whatsvass.data.domain.repository.remote.response.login.LoginResponse
@@ -41,8 +42,11 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 if (login.token.isNotEmpty()) {
                     _loginResult.value = LoginResult.Success(login)
                     Log.d("LoginViewModel", "Inicio de sesión exitoso. Token: ${login.token}")
+
                     sharedPreferences.edit().putString(KEY_TOKEN, login.token).apply()
                     sharedPreferences.edit().putString(KEY_ID, login.user.id).apply()
+                    sharedPreferences.edit().putString(SOURCE_ID, login.user.id).apply()
+
 
                 } else {
                     _loginResult.value = LoginResult.Error("Usuario o contraseña incorrectos")

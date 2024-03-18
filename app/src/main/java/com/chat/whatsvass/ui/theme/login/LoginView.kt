@@ -10,6 +10,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -126,9 +127,6 @@ class LoginView : AppCompatActivity() {
                 composable("profile") {
                     ProfileView().ProfileScreen(ProfileViewModel(), navController = navController)
 
-                }
-                composable("settings") {
-                    SettingsView()
                 }
                 // Agrega más composables para otras pantallas si es necesario
             }
@@ -480,5 +478,3 @@ fun CreateAccountText(navController: NavController) {
 fun showMessage(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
-
-

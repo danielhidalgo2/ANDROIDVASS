@@ -20,6 +20,7 @@ import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_NOTIFICATIONS
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_SETTINGS
+import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.databinding.ActivitySettingsViewBinding
 import com.chat.whatsvass.ui.theme.login.LoginView
@@ -80,6 +81,8 @@ class SettingsView : AppCompatActivity() {
             viewModel.logoutResult.collect {
                 if (it.toString() == "Success(logout=Logout successful)") {
                     sharedPreferencesToken.edit().putString(KEY_TOKEN, null).apply()
+                    sharedPreferencesToken.edit().putString(SOURCE_ID, null).apply()
+
                     Toast.makeText(this@SettingsView, "Usuario desconectado", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@SettingsView, LoginView::class.java))
                     finish()
@@ -146,5 +149,4 @@ class SettingsView : AppCompatActivity() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         delegate.applyDayNight()
     }
-
 }

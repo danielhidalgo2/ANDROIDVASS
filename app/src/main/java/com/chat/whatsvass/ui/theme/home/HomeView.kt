@@ -172,10 +172,11 @@ fun ChatList(chats: List<Chat>, messages: Map<String, List<Message>>) {
 
 fun formatTimeFromApi(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-    val outputFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     val date = inputFormat.parse(dateTimeString)
-    return outputFormat.format(date)
+    return outputFormat.format(date!!)
 }
+
 
 @Composable
 fun ChatItem(chat: Chat, messages: List<Message>, name: String) {
@@ -193,7 +194,7 @@ fun ChatItem(chat: Chat, messages: List<Message>, name: String) {
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
             .clickable { val intent = Intent(context, ChatView::class.java)
-                intent.putExtra("ChatID",chat.chatId)
+                intent.putExtra("ChatID",chat.chatId).putExtra("Nick",name)
                 context.startActivity(intent)
                 Log.d("chatid", chat.chatId)
             }

@@ -42,7 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -57,6 +56,8 @@ import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
+import com.chat.whatsvass.ui.theme.home.formatTimeFromApi
+
 private lateinit var sharedPreferencesToken: SharedPreferences
 
 class ChatView : ComponentActivity() {
@@ -70,13 +71,12 @@ class ChatView : ComponentActivity() {
 
 
         val chatId = intent.getStringExtra("ChatID")
+        val nick = intent.getStringExtra("Nick")
+
 
 
         setContent {
-            LaunchedEffect(key1 = viewModel) {
-
-            }
-            val messages by viewModel.message.collectAsState(emptyMap())
+             val messages by viewModel.message.collectAsState(emptyMap())
 
             // Llamar a la función getMessages después de obtener los chats
 
@@ -86,14 +86,16 @@ class ChatView : ComponentActivity() {
 
 
 
-            ChatScreen(chatId = chatId, messages = messages)
+            if (nick != null) {
+                ChatScreen(chatId = chatId, messages = messages, nick = nick )
+            }
 
         }
     }
-}
+
 
 @Composable
-fun ChatScreen(chatId: String?, messages: Map<String, List<Message>>) {
+fun ChatScreen(chatId: String?, messages: Map<String, List<Message>>, nick: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -102,7 +104,7 @@ fun ChatScreen(chatId: String?, messages: Map<String, List<Message>>) {
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            TopBarChat()
+            TopBarChat(nick)
             chatId?.let { MessageList(chatId = it, messages = messages) }
         }
         BottomBar(onSendMessage = { /* Acción al enviar el mensaje */ })
@@ -111,7 +113,7 @@ fun ChatScreen(chatId: String?, messages: Map<String, List<Message>>) {
 
 
 @Composable
-fun TopBarChat() {
+fun TopBarChat(nick: String) {
 
     TopAppBar(
         backgroundColor = Principal,
@@ -129,6 +131,14 @@ fun TopBarChat() {
                 .background(Principal),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(onClick = {
+                finish()
+            } ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_arrow_back),
+                    contentDescription = "Back"
+                )
+            }
             Spacer(modifier = Modifier.weight(0.1f))
             Box(
                 modifier = Modifier
@@ -161,7 +171,7 @@ fun TopBarChat() {
             }
 
             Text(
-                text = "userName",
+                text = nick,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -204,6 +214,9 @@ fun MessageItem(messages: Message, isSentByUser: Boolean) {
     val startPadding = if (isSentByUser) horizontalPadding else 0.dp
     val endPadding = if (isSentByUser) 0.dp else horizontalPadding
 
+    val formattedTime = formatTimeFromApi(messages.date) ?: "N/A"
+
+
     Row(
         modifier = Modifier
             .padding(vertical = verticalPadding, horizontal = horizontalPadding)
@@ -230,7 +243,7 @@ fun MessageItem(messages: Message, isSentByUser: Boolean) {
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = "22:00",
+                    text = formattedTime,
                     style = TextStyle(fontSize = 14.sp, color = Color.Gray),
 
                     )
@@ -278,4 +291,4 @@ fun BottomBar(onSendMessage: (String) -> Unit) {
             )
         }
     }
-}
+}}

@@ -49,6 +49,7 @@ import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
 import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Oscuro
+import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
@@ -94,9 +95,6 @@ class LoginView : ComponentActivity() {
                 }
                 composable("profile") {
                     ProfileView().ProfileScreen(ProfileViewModel(), navController = navController)
-                }
-                composable("settings") {
-                    SettingsView()
                 }
                 // Agrega más composables para otras pantallas si es necesario
             }

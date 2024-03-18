@@ -79,6 +79,7 @@ class ContactsView : ComponentActivity() {
         val myId = sharedPreferencesUserData.getString(KEY_ID, null)
 
         setContent {
+
             // Observar el resultado del ViewModel
             LaunchedEffect(key1 = viewModel) {
                 if (token != null) {

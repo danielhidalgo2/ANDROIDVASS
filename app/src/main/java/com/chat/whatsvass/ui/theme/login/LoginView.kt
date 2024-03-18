@@ -63,6 +63,7 @@ import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
+import com.chat.whatsvass.ui.theme.WhatsVassTheme
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.profile.ProfileView
@@ -98,41 +99,43 @@ class LoginView : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, callback)
 
         setContent {
-            val viewModel = remember { LoginViewModel(application) }
 
-            val username = remember { mutableStateOf("") }
-            val password = remember { mutableStateOf("") }
+                val viewModel = remember { LoginViewModel(application) }
 
-            val navController = rememberNavController()
+                val username = remember { mutableStateOf("") }
+                val password = remember { mutableStateOf("") }
+
+                val navController = rememberNavController()
 
 
-            NavHost(navController = navController, startDestination = "login") {
-                composable("login") {
+                NavHost(navController = navController, startDestination = "login") {
+                    composable("login") {
 
-                    LoginScreen(
-                        viewModel,
-                        username.value,
-                        password.value,
-                        navController = navController,
-                        isBiometricActive,
-                        this@LoginView,
-                        sharedPreferencesUserData
-                    ) { newUser, newPassword ->
-                        username.value = newUser
-                        password.value = newPassword
+                        LoginScreen(
+                            viewModel,
+                            username.value,
+                            password.value,
+                            navController = navController,
+                            isBiometricActive,
+                            this@LoginView,
+                            sharedPreferencesUserData
+                        ) { newUser, newPassword ->
+                            username.value = newUser
+                            password.value = newPassword
+
+                        }
+                    }
+                    composable("profile") {
+                        ProfileView().ProfileScreen(ProfileViewModel(), navController = navController)
 
                     }
+                    composable("settings") {
+                        SettingsView()
+                    }
+                    // Agrega más composables para otras pantallas si es necesario
                 }
-                composable("profile") {
-                    ProfileView().ProfileScreen(ProfileViewModel(), navController = navController)
-
-                }
-                composable("settings") {
-                    SettingsView()
-                }
-                // Agrega más composables para otras pantallas si es necesario
             }
-        }
+
 
         window.decorView.setOnTouchListener { _, _ ->
             hideKeyboard(this)

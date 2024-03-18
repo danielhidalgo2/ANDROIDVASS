@@ -57,6 +57,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.chat.whatsvass.R
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
+import com.chat.whatsvass.ui.theme.WhatsVassTheme
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.ButtonCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.NavigationBarCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.PasswordTextFieldCustom
@@ -73,8 +74,10 @@ class ProfileView : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
             val navController = rememberNavController()
             ProfileScreen(ProfileViewModel(), navController)
+
         }
         window.decorView.setOnTouchListener { _, _ ->
             hideKeyboard(this)

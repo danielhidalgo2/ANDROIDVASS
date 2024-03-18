@@ -78,9 +78,11 @@ import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Contraste
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
+import com.chat.whatsvass.ui.theme.WhatsVassTheme
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -102,6 +104,7 @@ class HomeView : ComponentActivity() {
         onBackPressedDispatcher.addCallback(this, callback)
 
         setContent {
+
             // Observar el resultado del ViewModel para obtener los chats
             LaunchedEffect(key1 = viewModel) {
                 if (token != null) {
@@ -379,7 +382,7 @@ fun TopBarHomeAndList(
     }
 
     // Comprobar si es targetnick o sourcenick
-    LazyColumn () {
+    LazyColumn {
         if (searchText.text.isEmpty()) {
             items(chats) { chat ->
                 val chatMessages = messages[chat.chatId] ?: emptyList()
@@ -397,7 +400,7 @@ fun TopBarHomeAndList(
     }
 
     // Si no hay chats se muestra: "No tienes chats"
-    if (isTextWithOutChatsVisible) {
+    if (isTextWithOutChatsVisible){
         Column(
             modifier = Modifier
                 .height(400.dp)

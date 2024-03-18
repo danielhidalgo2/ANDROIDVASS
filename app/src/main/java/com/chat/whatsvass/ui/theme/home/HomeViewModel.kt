@@ -26,24 +26,24 @@ class HomeViewModel : ViewModel() {
     private val _messages = MutableStateFlow<Map<String, List<Message>>>(emptyMap())
     val messages: StateFlow<Map<String, List<Message>>> = _messages
 
-    fun getChats(token: String){
+    fun getChats(token: String) {
+
         viewModelScope.launch {
             async {
-                getChatsList(token)
-            }.await()
-            if (_chats.value.isEmpty()){
-                isTextWithOutChatsVisible.value = true
+                isTextWithOutChatsVisible.value = false
+                try {
+                    val chats = chatRepository.getChats(token)
+                    _chats.value = chats
+                    if (chats.isEmpty()){
+                        isTextWithOutChatsVisible.value = true
+                    }
+                    Log.d("HomeViewModel", "Chats obtenidos correctamente")
+
+                } catch (e: Exception) {
+                    Log.e("HomeViewModel", "Error al obtener los chats", e)
+                }
             }
         }
-    }
-    private suspend fun getChatsList(token: String) {
-            try {
-                val chats = chatRepository.getChats(token)
-                _chats.value = chats
-                Log.d("HomeViewModel", "Chats obtenidos correctamente")
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error al obtener los chats", e)
-            }
     }
 
     fun getMessages(token: String, chatIds: List<String>, offset: Int, limit: Int){

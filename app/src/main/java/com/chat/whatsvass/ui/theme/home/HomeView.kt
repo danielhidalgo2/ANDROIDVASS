@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,11 +32,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TopAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
@@ -59,7 +64,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
-import com.chat.whatsvass.commons.SHARED_TOKEN
+import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
@@ -81,7 +86,7 @@ class HomeView : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sharedPreferencesToken = getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
+        sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
         val callback = object : OnBackPressedCallback(true) {
@@ -113,17 +118,27 @@ class HomeView : ComponentActivity() {
                 }
             }
 
-            HomeScreen(chats = chats, messages = messages, navController)
-
-
+            HomeScreen(
+                chats = chats,
+                messages = messages,
+                navigation = navController,
+                onDeleteChat = { chatId ->
+                    // Lógica para eliminar el chat en el ViewModel
+                    viewModel.deleteChat(token!!, chatId)
+                }
+            )
         }
     }
 }
 
 
 @Composable
-fun HomeScreen(chats: List<Chat>, messages: Map<String, List<Message>>, navigation: NavController) {
-
+fun HomeScreen(
+    chats: List<Chat>,
+    messages: Map<String, List<Message>>,
+    navigation: NavController,
+    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -133,7 +148,7 @@ fun HomeScreen(chats: List<Chat>, messages: Map<String, List<Message>>, navigati
             modifier = Modifier.fillMaxSize()
         ) {
             TopBarHome(navigation)
-            ChatList(chats = chats, messages = messages)
+            ChatList(chats = chats, messages = messages, onDeleteChat = onDeleteChat)
 
             Spacer(modifier = Modifier.weight(1f))
             FloatingActionButton(
@@ -158,14 +173,18 @@ fun HomeScreen(chats: List<Chat>, messages: Map<String, List<Message>>, navigati
 
 
 @Composable
-fun ChatList(chats: List<Chat>, messages: Map<String, List<Message>>) {
+fun ChatList(
+    chats: List<Chat>,
+    messages: Map<String, List<Message>>,
+    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
+) {
     LazyColumn {
         items(chats) { chat ->
             val chatMessages = messages[chat.chatId] ?: emptyList()
             val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
             val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
 
-            ChatItem(chat = chat, messages = chatMessages, name = name)
+            ChatItem(chat = chat, messages = chatMessages, name = name, onDeleteChat = { onDeleteChat(chat.chatId) })
         }
     }
 }
@@ -177,9 +196,13 @@ fun formatTimeFromApi(dateTimeString: String): String {
     return outputFormat.format(date!!)
 }
 
-
 @Composable
-fun ChatItem(chat: Chat, messages: List<Message>, name: String) {
+fun ChatItem(
+    chat: Chat,
+    messages: List<Message>,
+    name: String,
+    onDeleteChat: (chatId: String) -> Unit // Modificación del parámetro onDeleteChat
+) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
     val context = LocalContext.current
 
@@ -189,6 +212,10 @@ fun ChatItem(chat: Chat, messages: List<Message>, name: String) {
     // Formatear la fecha del mensaje para mostrar solo la hora
     val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it) } ?: "N/A"
 
+    // Estado para controlar si el diálogo está mostrándose
+    val showDialog = remember { mutableStateOf(false) }
+
+    // Agregar un evento LongPress para mostrar el diálogo de confirmación
     Row(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
@@ -204,7 +231,14 @@ fun ChatItem(chat: Chat, messages: List<Message>, name: String) {
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
-            .background(colorWithOpacity),
+            .background(colorWithOpacity)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = {
+                        showDialog.value = true
+                    }
+                )
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.weight(0.1f))
@@ -250,6 +284,32 @@ fun ChatItem(chat: Chat, messages: List<Message>, name: String) {
 
         Spacer(modifier = Modifier.weight(0.1f))
         Spacer(modifier = Modifier.height(50.dp))
+
+        // Diálogo de confirmación
+        if (showDialog.value) {
+            AlertDialog(
+                onDismissRequest = { showDialog.value = false },
+                title = { Text("Eliminar chat") },
+                text = { Text("¿Estás seguro de que quieres eliminar este chat?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showDialog.value = false
+                            onDeleteChat(chat.chatId) // Llamada al callback con el chatId
+                        }
+                    ) {
+                        Text("Sí")
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = { showDialog.value = false }
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+            )
+        }
     }
 }
 

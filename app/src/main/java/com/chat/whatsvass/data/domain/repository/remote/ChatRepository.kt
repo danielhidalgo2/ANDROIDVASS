@@ -1,5 +1,6 @@
 package com.chat.whatsvass.data.domain.repository.remote
 
+import android.util.Log
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.mapper.ChatMapper
@@ -19,7 +20,17 @@ class ChatRepository {
 
     suspend fun getMessages(token: String, chatId: String, offset: Int, limit: Int): List<Message> {
         val messagesResponse = apiService.getMessages(chatId, offset, limit, token)
-        return messageMapper.fromResponse(messagesResponse) // Mapeo de respuesta
+        return messageMapper.fromResponse(messagesResponse)
+    }
+
+    suspend fun deleteChat(token: String, chatId: String) {
+        try {
+            apiService.deleteChat(chatId, token)
+        } catch (e: Exception) {
+            // Manejar errores
+            Log.e("ChatRepository", "Error al eliminar el chat", e)
+            throw e
+        }
     }
 }
 

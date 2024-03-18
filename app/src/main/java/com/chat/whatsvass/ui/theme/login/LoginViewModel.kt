@@ -6,9 +6,10 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.chat.whatsvass.commons.KEY_ID
 import com.chat.whatsvass.commons.KEY_TOKEN
-import com.chat.whatsvass.commons.SHARED_TOKEN
 import com.chat.whatsvass.commons.SOURCE_ID
+import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import com.chat.whatsvass.data.domain.repository.remote.response.login.LoginResponse
 import kotlinx.coroutines.Dispatchers
@@ -18,8 +19,7 @@ import kotlinx.coroutines.launch
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private var sharedPreferences: SharedPreferences =
-        application.getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
-    val edit = sharedPreferences.edit()
+        application.getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
 
     sealed class LoginResult {
         data class Success(val login: LoginResponse) : LoginResult()
@@ -42,9 +42,12 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 if (login.token.isNotEmpty()) {
                     _loginResult.value = LoginResult.Success(login)
                     Log.d("LoginViewModel", "Inicio de sesión exitoso. Token: ${login.token}")
-                    edit.putString(KEY_TOKEN, login.token)
-                    edit.putString(SOURCE_ID, login.user.id)
-                    edit.commit()
+
+                    sharedPreferences.edit().putString(KEY_TOKEN, login.token).apply()
+                    sharedPreferences.edit().putString(KEY_ID, login.user.id).apply()
+                    sharedPreferences.edit().putString(SOURCE_ID, login.user.id).apply()
+
+
                 } else {
                     _loginResult.value = LoginResult.Error("Usuario o contraseña incorrectos")
                     Log.d(

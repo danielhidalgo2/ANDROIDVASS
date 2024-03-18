@@ -1,5 +1,7 @@
 package com.chat.whatsvass.ui.theme.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,12 +28,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
@@ -39,29 +43,38 @@ import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.login.Shape
 
-
 object GeneralComponents {
     @Composable
     fun NavigationBarCustom(text: String, onBackClick: () -> Unit) {
         TopAppBar(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
             backgroundColor = Principal,
             elevation = AppBarDefaults.TopAppBarElevation,
             title = {
+                IconButton(
+                    modifier = Modifier
+                        .padding(start = 30.dp),
+                    onClick = onBackClick) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_arrow_back),
+                        contentDescription = "Back",
+                        tint = Oscuro
+                    )
+                }
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .padding(end = 90.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.icon_arrow_back),
-                            contentDescription = "Back"
-                        )
-                    }
                     Text(
                         text = text,
                         fontSize = 22.sp,
-                        color = Color.White
+                        color = Color.White,
+                        textAlign = TextAlign.Center
                     )
                 }
             }

@@ -50,7 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
-import com.chat.whatsvass.commons.SHARED_TOKEN
+import com.chat.whatsvass.commons.KEY_TOKEN
+import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.ui.theme.Oscuro
@@ -68,7 +69,7 @@ class ChatView : ComponentActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedPreferencesToken = getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
+        sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
         val chatId = intent.getStringExtra("ChatID")
@@ -82,7 +83,6 @@ class ChatView : ComponentActivity() {
             if (token != null && chatId != null) {
                 viewModel.getMessagesForChat(token, chatId, offset = 0, limit = 100)
             }
-
 
 
             if (nick != null) {
@@ -167,7 +167,6 @@ class ChatView : ComponentActivity() {
                         contentDescription = "Custom Icon",
                         tint = Color.Green, // Comprobar si esta online / offline
                         modifier = Modifier
-                            .clickable { }
                             .align(Alignment.BottomEnd)
                             .size(15.dp)
                     )

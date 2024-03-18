@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -73,6 +72,7 @@ import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import java.text.SimpleDateFormat
 import java.util.Locale
+
 private lateinit var sharedPreferencesToken: SharedPreferences
 
 class HomeView : ComponentActivity() {
@@ -193,8 +193,11 @@ fun ChatItem(chat: Chat, messages: List<Message>, name: String) {
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
-            .clickable { val intent = Intent(context, ChatView::class.java)
-                intent.putExtra("ChatID",chat.chatId).putExtra("Nick",name)
+            .clickable {
+                val intent = Intent(context, ChatView::class.java)
+                intent
+                    .putExtra("ChatID", chat.chatId)
+                    .putExtra("Nick", name)
                 context.startActivity(intent)
                 Log.d("chatid", chat.chatId)
             }

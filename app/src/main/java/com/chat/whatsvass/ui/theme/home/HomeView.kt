@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -72,6 +73,7 @@ import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_USER_DATA
+import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.ui.theme.Claro
@@ -81,14 +83,16 @@ import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.WhatsVassTheme
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
+import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+private lateinit var sharedPreferencesToken: SharedPreferences
+
 class HomeView : ComponentActivity() {
     private val viewModel: HomeViewModel by viewModels()
-    private lateinit var sharedPreferencesToken: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -151,10 +155,8 @@ fun HomeScreen(
     chats: List<Chat>,
     messages: Map<String, List<Message>>,
     navigation: NavController,
-    viewModel: HomeViewModel,
     onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
 ) {
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -185,20 +187,39 @@ fun HomeScreen(
     }
 }
 
+@Composable
+fun ChatList(
+    chats: List<Chat>,
+    messages: Map<String, List<Message>>,
+    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
+) {
+    LazyColumn {
+        items(chats) { chat ->
+            val chatMessages = messages[chat.chatId] ?: emptyList()
+            val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
+            val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
+
+            ChatItem(chat = chat, messages = chatMessages, name = name, onDeleteChat = { onDeleteChat(chat.chatId) })
+        }
+    }
+}
+
 fun formatTimeFromApi(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-    val outputFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     val date = inputFormat.parse(dateTimeString)
-    return outputFormat.format(date)
+    return outputFormat.format(date!!)
 }
 
 @Composable
 fun ChatItem(
     chat: Chat,
     messages: List<Message>,
+    name: String,
     onDeleteChat: (chatId: String) -> Unit // Modificación del parámetro onDeleteChat
 ) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
+    val context = LocalContext.current
 
     // Obtener el último mensaje si existe
     val lastMessage = messages.lastOrNull()
@@ -214,6 +235,14 @@ fun ChatItem(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
+            .clickable {
+                val intent = Intent(context, ChatView::class.java)
+                intent
+                    .putExtra("ChatID", chat.chatId)
+                    .putExtra("Nick", name)
+                context.startActivity(intent)
+                Log.d("chatid", chat.chatId)
+            }
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
@@ -250,7 +279,7 @@ fun ChatItem(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = chat.sourceNick,
+                text = name,
                 style = TextStyle(fontSize = 16.sp, color = Oscuro),
             )
             Spacer(modifier = Modifier.height(8.dp))

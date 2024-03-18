@@ -12,3 +12,5 @@ const val KEY_USERNAME = "UserKey"
 const val KEY_PASSWORD = "PasswordKey"
 const val KEY_ID = "IdKey"
 const val KEY_NICK = "NickKey"
+
+const val SOURCE_ID = "Source"

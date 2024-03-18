@@ -13,6 +13,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -49,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -71,6 +73,7 @@ import com.chat.whatsvass.ui.theme.Contraste
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
+import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -118,23 +121,27 @@ class HomeView : ComponentActivity() {
                 chats = chats,
                 messages = messages,
                 navigation = navController,
+                viewModel,
                 onDeleteChat = { chatId ->
                     // Lógica para eliminar el chat en el ViewModel
                     viewModel.deleteChat(token!!, chatId)
                 }
             )
         }
+
+        window.decorView.setOnTouchListener { _, _ ->
+            hideKeyboard(this)
+            false
+        }
     }
 }
-
-
-
 
 @Composable
 fun HomeScreen(
     chats: List<Chat>,
     messages: Map<String, List<Message>>,
     navigation: NavController,
+    viewModel: HomeViewModel,
     onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
 ) {
     Box(
@@ -145,9 +152,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TopBarHome(navigation)
-            ChatList(chats = chats, messages = messages, onDeleteChat = onDeleteChat)
-
+            TopBarHomeAndList(navigation, chats, messages, viewModel, onDeleteChat)
             Spacer(modifier = Modifier.weight(1f))
             FloatingActionButton(
                 onClick = { navigation.navigate("lista_usuarios") },
@@ -168,22 +173,6 @@ fun HomeScreen(
         }
     }
 }
-
-
-@Composable
-fun ChatList(
-    chats: List<Chat>,
-    messages: Map<String, List<Message>>,
-    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
-) {
-    LazyColumn {
-        items(chats) { chat ->
-            val chatMessages = messages[chat.chatId] ?: emptyList()
-            ChatItem(chat = chat, messages = chatMessages, onDeleteChat = { onDeleteChat(chat.chatId) })
-        }
-    }
-}
-
 
 fun formatTimeFromApi(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
@@ -300,12 +289,17 @@ fun ChatItem(
 }
 
 
-
-
-
 @Composable
-fun TopBarHome(navigation: NavController) {
+fun TopBarHomeAndList(
+    navigation: NavController,
+    chats: List<Chat>,
+    messages: Map<String, List<Message>>,
+    viewModel: HomeViewModel,
+    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
+) {
+    val isTextWithOutChatsVisible by viewModel.isTextWithOutChatsVisibleFlow.collectAsState(false)
     var searchText by remember { mutableStateOf(TextFieldValue()) }
+    var listSearch by remember { mutableStateOf<List<Chat>>(emptyList()) }
     val context = LocalContext.current
 
     TopAppBar(
@@ -373,6 +367,55 @@ fun TopBarHome(navigation: NavController) {
                     modifier = Modifier.size(36.dp)
                 )
             }
+        }
+    }
+
+    // Comprobar si es targetnick o sourcenick
+    LazyColumn {
+        if (searchText.text.isEmpty()) {
+            items(chats) { chat ->
+                val chatMessages = messages[chat.chatId] ?: emptyList()
+                ChatItem(chat, chatMessages, onDeleteChat = { onDeleteChat(chat.chatId) })
+            }
+        } else {
+            listSearch =
+                chats.filter { it.targetNick.contains(searchText.text, ignoreCase = true) }
+            items(listSearch) { chat ->
+                val chatMessages = messages[chat.chatId] ?: emptyList()
+                ChatItem(chat, chatMessages, onDeleteChat = { onDeleteChat(chat.chatId) })
+            }
+        }
+    }
+    // Si no hay chats se muestra: "No tienes chats"
+    if (isTextWithOutChatsVisible) {
+        Column(
+            modifier = Modifier
+                .height(400.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "No tienes chats",
+                fontSize = 22.sp,
+                color = Oscuro
+            )
+        }
+    }
+    // Si no se encuentra el contacto buscado se muestra texto: "Sin coincidencias"
+    if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == "Buscar...")) {
+        Column(
+            modifier = Modifier
+                .height(400.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Sin coincidencias",
+                fontSize = 22.sp,
+                color = Oscuro
+            )
         }
     }
 }

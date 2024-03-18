@@ -1,11 +1,16 @@
 package com.chat.whatsvass.ui.theme.contacts
 
+import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chat.whatsvass.commons.KEY_NICK
+import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.data.domain.model.contacts.Contacts
 import com.chat.whatsvass.data.domain.model.create_chat.CreatedChat
 import com.chat.whatsvass.data.domain.repository.remote.ContactsRepository
@@ -17,7 +22,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ContactsViewModel : ViewModel() {
+class ContactsViewModel (application: Application) : AndroidViewModel(application) {
+
+    private var sharedPreferences: SharedPreferences =
+        application.getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
+    private val myNick = sharedPreferences.getString(KEY_NICK, null)
 
     private val contactsRepository = ContactsRepository()
 
@@ -27,11 +36,19 @@ class ContactsViewModel : ViewModel() {
     private val _contactsResult = MutableStateFlow<List<Contacts>>(emptyList())
     val contactsResult: StateFlow<List<Contacts>> = _contactsResult
 
-
     fun getContacts (token: String){
         viewModelScope.launch {
             async {
                 getContactsList(token)
+                if (_contactsResult.value.isNotEmpty()){
+                    for (i in _contactsResult.value){
+                        if (myNick != null){
+                            // Quitar mi usuario de la lista de contactos
+                            val listOfContacts = _contactsResult.value.filter { it.nick != myNick }
+                            _contactsResult.value = listOfContacts
+                        }
+                    }
+                }
             }.await()
             if (contactsResult.value.isEmpty()){
                 isTextWithOutContactsVisible.value = true

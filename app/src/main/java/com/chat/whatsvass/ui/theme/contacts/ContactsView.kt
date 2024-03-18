@@ -221,7 +221,9 @@ fun TopBarAndList(
     // Si no hay contactos se muestra: "Sin contactos"
     if (isTextWithOutContactsVisible) {
         Column(
-            Modifier.fillMaxSize(),
+            modifier = Modifier
+                .height(400.dp)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -235,7 +237,9 @@ fun TopBarAndList(
     // Si hay contactos y el searchText esta vacio se muestra el progressBar
     if (!isTextWithOutContactsVisible && searchText.text.isEmpty()) {
         Column(
-            Modifier.fillMaxSize(),
+            modifier = Modifier
+                .height(400.dp)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -249,7 +253,9 @@ fun TopBarAndList(
     // Si no se encuentra el contacto buscado se muestra texto: "Sin coincidencias"
     if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == "Buscar...")) {
         Column(
-            Modifier.fillMaxSize(),
+            modifier = Modifier
+                .height(400.dp)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

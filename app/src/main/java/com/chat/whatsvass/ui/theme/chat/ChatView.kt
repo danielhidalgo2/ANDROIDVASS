@@ -3,13 +3,11 @@ package com.chat.whatsvass.ui.theme.chat
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,26 +17,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -55,23 +47,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_TOKEN
-import com.chat.whatsvass.data.domain.model.chat.Chat
+import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.message.Message
-import com.chat.whatsvass.ui.theme.Claro
-import com.chat.whatsvass.ui.theme.Contraste
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
-import com.chat.whatsvass.ui.theme.home.HomeViewModel
 
 class ChatView : ComponentActivity() {
-    private val viewModel: HomeViewModel by viewModels()
+    private val viewModel: ChatViewModel by viewModels()
     private lateinit var sharedPreferencesToken: SharedPreferences
 
 
@@ -80,48 +68,31 @@ class ChatView : ComponentActivity() {
         sharedPreferencesToken = getSharedPreferences(SHARED_TOKEN, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
+        val chatId = intent.getStringExtra("ChatID")
+
+
         setContent {
             LaunchedEffect(key1 = viewModel) {
-                if (token != null) {
-                    viewModel.getChats(token)
-                    Log.d("HomeView", "Obteniendo chats con token: $token")
-                }
-        }
-        val messages by viewModel.messages.collectAsState(emptyMap())
-            val chats by viewModel.chats.collectAsState(emptyList())
 
-        // Llamar a la función getMessages después de obtener los chats
-        LaunchedEffect(key1 = chats) {
-            if (token != null && chats.isNotEmpty()) {
-                val chatIds = chats.map { it.chatId }
-                viewModel.getMessages(token, chatIds, offset = 0, limit = 100)
             }
+            val messages by viewModel.message.collectAsState(emptyMap())
+
+            // Llamar a la función getMessages después de obtener los chats
+
+            if (token != null && chatId != null) {
+                viewModel.getMessagesForChat(token, chatId, offset = 0, limit = 100)
+            }
+
+
+
+            ChatScreen(chatId = chatId, messages = messages)
+
         }
-
-       ChatScreen(chats = chats, messages = messages)
-
     }
 }
-}
-
-val listaStrings = listOf(
-    "Holaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-    "Cómo estás?",
-    "Qué tal?",
-    "Buenos días",
-    "Buenas tardes",
-    "Buenas noches",
-    "Adiós",
-    "Hasta luego",
-    "Nos vemos pronto",
-    "Qué tengas un buen día",
-    "Feliz cumpleaños",
-    "Feliz Navidad",
-    "Feliz Año Nuevo"
-)
 
 @Composable
-fun ChatScreen(chats: List<Chat>, messages: Map<String, List<Message>>) {
+fun ChatScreen(chatId: String?, messages: Map<String, List<Message>>) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -131,7 +102,7 @@ fun ChatScreen(chats: List<Chat>, messages: Map<String, List<Message>>) {
             modifier = Modifier.weight(1f)
         ) {
             TopBarChat()
-            MessageList(chats = chats, messages = messages)
+            chatId?.let { MessageList(chatId = it, messages = messages) }
         }
         BottomBar(onSendMessage = { /* Acción al enviar el mensaje */ })
     }
@@ -140,7 +111,6 @@ fun ChatScreen(chats: List<Chat>, messages: Map<String, List<Message>>) {
 
 @Composable
 fun TopBarChat() {
-    val context = LocalContext.current
 
     TopAppBar(
         backgroundColor = Principal,
@@ -204,22 +174,26 @@ fun TopBarChat() {
 }
 
 @Composable
-fun MessageList(chats: List<Chat>, messages: Map<String, List<Message>>) {
+fun MessageList(chatId: String, messages: Map<String, List<Message>>) {
+    val chatMessages = messages[chatId] ?: emptyList()
     LazyColumn {
-        items(chats) { chat ->
-            val chatMessages = messages[chat.chatId] ?: emptyList()
-            MessageItem(chat = chat, messages = chatMessages, true)
-        }
+        items(chatMessages) { message ->
+            if (message.source == SOURCE_ID) {
+                MessageItem(message, true)
 
+            } else {
+                MessageItem(message, false)
+
+            }
+        }
     }
 }
 
 
 @Composable
-fun MessageItem(chat: Chat, messages: List<Message>, isSentByUser: Boolean) {
+fun MessageItem(messages: Message, isSentByUser: Boolean) {
     val horizontalPadding = 30.dp
     val verticalPadding = 8.dp
-    val lastMessage = messages.lastOrNull()
 
 
     val backgroundColor = White
@@ -246,7 +220,7 @@ fun MessageItem(chat: Chat, messages: List<Message>, isSentByUser: Boolean) {
 
             Column(modifier = Modifier.align(Alignment.BottomEnd)) {
                 Text(
-                    text = lastMessage?.message ?: "No hay mensajes",
+                    text = messages.message ?: "No hay mensajes",
                     color = Color.Black,
                     textAlign = alignment,
                 )
@@ -256,10 +230,9 @@ fun MessageItem(chat: Chat, messages: List<Message>, isSentByUser: Boolean) {
                     text = "22:00",
                     style = TextStyle(fontSize = 14.sp, color = Color.Gray),
 
-                )
+                    )
             }
         }
-
 
 
     }

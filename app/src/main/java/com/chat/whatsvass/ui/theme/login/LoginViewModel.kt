@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_TOKEN
+import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import com.chat.whatsvass.data.domain.repository.remote.response.login.LoginResponse
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +43,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     _loginResult.value = LoginResult.Success(login)
                     Log.d("LoginViewModel", "Inicio de sesión exitoso. Token: ${login.token}")
                     edit.putString(KEY_TOKEN, login.token)
+                    edit.putString(SOURCE_ID, login.user.id)
                     edit.commit()
                 } else {
                     _loginResult.value = LoginResult.Error("Usuario o contraseña incorrectos")

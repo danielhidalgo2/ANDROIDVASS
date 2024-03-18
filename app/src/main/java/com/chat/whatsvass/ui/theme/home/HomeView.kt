@@ -189,7 +189,10 @@ fun ChatItem(chat: Chat, messages: List<Message>) {
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
             .clickable { val intent = Intent(context, ChatView::class.java)
-                context.startActivity(intent)}
+                intent.putExtra("ChatID",chat.chatId)
+                context.startActivity(intent)
+                Log.d("chatid", chat.chatId)
+            }
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))

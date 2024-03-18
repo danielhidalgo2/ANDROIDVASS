@@ -1,8 +1,10 @@
 package com.chat.whatsvass.ui.theme.settings
 
+import android.accessibilityservice.FingerprintGestureController
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.hardware.fingerprint.FingerprintManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -144,4 +146,5 @@ class SettingsView : AppCompatActivity() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         delegate.applyDayNight()
     }
+
 }

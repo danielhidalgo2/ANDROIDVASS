@@ -13,6 +13,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,11 +32,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TopAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
@@ -111,17 +115,29 @@ class HomeView : ComponentActivity() {
                 }
             }
 
-            HomeScreen(chats = chats, messages = messages, navController)
-
-
+            HomeScreen(
+                chats = chats,
+                messages = messages,
+                navigation = navController,
+                onDeleteChat = { chatId ->
+                    // Lógica para eliminar el chat en el ViewModel
+                    viewModel.deleteChat(token!!, chatId)
+                }
+            )
         }
     }
 }
 
 
-@Composable
-fun HomeScreen(chats: List<Chat>, messages: Map<String, List<Message>>, navigation: NavController) {
 
+
+@Composable
+fun HomeScreen(
+    chats: List<Chat>,
+    messages: Map<String, List<Message>>,
+    navigation: NavController,
+    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -131,7 +147,7 @@ fun HomeScreen(chats: List<Chat>, messages: Map<String, List<Message>>, navigati
             modifier = Modifier.fillMaxSize()
         ) {
             TopBarHome(navigation)
-            ChatList(chats = chats, messages = messages)
+            ChatList(chats = chats, messages = messages, onDeleteChat = onDeleteChat)
 
             Spacer(modifier = Modifier.weight(1f))
             FloatingActionButton(
@@ -156,14 +172,19 @@ fun HomeScreen(chats: List<Chat>, messages: Map<String, List<Message>>, navigati
 
 
 @Composable
-fun ChatList(chats: List<Chat>, messages: Map<String, List<Message>>) {
+fun ChatList(
+    chats: List<Chat>,
+    messages: Map<String, List<Message>>,
+    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
+) {
     LazyColumn {
         items(chats) { chat ->
             val chatMessages = messages[chat.chatId] ?: emptyList()
-            ChatItem(chat = chat, messages = chatMessages)
+            ChatItem(chat = chat, messages = chatMessages, onDeleteChat = { onDeleteChat(chat.chatId) })
         }
     }
 }
+
 
 fun formatTimeFromApi(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
@@ -173,7 +194,11 @@ fun formatTimeFromApi(dateTimeString: String): String {
 }
 
 @Composable
-fun ChatItem(chat: Chat, messages: List<Message>) {
+fun ChatItem(
+    chat: Chat,
+    messages: List<Message>,
+    onDeleteChat: (chatId: String) -> Unit // Modificación del parámetro onDeleteChat
+) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
 
     // Obtener el último mensaje si existe
@@ -182,15 +207,25 @@ fun ChatItem(chat: Chat, messages: List<Message>) {
     // Formatear la fecha del mensaje para mostrar solo la hora
     val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it) } ?: "N/A"
 
+    // Estado para controlar si el diálogo está mostrándose
+    val showDialog = remember { mutableStateOf(false) }
+
+    // Agregar un evento LongPress para mostrar el diálogo de confirmación
     Row(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
-            .clickable { }
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
-            .background(colorWithOpacity),
+            .background(colorWithOpacity)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = {
+                        showDialog.value = true
+                    }
+                )
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.weight(0.1f))
@@ -236,8 +271,37 @@ fun ChatItem(chat: Chat, messages: List<Message>) {
 
         Spacer(modifier = Modifier.weight(0.1f))
         Spacer(modifier = Modifier.height(50.dp))
+
+        // Diálogo de confirmación
+        if (showDialog.value) {
+            AlertDialog(
+                onDismissRequest = { showDialog.value = false },
+                title = { Text("Eliminar chat") },
+                text = { Text("¿Estás seguro de que quieres eliminar este chat?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showDialog.value = false
+                            onDeleteChat(chat.chatId) // Llamada al callback con el chatId
+                        }
+                    ) {
+                        Text("Sí")
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = { showDialog.value = false }
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+            )
+        }
     }
 }
+
+
+
 
 
 @Composable

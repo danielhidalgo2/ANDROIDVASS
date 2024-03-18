@@ -7,7 +7,9 @@ import com.chat.whatsvass.data.domain.model.register.Register
 import com.chat.whatsvass.data.domain.repository.remote.response.logout.LogoutResponse
 import com.chat.whatsvass.data.domain.repository.remote.response.message.MessagesResponse
 import com.chat.whatsvass.data.domain.repository.remote.response.register.RegisterResponse
+import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -35,5 +37,11 @@ interface ApiService {
         @Query("limit") limit: Int,
         @Header("Authorization") token: String
     ): MessagesResponse
+
+    @DELETE("chats/{chatId}")
+    suspend fun deleteChat(
+        @Path("chatId") chatId: String,
+        @Header("Authorization") token: String
+    ): Response<Unit>
 }
 

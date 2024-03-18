@@ -47,6 +47,27 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
+
+    fun deleteChat(token: String?, chatId: String) {
+        viewModelScope.launch {
+            try {
+                if (token != null) {
+                    chatRepository.deleteChat(token, chatId)
+                    // Una vez eliminado el chat, actualiza la lista de chats
+                    val updatedChats = _chats.value.filter { it.chatId != chatId }
+                    _chats.value = updatedChats
+                    Log.d("HomeViewModel", "Chat eliminado correctamente")
+                } else {
+                    Log.e("HomeViewModel", "No se proporcionó un token válido")
+                }
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error al eliminar el chat", e)
+            }
+        }
+    }
+
+
 }
+
 
 

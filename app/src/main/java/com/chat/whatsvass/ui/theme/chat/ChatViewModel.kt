@@ -1,11 +1,18 @@
 package com.chat.whatsvass.ui.theme.chat
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.data.domain.model.chat.Chat
+import com.chat.whatsvass.data.domain.model.create_chat.CreatedChat
+import com.chat.whatsvass.data.domain.model.create_message.CreateMessage
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.ChatRepository
+import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.ChatRequest
+import com.chat.whatsvass.data.domain.repository.remote.response.create_message.MessageRequest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -26,6 +33,22 @@ class ChatViewModel: ViewModel() {
                 Log.d("HomeViewModel", "Mensajes obtenidos correctamente para el chat con ID: $chatId")
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error al obtener los mensajes para el chat con ID: $chatId", e)
+            }
+        }
+    }
+
+    fun createNewMessageAndReload(token: String, messageRequest: MessageRequest) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Envía el mensaje
+                val newMessage = chatRepository.createNewMessage(token, messageRequest)
+
+                // Recarga todos los mensajes
+                getMessagesForChat(token, messageRequest.chat, offset = 0, limit = 100)
+
+                Log.d("Nuevo chat", newMessage.toString())
+            } catch (e: Exception) {
+                Log.d("Nuevo chat", "Error al crear mensaje: ${e.message}")
             }
         }
     }

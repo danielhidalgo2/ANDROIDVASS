@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -83,6 +84,7 @@ import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
+import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -158,6 +160,7 @@ class HomeView : ComponentActivity() {
     }
 }
 
+
 @Composable
 fun HomeScreen(
     chats: List<Chat>,
@@ -167,6 +170,8 @@ fun HomeScreen(
     token: String,
     onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -177,9 +182,13 @@ fun HomeScreen(
         ) {
             TopBarHomeAndList(chats, messages, viewModel, token, onDeleteChat)
             Spacer(modifier = Modifier.weight(1f))
+
         }
         FloatingActionButton(
-            onClick = { navigation.navigate("lista_usuarios") },
+            onClick = {
+                val intent = Intent(context, ContactsView::class.java)
+                context.startActivity(intent)
+            },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
@@ -193,6 +202,28 @@ fun HomeScreen(
                 contentDescription = "add",
                 modifier = Modifier.size(32.dp)
             )
+        }
+    }
+}
+
+
+@Composable
+fun ChatList(
+    chats: List<Chat>,
+    messages: Map<String, List<Message>>,
+    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
+) {
+    LazyColumn {
+        items(chats) { chat ->
+            val chatMessages = messages[chat.chatId] ?: emptyList()
+            val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
+            val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
+            val color: Color = if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
+                Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
+            } else {
+                Color.Red // Si no, asigna otro color
+            }
+            ChatItem(chat = chat, messages = chatMessages, name = name,color= color, onDeleteChat = { onDeleteChat(chat.chatId) })
         }
     }
 }
@@ -215,10 +246,12 @@ fun ChatItem(
     chat: Chat,
     messages: List<Message?>,
     name: String,
+    color: Color,
     onDeleteChat: (chatId: String) -> Unit // Modificación del parámetro onDeleteChat
 ) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
     val context = LocalContext.current
+    val online: Boolean = color == Color.Green
 
     // Obtener el último mensaje si existe
     val lastMessage = messages!!.lastOrNull()
@@ -234,6 +267,7 @@ fun ChatItem(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
+            .clickable { }
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
@@ -248,6 +282,7 @@ fun ChatItem(
                         intent
                             .putExtra("ChatID", chat.chatId)
                             .putExtra("Nick", name)
+                            .putExtra("Online", online.toString())
                         context.startActivity(intent)
                         Log.d("chatid", chat.chatId)
                     }
@@ -270,6 +305,14 @@ fun ChatItem(
                     .fillMaxSize()
                     .padding(4.dp)
             )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_circle),
+                contentDescription = "Custom Icon",
+                tint = color, // Comprobar si esta online / offline
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(15.dp)
+            )
         }
 
         Spacer(modifier = Modifier.width(16.dp))
@@ -284,7 +327,8 @@ fun ChatItem(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = lastMessage?.message ?: "No hay mensajes",
-                style = TextStyle(fontSize = 14.sp, color = Claro)
+                style = TextStyle(fontSize = 14.sp, color = Claro),
+                maxLines = 1
             )
         }
 
@@ -505,8 +549,6 @@ fun TopBarHomeAndList(
             }
 
         }
-
-
     }
 
 

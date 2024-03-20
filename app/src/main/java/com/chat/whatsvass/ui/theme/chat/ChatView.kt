@@ -27,19 +27,25 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,18 +57,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
+import androidx.lifecycle.lifecycleScope
 import com.chat.whatsvass.R
-import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.message.Message
+import com.chat.whatsvass.data.domain.repository.remote.response.create_message.MessageRequest
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.contacts.ContactsViewModel
 import com.chat.whatsvass.ui.theme.home.formatTimeFromApi
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
@@ -74,19 +84,19 @@ private lateinit var sharedPreferencesToken: SharedPreferences
 class ChatView : ComponentActivity() {
     private val viewModel: ChatViewModel by viewModels()
 
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
-        var chatId = intent.getStringExtra("ChatID")
+        val chatId = intent.getStringExtra("ChatID")
         val nick = intent.getStringExtra("Nick")
+        val online = intent.getStringExtra("Online")
 
         setContent {
             val messages by viewModel.message.collectAsState(emptyMap())
-
-            // Llamar a la función getMessages después de obtener los chats
 
             if (token != null && chatId != null) {
                 viewModel.getMessagesForChat(token, chatId, offset = 0, limit = 100)
@@ -94,8 +104,9 @@ class ChatView : ComponentActivity() {
 
 
             if (nick != null) {
-                ChatScreen(chatId = chatId, messages = messages, nick = nick, token!!)
+                ChatScreen(chatId = chatId, messages = messages, nick = nick, online = online!! , token!!)
             }
+
 
         }
         window.decorView.setOnTouchListener { _, _ ->
@@ -106,12 +117,9 @@ class ChatView : ComponentActivity() {
 
 
     @Composable
-    fun ChatScreen(
-        chatId: String?,
-        messages: Map<String, List<Message>>,
-        nick: String,
-        token: String
-    ) {
+    fun ChatScreen(chatId: String?, messages: Map<String, List<Message>>, nick: String, online: String, token:String) {
+        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -120,17 +128,17 @@ class ChatView : ComponentActivity() {
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                TopBarChat(nick)
+                TopBarChat(nick, online)
                 chatId?.let { MessageList(chatId = it, messages = messages, token) }
             }
-            BottomBar(onSendMessage = { /* Acción al enviar el mensaje */ })
+            BottomBar(chatId, onSendMessage = { /* Acción al enviar el mensaje */ })
         }
     }
 
 
     @Composable
-    fun TopBarChat(nick: String) {
-
+    fun TopBarChat(nick: String, online: String) {
+        val userOnline = online.toBoolean()
         TopAppBar(
             backgroundColor = Principal,
             elevation = 4.dp,
@@ -175,10 +183,15 @@ class ChatView : ComponentActivity() {
                                 .padding(4.dp)
                         )
                     }
+                    val color: Color
+                    if (userOnline)
+                        color = Color.Green
+                    else
+                        color = Color.Red
                     Icon(
                         painter = painterResource(id = R.drawable.ic_circle),
                         contentDescription = "Custom Icon",
-                        tint = Color.Green, // Comprobar si esta online / offline
+                        tint = color, // Comprobar si esta online / offline
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .size(15.dp)
@@ -239,7 +252,7 @@ class ChatView : ComponentActivity() {
 
 
         val backgroundColor = White
-        val alignment = if (isSentByUser) TextAlign.End else TextAlign.Start
+        val alignment = if (isSentByUser) TextAlign.Start else TextAlign.End
         val startPadding = if (isSentByUser) horizontalPadding else 0.dp
         val endPadding = if (isSentByUser) 0.dp else horizontalPadding
 
@@ -284,9 +297,16 @@ class ChatView : ComponentActivity() {
     }
 
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun BottomBar(onSendMessage: (String) -> Unit) {
+    fun BottomBar(
+        chatId: String?,
+        onSendMessage: (String) -> Unit,
+    ) {
         var messageText by remember { mutableStateOf("") }
+        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        val sourceID = sharedPreferencesToken.getString(SOURCE_ID, null)
+
 
         Row(
             modifier = Modifier
@@ -304,12 +324,24 @@ class ChatView : ComponentActivity() {
                     .background(Color.Transparent)
                     .clip(RoundedCornerShape(40.dp)),
                 placeholder = { Text(text = "Escribe un mensaje...") },
-                singleLine = true
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent, // Ocultar la línea de foco
+                    unfocusedIndicatorColor = Color.Transparent // Ocultar la línea de enfoque
+                )
             )
+
             IconButton(
                 onClick = {
+                    if ( chatId != null && token != null) {
+
+                        lifecycleScope.launch {
+                            viewModel.createNewMessageAndReload(token, MessageRequest(chatId, sourceID!!, messageText))
+                        }
+                    }
+
                     onSendMessage(messageText)
-                    messageText = "" // Limpiar el campo de texto después de enviar el mensaje
+                    messageText = ""
+
                 }
             ) {
                 Icon(

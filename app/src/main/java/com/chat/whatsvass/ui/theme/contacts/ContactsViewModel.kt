@@ -84,7 +84,7 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
     }
     suspend fun createNewChatModel(context: Context, token: String, chatRequest: ChatRequest){
             try {
-                val newChat = contactsRepository.createNewChat(token!!, chatRequest)
+                val newChat = contactsRepository.createNewChat(token, chatRequest)
                 _newChatResult.value = newChat
                 Log.d("Nuevo chat", newChat.toString())
 

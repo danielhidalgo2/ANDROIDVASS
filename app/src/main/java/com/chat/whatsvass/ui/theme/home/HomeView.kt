@@ -139,6 +139,7 @@ class HomeView : ComponentActivity() {
             // Actualizar el estado en línea del usuario como "en línea" cuando se reanuda la actividad
             viewModel.updateUserOnlineStatus(token, true)
         }
+
     }
 
     override fun onPause() {
@@ -149,7 +150,9 @@ class HomeView : ComponentActivity() {
             // Actualizar el estado en línea del usuario como "fuera de línea" cuando se pausa la actividad
             viewModel.updateUserOnlineStatus(token, false)
         }
+
     }
+
 }
 
 
@@ -285,32 +288,39 @@ fun ChatItem(
         Spacer(modifier = Modifier.weight(0.1f))
         Box(
             modifier = Modifier
-                .size(50.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .background(Color.LightGray),
-            contentAlignment = Alignment.BottomEnd // Alineación del contenido al extremo inferior y derecho del Box
+                .size(53.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.image_person),
-                contentDescription = "Foto de perfil",
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(4.dp)
-            )
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(Color.LightGray),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.image_person),
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(4.dp)
+                )
+            }
 
             Icon(
                 painter = painterResource(id = R.drawable.ic_circle),
                 contentDescription = "Custom Icon",
-                tint = color, // Comprobar si está online / offline
+                tint = color, // Comprobar si esta online / offline
                 modifier = Modifier
-                    .size(15.dp)
+                    .align(Alignment.BottomEnd)
+                    .size(17.dp)
                     .padding(
-                        end = 4.dp,
+                        end = 5.dp, // Ajustamos el espaciado hacia la izquierda
                         bottom = 4.dp
-                    ) // Ajustar el espaciado del icono para que no se corte
+                    )
             )
-
         }
+
+
 
         Spacer(modifier = Modifier.width(16.dp))
 

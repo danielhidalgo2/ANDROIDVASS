@@ -70,6 +70,16 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    fun updateUserOnlineStatus(token: String, isOnline: Boolean) {
+        viewModelScope.launch {
+            try {
+                userRepository.updateUserOnlineStatus(token, isOnline)
+                Log.d("HomeViewModel", "Estado en línea del usuario actualizado correctamente")
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error al actualizar el estado en línea del usuario", e)
+            }
+        }
+    }
 
 }
 

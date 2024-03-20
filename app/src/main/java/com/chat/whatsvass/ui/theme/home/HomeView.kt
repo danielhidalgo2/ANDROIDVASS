@@ -157,8 +157,10 @@ fun HomeScreen(
 
         }
         FloatingActionButton(
-            onClick = {  val intent = Intent(context, ContactsView::class.java)
-                context.startActivity(intent) },
+            onClick = {
+                val intent = Intent(context, ContactsView::class.java)
+                context.startActivity(intent)
+            },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
@@ -188,8 +190,12 @@ fun ChatList(
             val chatMessages = messages[chat.chatId] ?: emptyList()
             val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
             val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
-
-            ChatItem(chat = chat, messages = chatMessages, name = name, onDeleteChat = { onDeleteChat(chat.chatId) })
+            val color: Color = if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
+                Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
+            } else {
+                Color.Red // Si no, asigna otro color
+            }
+            ChatItem(chat = chat, messages = chatMessages, name = name,color= color, onDeleteChat = { onDeleteChat(chat.chatId) })
         }
     }
 }
@@ -206,10 +212,12 @@ fun ChatItem(
     chat: Chat,
     messages: List<Message>,
     name: String,
+    color: Color,
     onDeleteChat: (chatId: String) -> Unit // Modificación del parámetro onDeleteChat
 ) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
     val context = LocalContext.current
+    val online: Boolean = color == Color.Green
 
     // Obtener el último mensaje si existe
     val lastMessage = messages.lastOrNull()
@@ -240,6 +248,7 @@ fun ChatItem(
                         intent
                             .putExtra("ChatID", chat.chatId)
                             .putExtra("Nick", name)
+                            .putExtra("Online", online.toString())
                         context.startActivity(intent)
                         Log.d("chatid", chat.chatId)
                     }
@@ -261,6 +270,14 @@ fun ChatItem(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(4.dp)
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_circle),
+                contentDescription = "Custom Icon",
+                tint = color, // Comprobar si esta online / offline
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(15.dp)
             )
         }
 

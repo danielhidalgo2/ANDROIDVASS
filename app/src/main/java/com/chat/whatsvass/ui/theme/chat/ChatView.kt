@@ -42,6 +42,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +54,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
+import androidx.lifecycle.lifecycleScope
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_USER_DATA
@@ -64,6 +67,8 @@ import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.home.formatTimeFromApi
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 private lateinit var sharedPreferencesToken: SharedPreferences
 
@@ -77,22 +82,20 @@ class ChatView : ComponentActivity() {
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
-         val chatId = intent.getStringExtra("ChatID")
-         val nick = intent.getStringExtra("Nick")
+        val chatId = intent.getStringExtra("ChatID")
+        val nick = intent.getStringExtra("Nick")
+        val online = intent.getStringExtra("Online")
 
         setContent {
             val messages by viewModel.message.collectAsState(emptyMap())
-            val newMessageResult by viewModel.newMessageResult.collectAsState(null)
 
-            // Llamar a la función getMessages después de obtener los chats
-            LaunchedEffect(newMessageResult) {
             if (token != null && chatId != null) {
                 viewModel.getMessagesForChat(token, chatId, offset = 0, limit = 100)
             }
-            }
+
 
             if (nick != null) {
-                ChatScreen(chatId = chatId, messages = messages, nick = nick)
+                ChatScreen(chatId = chatId, messages = messages, nick = nick, online = online!!)
             }
 
 
@@ -105,7 +108,9 @@ class ChatView : ComponentActivity() {
 
 
     @Composable
-    fun ChatScreen(chatId: String?, messages: Map<String, List<Message>>, nick: String) {
+    fun ChatScreen(chatId: String?, messages: Map<String, List<Message>>, nick: String, online: String) {
+        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -114,17 +119,17 @@ class ChatView : ComponentActivity() {
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                TopBarChat(nick)
+                TopBarChat(nick, online = online)
                 chatId?.let { MessageList(chatId = it, messages = messages) }
             }
-            BottomBar(chatId,onSendMessage = { /* Acción al enviar el mensaje */ })
+            BottomBar(chatId, onSendMessage = { /* Acción al enviar el mensaje */ })
         }
     }
 
 
     @Composable
-    fun TopBarChat(nick: String) {
-
+    fun TopBarChat(nick: String, online: String) {
+        val userOnline = online.toBoolean()
         TopAppBar(
             backgroundColor = Principal,
             elevation = 4.dp,
@@ -169,10 +174,15 @@ class ChatView : ComponentActivity() {
                                 .padding(4.dp)
                         )
                     }
+                    val color: Color
+                    if (userOnline)
+                        color = Color.Green
+                    else
+                        color = Color.Red
                     Icon(
                         painter = painterResource(id = R.drawable.ic_circle),
                         contentDescription = "Custom Icon",
-                        tint = Color.Green, // Comprobar si esta online / offline
+                        tint = color, // Comprobar si esta online / offline
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .size(15.dp)
@@ -267,7 +277,10 @@ class ChatView : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun BottomBar(chatId:String?,onSendMessage: (String) -> Unit) {
+    fun BottomBar(
+        chatId: String?,
+        onSendMessage: (String) -> Unit,
+    ) {
         var messageText by remember { mutableStateOf("") }
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
         val sourceID = sharedPreferencesToken.getString(SOURCE_ID, null)
@@ -294,11 +307,16 @@ class ChatView : ComponentActivity() {
                     unfocusedIndicatorColor = Color.Transparent // Ocultar la línea de enfoque
                 )
             )
+
             IconButton(
                 onClick = {
-                    if (token != null) {
-                       viewModel.createNewMessage(token, MessageRequest(chat = chatId!!, source = sourceID!! ,messageText))
+                    if ( chatId != null && token != null) {
+
+                        lifecycleScope.launch {
+                            viewModel.createNewMessageAndReload(token, MessageRequest(chatId, sourceID!!, messageText))
+                        }
                     }
+
                     onSendMessage(messageText)
                     messageText = ""
 

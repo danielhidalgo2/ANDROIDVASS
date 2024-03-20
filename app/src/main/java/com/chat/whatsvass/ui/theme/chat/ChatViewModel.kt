@@ -37,15 +37,16 @@ class ChatViewModel: ViewModel() {
         }
     }
 
-    private val _newMessageResult = MutableStateFlow<CreateMessage?>(null)
-    val newMessageResult: StateFlow<CreateMessage?> = _newMessageResult
-    fun createNewMessage(token: String, messageRequest: MessageRequest) {
+    fun createNewMessageAndReload(token: String, messageRequest: MessageRequest) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                // Envía el mensaje
                 val newMessage = chatRepository.createNewMessage(token, messageRequest)
-                _newMessageResult.value = newMessage
-                Log.d("Nuevo chat", newMessage.toString())
 
+                // Recarga todos los mensajes
+                getMessagesForChat(token, messageRequest.chat, offset = 0, limit = 100)
+
+                Log.d("Nuevo chat", newMessage.toString())
             } catch (e: Exception) {
                 Log.d("Nuevo chat", "Error al crear mensaje: ${e.message}")
             }

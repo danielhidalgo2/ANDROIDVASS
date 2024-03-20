@@ -38,7 +38,7 @@ class ChatViewModel: ViewModel() {
     }
 
     private val _newMessageResult = MutableStateFlow<CreateMessage?>(null)
-    val newChatResult: StateFlow<CreateMessage?> = _newMessageResult
+    val newMessageResult: StateFlow<CreateMessage?> = _newMessageResult
     fun createNewMessage(token: String, messageRequest: MessageRequest) {
         viewModelScope.launch(Dispatchers.IO) {
             try {

@@ -18,13 +18,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
@@ -36,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,17 +82,19 @@ class ChatView : ComponentActivity() {
 
         setContent {
             val messages by viewModel.message.collectAsState(emptyMap())
+            val newMessageResult by viewModel.newMessageResult.collectAsState(null)
 
             // Llamar a la función getMessages después de obtener los chats
-
+            LaunchedEffect(newMessageResult) {
             if (token != null && chatId != null) {
                 viewModel.getMessagesForChat(token, chatId, offset = 0, limit = 100)
             }
-
+            }
 
             if (nick != null) {
                 ChatScreen(chatId = chatId, messages = messages, nick = nick)
             }
+
 
         }
         window.decorView.setOnTouchListener { _, _ ->
@@ -194,6 +198,7 @@ class ChatView : ComponentActivity() {
         val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
 
         val chatMessages = messages[chatId] ?: emptyList()
+
         LazyColumn {
             items(chatMessages) { message ->
                 if (message.source == sourceId) {
@@ -296,6 +301,7 @@ class ChatView : ComponentActivity() {
                     }
                     onSendMessage(messageText)
                     messageText = ""
+
                 }
             ) {
                 Icon(

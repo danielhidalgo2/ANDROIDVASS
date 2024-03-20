@@ -154,23 +154,24 @@ fun HomeScreen(
             ChatList(chats = chats, messages = messages, onDeleteChat = onDeleteChat)
 
             Spacer(modifier = Modifier.weight(1f))
-            FloatingActionButton(
-                onClick = {  val intent = Intent(context, ContactsView::class.java)
-                    context.startActivity(intent) },
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(16.dp)
-                    .size(56.dp),
-                backgroundColor = Principal,
-                contentColor = Contraste,
-                shape = CircleShape
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = "add",
-                    modifier = Modifier.size(32.dp)
-                )
-            }
+
+        }
+        FloatingActionButton(
+            onClick = {  val intent = Intent(context, ContactsView::class.java)
+                context.startActivity(intent) },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .size(56.dp),
+            backgroundColor = Principal,
+            contentColor = Contraste,
+            shape = CircleShape
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_add),
+                contentDescription = "add",
+                modifier = Modifier.size(32.dp)
+            )
         }
     }
 }

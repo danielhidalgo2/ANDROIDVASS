@@ -18,6 +18,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -63,5 +64,11 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: MessageRequest
     ): CreateMessageResponse
+    @PUT("users/online/{status}")
+    suspend fun updateUserOnlineStatus(
+        @Path("status") status: String,
+        @Header("Authorization") token: String
+    ): Response<Unit>
+
 }
 

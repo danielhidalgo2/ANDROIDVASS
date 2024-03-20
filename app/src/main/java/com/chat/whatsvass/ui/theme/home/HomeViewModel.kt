@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.ChatRepository
+import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 class HomeViewModel : ViewModel() {
 
     private val chatRepository = ChatRepository()
+    private val userRepository = UserRepository()
 
     private val _chats = MutableStateFlow<List<Chat>>(emptyList())
     val chats: StateFlow<List<Chat>> = _chats
@@ -25,6 +27,8 @@ class HomeViewModel : ViewModel() {
             try {
                 val chats = chatRepository.getChats(token)
                 _chats.value = chats
+                // Actualiza el estado en línea del usuario al obtener los chats
+                userRepository.updateUserOnlineStatus(token, true)
                 Log.d("HomeViewModel", "Chats obtenidos correctamente")
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error al obtener los chats", e)
@@ -68,6 +72,7 @@ class HomeViewModel : ViewModel() {
 
 
 }
+
 
 
 

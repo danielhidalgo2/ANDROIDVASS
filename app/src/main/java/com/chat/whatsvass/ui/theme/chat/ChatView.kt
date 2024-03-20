@@ -1,6 +1,7 @@
 package com.chat.whatsvass.ui.theme.chat
 
 import android.annotation.SuppressLint
+import android.content.ClipData.Item
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -57,14 +60,19 @@ import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
+import com.chat.whatsvass.ui.theme.contacts.ContactsViewModel
 import com.chat.whatsvass.ui.theme.home.formatTimeFromApi
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private lateinit var sharedPreferencesToken: SharedPreferences
 
 class ChatView : ComponentActivity() {
     private val viewModel: ChatViewModel by viewModels()
-
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +80,7 @@ class ChatView : ComponentActivity() {
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
-        val chatId = intent.getStringExtra("ChatID")
+        var chatId = intent.getStringExtra("ChatID")
         val nick = intent.getStringExtra("Nick")
 
         setContent {
@@ -86,7 +94,7 @@ class ChatView : ComponentActivity() {
 
 
             if (nick != null) {
-                ChatScreen(chatId = chatId, messages = messages, nick = nick)
+                ChatScreen(chatId = chatId, messages = messages, nick = nick, token!!)
             }
 
         }
@@ -98,7 +106,12 @@ class ChatView : ComponentActivity() {
 
 
     @Composable
-    fun ChatScreen(chatId: String?, messages: Map<String, List<Message>>, nick: String) {
+    fun ChatScreen(
+        chatId: String?,
+        messages: Map<String, List<Message>>,
+        nick: String,
+        token: String
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -108,7 +121,7 @@ class ChatView : ComponentActivity() {
                 modifier = Modifier.weight(1f)
             ) {
                 TopBarChat(nick)
-                chatId?.let { MessageList(chatId = it, messages = messages) }
+                chatId?.let { MessageList(chatId = it, messages = messages, token) }
             }
             BottomBar(onSendMessage = { /* Acción al enviar el mensaje */ })
         }
@@ -187,18 +200,32 @@ class ChatView : ComponentActivity() {
     }
 
     @Composable
-    fun MessageList(chatId: String, messages: Map<String, List<Message>>) {
+    fun MessageList(chatId: String, messages: Map<String, List<Message>>, token: String) {
         val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
 
+        var refreshing by remember { mutableStateOf(false) }
+
         val chatMessages = messages[chatId] ?: emptyList()
-        LazyColumn {
-            items(chatMessages) { message ->
-                if (message.source == sourceId) {
-                    MessageItem(message, true)
 
-                } else {
-                    MessageItem(message, false)
 
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(refreshing),
+            onRefresh = {
+                refreshing = true
+                MainScope().launch {
+                    viewModel.getMessagesForChat(token, chatId, 0, 1)
+                    delay(1000)
+                    refreshing = false
+                }
+            }
+        ) {
+            LazyColumn (Modifier.fillMaxSize()) {
+                items(chatMessages) { message ->
+                    if (message.source == sourceId) {
+                        MessageItem(message, true)
+                    } else {
+                        MessageItem(message, false)
+                    }
                 }
             }
         }

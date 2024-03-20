@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -20,6 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -42,16 +43,15 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.PullRefreshState
+import androidx.compose.material.minimumInteractiveComponentSize
 import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -80,14 +80,21 @@ import com.chat.whatsvass.ui.theme.Claro
 import com.chat.whatsvass.ui.theme.Contraste
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
-import com.chat.whatsvass.ui.theme.WhatsVassTheme
 import com.chat.whatsvass.ui.theme.White
-import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.chat.ChatView
+import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import okhttp3.internal.notify
+import okhttp3.internal.notifyAll
 import java.text.SimpleDateFormat
+import java.util.Collections
 import java.util.Locale
+import java.util.Random
 
 private lateinit var sharedPreferencesToken: SharedPreferences
 
@@ -136,6 +143,7 @@ class HomeView : ComponentActivity() {
                 messages = messages,
                 navigation = navController,
                 viewModel,
+                token!!,
                 onDeleteChat = { chatId ->
                     // Lógica para eliminar el chat en el ViewModel
                     viewModel.deleteChat(token!!, chatId)
@@ -155,6 +163,8 @@ fun HomeScreen(
     chats: List<Chat>,
     messages: Map<String, List<Message>>,
     navigation: NavController,
+    viewModel: HomeViewModel,
+    token: String,
     onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
 ) {
     Box(
@@ -165,41 +175,24 @@ fun HomeScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TopBarHomeAndList(chats, messages, viewModel, onDeleteChat)
+            TopBarHomeAndList(chats, messages, viewModel, token, onDeleteChat)
             Spacer(modifier = Modifier.weight(1f))
-            FloatingActionButton(
-                onClick = { navigation.navigate("lista_usuarios") },
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(16.dp)
-                    .size(56.dp),
-                backgroundColor = Principal,
-                contentColor = Contraste,
-                shape = CircleShape
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = "add",
-                    modifier = Modifier.size(32.dp)
-                )
-            }
         }
-    }
-}
-
-@Composable
-fun ChatList(
-    chats: List<Chat>,
-    messages: Map<String, List<Message>>,
-    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
-) {
-    LazyColumn {
-        items(chats) { chat ->
-            val chatMessages = messages[chat.chatId] ?: emptyList()
-            val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
-            val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
-
-            ChatItem(chat = chat, messages = chatMessages, name = name, onDeleteChat = { onDeleteChat(chat.chatId) })
+        FloatingActionButton(
+            onClick = { navigation.navigate("lista_usuarios") },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .size(56.dp),
+            backgroundColor = Principal,
+            contentColor = Contraste,
+            shape = CircleShape
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_add),
+                contentDescription = "add",
+                modifier = Modifier.size(32.dp)
+            )
         }
     }
 }
@@ -210,11 +203,17 @@ fun formatTimeFromApi(dateTimeString: String): String {
     val date = inputFormat.parse(dateTimeString)
     return outputFormat.format(date!!)
 }
+fun formatTimeFromApiToOrderList(dateTimeString: String): String {
+    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    val date = inputFormat.parse(dateTimeString)
+    return outputFormat.format(date!!)
+}
 
 @Composable
 fun ChatItem(
     chat: Chat,
-    messages: List<Message>,
+    messages: List<Message?>,
     name: String,
     onDeleteChat: (chatId: String) -> Unit // Modificación del parámetro onDeleteChat
 ) {
@@ -222,7 +221,7 @@ fun ChatItem(
     val context = LocalContext.current
 
     // Obtener el último mensaje si existe
-    val lastMessage = messages.lastOrNull()
+    val lastMessage = messages!!.lastOrNull()
 
     // Formatear la fecha del mensaje para mostrar solo la hora
     val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it) } ?: "N/A"
@@ -235,14 +234,6 @@ fun ChatItem(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
-            .clickable {
-                val intent = Intent(context, ChatView::class.java)
-                intent
-                    .putExtra("ChatID", chat.chatId)
-                    .putExtra("Nick", name)
-                context.startActivity(intent)
-                Log.d("chatid", chat.chatId)
-            }
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
@@ -251,6 +242,14 @@ fun ChatItem(
                 detectTapGestures(
                     onLongPress = {
                         showDialog.value = true
+                    },
+                    onTap = {
+                        val intent = Intent(context, ChatView::class.java)
+                        intent
+                            .putExtra("ChatID", chat.chatId)
+                            .putExtra("Nick", name)
+                        context.startActivity(intent)
+                        Log.d("chatid", chat.chatId)
                     }
                 )
             },
@@ -335,12 +334,33 @@ fun TopBarHomeAndList(
     chats: List<Chat>,
     messages: Map<String, List<Message>>,
     viewModel: HomeViewModel,
+    token: String,
     onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
 ) {
-    val isTextWithOutChatsVisible by viewModel.isTextWithOutChatsVisibleFlow.collectAsState(false)
     var searchText by remember { mutableStateOf(TextFieldValue()) }
     var listSearch by remember { mutableStateOf<List<Chat>>(emptyList()) }
+    val chatsUpdates by viewModel.chats.collectAsState(emptyList())
+
     val context = LocalContext.current
+    var refreshing by remember { mutableStateOf(false) }
+
+    // Ordenar chats por hora de ultimo mensaje
+    var mapOfChatIDandDateLast = mutableMapOf<String, String>()
+    for (i in chats) {
+        if (!messages[i.chatId].isNullOrEmpty()) {
+            if (!messages[i.chatId]!!.lastOrNull()!!.date.isNullOrEmpty()) {
+                val formattedTime =
+                    messages[i.chatId]!!.lastOrNull()!!.date.let { formatTimeFromApiToOrderList(it) }
+                mapOfChatIDandDateLast[i.chatId] = formattedTime
+            }
+        } else {
+            mapOfChatIDandDateLast[i.chatId] = "0"
+        }
+    }
+    val mapResultOrdered =
+        mapOfChatIDandDateLast.toList().sortedByDescending{ (_, value) -> value }.toMap()
+    val listRestultOrdered = mapResultOrdered.keys.toList()
+    Log.d("Mensajes ordenados", listRestultOrdered.toString())
 
     TopAppBar(
         backgroundColor = Principal,
@@ -410,45 +430,91 @@ fun TopBarHomeAndList(
         }
     }
 
-    // Comprobar si es targetnick o sourcenick
-    LazyColumn {
-        if (searchText.text.isEmpty()) {
-            items(chats) { chat ->
-                val chatMessages = messages[chat.chatId] ?: emptyList()
-                ChatItem(chat, chatMessages, onDeleteChat = { onDeleteChat(chat.chatId) })
-            }
-        } else {
-            listSearch =
-                chats.filter { it.targetNick.contains(searchText.text, ignoreCase = true) }
-            items(listSearch) { chat ->
-                val chatMessages = messages[chat.chatId] ?: emptyList()
-                ChatItem(chat, chatMessages, onDeleteChat = { onDeleteChat(chat.chatId) })
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(refreshing),
+        onRefresh = {
+            refreshing = true
+            MainScope().launch {
+                var listOfChatsIds = mutableListOf<String>()
+                for (i in chatsUpdates) {
+                    listOfChatsIds.add(i.chatId)
+                }
+                viewModel.getChats(token)
+                viewModel.getMessages(token, listOfChatsIds, 0, 1)
+                delay(1000)
+                refreshing = false
             }
         }
+    ) {
 
-    }
-
-    // Si no hay chats se muestra: "No tienes chats"
-    if (isTextWithOutChatsVisible){
-        Column(
+        LazyColumn(
             modifier = Modifier
-                .height(400.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
         ) {
-            Text(
-                text = "No tienes chats",
-                fontSize = 22.sp,
-                color = Oscuro
-            )
+            //Nueva lista con los chats ordenados por fecha y hora
+            var chatsNew = chats.toMutableList()
+            for (i in chats){
+                for (j in listRestultOrdered){
+                    if (i.chatId == j ){
+                        chatsNew.removeAt(listRestultOrdered.indexOf(j))
+                        chatsNew.add(listRestultOrdered.indexOf(j), i)
+                    }
+                }
+            }
+            if (searchText.text.isEmpty()) {
+                items(
+                    items = chatsNew,
+                    key = { chat ->
+                        // La llave sirve para que cada valor se mueva con su celda
+                       chat.chatId
+                    }
+                ){ chat ->
+                    val chatMessages = messages[chat.chatId] ?: emptyList()
+                    val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
+                    val name =
+                        if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
+                    ChatItem(
+                        chat = chat,
+                        messages = chatMessages,
+                        name = name,
+                        onDeleteChat = { onDeleteChat(chat.chatId) })
+                }
+            } else {
+                listSearch =
+                    chatsNew.filter { chat ->
+                        val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
+                        if (chat.sourceId == sourceId){
+                            chat.targetNick.contains(searchText.text,
+                                ignoreCase = true)
+                        } else {
+                            chat.sourceNick.contains(searchText.text,
+                                ignoreCase = true)
+                        }
+                    }
+                items(listSearch) { chat ->
+                    val chatMessages = messages[chat.chatId] ?: emptyList()
+                    val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
+                    val name =
+                        if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
+                    ChatItem(
+                        chat = chat,
+                        messages = chatMessages,
+                        name = name,
+                        onDeleteChat = { onDeleteChat(chat.chatId) })
+                }
+            }
+
         }
+
+
     }
+
+
     // Si no se encuentra el contacto buscado se muestra texto: "Sin coincidencias"
     if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == "Buscar...")) {
         Column(
             modifier = Modifier
-                .height(400.dp)
+                .height(600.dp)
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -461,7 +527,6 @@ fun TopBarHomeAndList(
         }
     }
 }
-
 
 
 

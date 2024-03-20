@@ -70,8 +70,19 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
 
     private val _newChatResult = MutableStateFlow<CreatedChat?>(null)
     val newChatResult: StateFlow<CreatedChat?> = _newChatResult
-    fun createNewChat(context: Context, token: String, chatRequest: ChatRequest) {
+
+    private val isNewChatCreated = MutableStateFlow(false)
+    var isNewChatCreatedFlow: Flow<Boolean> = isNewChatCreated
+    fun createNewChat(context: Context, token: String, chatRequest: ChatRequest){
+        isNewChatCreated.value = false
         viewModelScope.launch(Dispatchers.IO) {
+            async {
+                createNewChatModel(context, token, chatRequest)
+            }.await()
+            isNewChatCreated.value = true
+        }
+    }
+    suspend fun createNewChatModel(context: Context, token: String, chatRequest: ChatRequest){
             try {
                 val newChat = contactsRepository.createNewChat(token!!, chatRequest)
                 _newChatResult.value = newChat
@@ -81,7 +92,6 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
                 Toast.makeText(context, "Error al crear chat", Toast.LENGTH_SHORT).show()
                 Log.d("Nuevo chat", "Error al crear chat: ${e.message}")
             }
-        }
     }
 }
 

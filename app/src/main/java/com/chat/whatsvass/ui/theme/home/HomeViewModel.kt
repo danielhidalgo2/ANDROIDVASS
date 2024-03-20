@@ -3,6 +3,7 @@ package com.chat.whatsvass.ui.theme.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.ChatRepository
@@ -17,9 +18,6 @@ class HomeViewModel : ViewModel() {
 
     private val chatRepository = ChatRepository()
 
-    private val isTextWithOutChatsVisible = MutableStateFlow(false)
-    var isTextWithOutChatsVisibleFlow: Flow<Boolean> = isTextWithOutChatsVisible
-
     private val _chats = MutableStateFlow<List<Chat>>(emptyList())
     val chats: StateFlow<List<Chat>> = _chats
 
@@ -27,34 +25,22 @@ class HomeViewModel : ViewModel() {
     val messages: StateFlow<Map<String, List<Message>>> = _messages
 
     fun getChats(token: String) {
-
         viewModelScope.launch {
-            async {
-                isTextWithOutChatsVisible.value = false
                 try {
                     val chats = chatRepository.getChats(token)
                     _chats.value = chats
                     if (chats.isEmpty()){
-                        isTextWithOutChatsVisible.value = true
                     }
                     Log.d("HomeViewModel", "Chats obtenidos correctamente")
 
                 } catch (e: Exception) {
                     Log.e("HomeViewModel", "Error al obtener los chats", e)
                 }
-            }
         }
     }
 
-    fun getMessages(token: String, chatIds: List<String>, offset: Int, limit: Int){
+    suspend fun getMessages(token: String, chatIds: List<String>, offset: Int, limit: Int) {
         viewModelScope.launch {
-            async {
-                getMessagesList(token, chatIds, offset, limit)
-            }.await()
-        }
-    }
-
-    private suspend fun getMessagesList(token: String, chatIds: List<String>, offset: Int, limit: Int) {
             try {
                 val messagesMap = mutableMapOf<String, List<Message>>()
                 chatIds.forEach { chatId ->
@@ -66,6 +52,7 @@ class HomeViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error al obtener los mensajes", e)
             }
+        }
     }
 
     fun deleteChat(token: String?, chatId: String) {

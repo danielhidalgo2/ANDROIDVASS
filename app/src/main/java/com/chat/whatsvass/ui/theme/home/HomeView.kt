@@ -130,6 +130,29 @@ class HomeView : ComponentActivity() {
             )
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        // Obtener el token de SharedPreferences
+        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        if (token != null) {
+            // Actualizar el estado en línea del usuario como "en línea" cuando se reanuda la actividad
+            viewModel.updateUserOnlineStatus(token, true)
+        }
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Obtener el token de SharedPreferences
+        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        if (token != null) {
+            // Actualizar el estado en línea del usuario como "fuera de línea" cuando se pausa la actividad
+            viewModel.updateUserOnlineStatus(token, false)
+        }
+
+    }
+
 }
 
 
@@ -190,12 +213,18 @@ fun ChatList(
             val chatMessages = messages[chat.chatId] ?: emptyList()
             val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
             val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
-            val color: Color = if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
-                Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
-            } else {
-                Color.Red // Si no, asigna otro color
-            }
-            ChatItem(chat = chat, messages = chatMessages, name = name,color= color, onDeleteChat = { onDeleteChat(chat.chatId) })
+            val color: Color =
+                if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
+                    Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
+                } else {
+                    Color.Red // Si no, asigna otro color
+                }
+            ChatItem(
+                chat = chat,
+                messages = chatMessages,
+                name = name,
+                color = color,
+                onDeleteChat = { onDeleteChat(chat.chatId) })
         }
     }
 }
@@ -259,27 +288,39 @@ fun ChatItem(
         Spacer(modifier = Modifier.weight(0.1f))
         Box(
             modifier = Modifier
-                .size(50.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .background(Color.LightGray),
-            contentAlignment = Alignment.Center
+                .size(53.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.image_person),
-                contentDescription = "Foto de perfil",
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(4.dp)
-            )
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(Color.LightGray),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.image_person),
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(4.dp)
+                )
+            }
+
             Icon(
                 painter = painterResource(id = R.drawable.ic_circle),
                 contentDescription = "Custom Icon",
                 tint = color, // Comprobar si esta online / offline
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .size(15.dp)
+                    .size(17.dp)
+                    .padding(
+                        end = 5.dp, // Ajustamos el espaciado hacia la izquierda
+                        bottom = 4.dp
+                    )
             )
         }
+
+
 
         Spacer(modifier = Modifier.width(16.dp))
 

@@ -1,7 +1,6 @@
 package com.chat.whatsvass.ui.theme.chat
 
 import android.annotation.SuppressLint
-import android.content.ClipData.Item
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -17,8 +16,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,8 +24,6 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
@@ -40,12 +35,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,7 +50,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.toColorInt
 import androidx.lifecycle.lifecycleScope
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
@@ -68,11 +60,9 @@ import com.chat.whatsvass.data.domain.repository.remote.response.create_message.
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
-import com.chat.whatsvass.ui.theme.contacts.ContactsViewModel
+import com.chat.whatsvass.ui.theme.home.HomeViewModel
 import com.chat.whatsvass.ui.theme.home.formatTimeFromApi
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
@@ -83,7 +73,6 @@ private lateinit var sharedPreferencesToken: SharedPreferences
 
 class ChatView : ComponentActivity() {
     private val viewModel: ChatViewModel by viewModels()
-
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -129,7 +118,7 @@ class ChatView : ComponentActivity() {
                 modifier = Modifier.weight(1f)
             ) {
                 TopBarChat(nick, online)
-                chatId?.let { MessageList(chatId = it, messages = messages, token) }
+                chatId?.let { MessageList(chatId = it, messages = messages, token!!) }
             }
             BottomBar(chatId, onSendMessage = { /* Acción al enviar el mensaje */ })
         }

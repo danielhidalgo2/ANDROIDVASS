@@ -291,6 +291,7 @@ fun ContactItem(
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
     val isNewChatCreated by viewModel.isNewChatCreatedFlow.collectAsState(false)
     val newChat by viewModel.newChatResult.collectAsState(null)
+
     Row(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
@@ -302,14 +303,16 @@ fun ContactItem(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
-                        viewModel.createNewChat(context, token, chatRequest)
+
                               },
                     onTap = {
+                        viewModel.createNewChat(context, token, chatRequest)
                         if (isNewChatCreated){
                             val intent = Intent(context, ChatView::class.java)
                             intent
                                 .putExtra("ChatID", newChat!!.chat.id)
                                 .putExtra("Nick", contact.nick)
+                                .putExtra("Online",  contact.online.toString())
                             context.startActivity(intent)
                             Log.d("CHATID",  newChat!!.chat.id)
                         }

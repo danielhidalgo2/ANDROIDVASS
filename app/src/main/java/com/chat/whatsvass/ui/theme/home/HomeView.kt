@@ -206,28 +206,6 @@ fun HomeScreen(
     }
 }
 
-
-@Composable
-fun ChatList(
-    chats: List<Chat>,
-    messages: Map<String, List<Message>>,
-    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
-) {
-    LazyColumn {
-        items(chats) { chat ->
-            val chatMessages = messages[chat.chatId] ?: emptyList()
-            val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
-            val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
-            val color: Color = if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
-                Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
-            } else {
-                Color.Red // Si no, asigna otro color
-            }
-            ChatItem(chat = chat, messages = chatMessages, name = name,color= color, onDeleteChat = { onDeleteChat(chat.chatId) })
-        }
-    }
-}
-
 fun formatTimeFromApi(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
     val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
@@ -490,7 +468,6 @@ fun TopBarHomeAndList(
             }
         }
     ) {
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -505,7 +482,12 @@ fun TopBarHomeAndList(
                     }
                 }
             }
-            if (searchText.text.isEmpty()) {
+            chatsNew = chatsNew.distinct().toMutableList()
+
+            for (i in chatsNew){
+                Log.d("CHATNEW", i.chatId)
+            }
+            if (searchText.text.isNullOrEmpty() || searchText.text == "Buscar...") {
                 items(
                     items = chatsNew,
                     key = { chat ->
@@ -515,12 +497,17 @@ fun TopBarHomeAndList(
                 ){ chat ->
                     val chatMessages = messages[chat.chatId] ?: emptyList()
                     val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
-                    val name =
-                        if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
+                    val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
+                    val color: Color = if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
+                        Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
+                    } else {
+                        Color.Red // Si no, asigna otro color
+                    }
                     ChatItem(
                         chat = chat,
                         messages = chatMessages,
                         name = name,
+                        color = color,
                         onDeleteChat = { onDeleteChat(chat.chatId) })
                 }
             } else {
@@ -538,16 +525,20 @@ fun TopBarHomeAndList(
                 items(listSearch) { chat ->
                     val chatMessages = messages[chat.chatId] ?: emptyList()
                     val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
-                    val name =
-                        if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
+                    val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
+                    val color: Color = if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
+                        Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
+                    } else {
+                        Color.Red // Si no, asigna otro color
+                    }
                     ChatItem(
                         chat = chat,
                         messages = chatMessages,
                         name = name,
+                        color = color,
                         onDeleteChat = { onDeleteChat(chat.chatId) })
                 }
             }
-
         }
     }
 

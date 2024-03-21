@@ -74,6 +74,7 @@ private lateinit var sharedPreferencesToken: SharedPreferences
 class ChatView : ComponentActivity() {
     private val viewModel: ChatViewModel by viewModels()
 
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,7 +107,13 @@ class ChatView : ComponentActivity() {
 
 
     @Composable
-    fun ChatScreen(chatId: String?, messages: Map<String, List<Message>>, nick: String, online: String, token:String) {
+    fun ChatScreen(
+        chatId: String?,
+        messages: Map<String, List<Message>>,
+        nick: String,
+        online: String,
+        token: String
+    ) {
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
         Column(
@@ -183,7 +190,11 @@ class ChatView : ComponentActivity() {
                         tint = color, // Comprobar si esta online / offline
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .size(15.dp)
+                            .size(17.dp)
+                            .padding(
+                                end = 5.dp, // Ajustamos el espaciado hacia la izquierda
+                                bottom = 4.dp
+                            )
                     )
                 }
 
@@ -321,10 +332,13 @@ class ChatView : ComponentActivity() {
 
             IconButton(
                 onClick = {
-                    if ( chatId != null && token != null) {
+                    if (chatId != null && token != null) {
 
                         lifecycleScope.launch {
-                            viewModel.createNewMessageAndReload(token, MessageRequest(chatId, sourceID!!, messageText))
+                            viewModel.createNewMessageAndReload(
+                                token,
+                                MessageRequest(chatId, sourceID!!, messageText)
+                            )
                         }
                     }
 

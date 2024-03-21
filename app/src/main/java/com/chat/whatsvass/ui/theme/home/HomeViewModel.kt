@@ -10,6 +10,7 @@ import com.chat.whatsvass.data.domain.repository.remote.ChatRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 class HomeViewModel : ViewModel() {
 
     private val chatRepository = ChatRepository()
+    private val userRepository = UserRepository()
 
     private val _chats = MutableStateFlow<List<Chat>>(emptyList())
     val chats: StateFlow<List<Chat>> = _chats
@@ -26,16 +28,15 @@ class HomeViewModel : ViewModel() {
 
     fun getChats(token: String) {
         viewModelScope.launch {
-                try {
-                    val chats = chatRepository.getChats(token)
-                    _chats.value = chats
-                    if (chats.isEmpty()){
-                    }
-                    Log.d("HomeViewModel", "Chats obtenidos correctamente")
-
-                } catch (e: Exception) {
-                    Log.e("HomeViewModel", "Error al obtener los chats", e)
-                }
+            try {
+                val chats = chatRepository.getChats(token)
+                _chats.value = chats
+                // Actualiza el estado en línea del usuario al obtener los chats
+                userRepository.updateUserOnlineStatus(token, true)
+                Log.d("HomeViewModel", "Chats obtenidos correctamente")
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error al obtener los chats", e)
+            }
         }
     }
 
@@ -73,6 +74,16 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    fun updateUserOnlineStatus(token: String, isOnline: Boolean) {
+        viewModelScope.launch {
+            try {
+                userRepository.updateUserOnlineStatus(token, isOnline)
+                Log.d("HomeViewModel", "Estado en línea del usuario actualizado correctamente")
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error al actualizar el estado en línea del usuario", e)
+            }
+        }
+    }
 
 }
 

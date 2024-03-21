@@ -4,14 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,12 +43,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -65,8 +68,12 @@ import com.chat.whatsvass.ui.theme.Contraste
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
+import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class ContactsView : ComponentActivity() {
     private val viewModel: ContactsViewModel by viewModels()
@@ -81,6 +88,7 @@ class ContactsView : ComponentActivity() {
         val myId = sharedPreferencesUserData.getString(KEY_ID, null)
 
         setContent {
+
             // Observar el resultado del ViewModel
             LaunchedEffect(key1 = viewModel) {
                 if (token != null) {
@@ -209,13 +217,13 @@ fun TopBarAndList(
 
         if (searchText.text.isEmpty()) {
             items(contacts) { contact ->
-                ContactItem(context, token, ChatRequest(myId, contact.id), contact, viewModel)
+                ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id))
             }
         } else {
             listSearch =
                 contacts.filter { it.nick.contains(searchText.text, ignoreCase = true) }
             items(listSearch) { contact ->
-                ContactItem(context, token, ChatRequest(myId, contact.id), contact, viewModel)
+                ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id))
             }
         }
     }
@@ -223,7 +231,9 @@ fun TopBarAndList(
     // Si no hay contactos se muestra: "Sin contactos"
     if (isTextWithOutContactsVisible) {
         Column(
-            Modifier.fillMaxSize(),
+            modifier = Modifier
+                .height(400.dp)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -237,7 +247,9 @@ fun TopBarAndList(
     // Si hay contactos y el searchText esta vacio se muestra el progressBar
     if (!isTextWithOutContactsVisible && searchText.text.isEmpty()) {
         Column(
-            Modifier.fillMaxSize(),
+            modifier = Modifier
+                .height(400.dp)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -251,7 +263,9 @@ fun TopBarAndList(
     // Si no se encuentra el contacto buscado se muestra texto: "Sin coincidencias"
     if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == "Buscar...")) {
         Column(
-            Modifier.fillMaxSize(),
+            modifier = Modifier
+                .height(400.dp)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -269,25 +283,42 @@ fun TopBarAndList(
 @Composable
 fun ContactItem(
     context: Context,
-    token: String,
-    chatRequest: ChatRequest,
     contact: Contacts,
-    viewModel: ContactsViewModel
+    token: String,
+    viewModel: ContactsViewModel,
+    chatRequest: ChatRequest,
 ) {
     val colorWithOpacity = Contraste.copy(alpha = 0.4f)
+    val isNewChatCreated by viewModel.isNewChatCreatedFlow.collectAsState(false)
+    val newChat by viewModel.newChatResult.collectAsState(null)
 
     Row(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
-            .clickable {
-                viewModel.createNewChat(context, token, chatRequest)
-                // Ir a pantalla de chat
-            }
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
-            .background(colorWithOpacity),
+            .background(colorWithOpacity)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+
+                              },
+                    onTap = {
+                        viewModel.createNewChat(context, token, chatRequest)
+                        if (isNewChatCreated){
+                            val intent = Intent(context, ChatView::class.java)
+                            intent
+                                .putExtra("ChatID", newChat!!.chat.id)
+                                .putExtra("Nick", contact.nick)
+                                .putExtra("Online",  contact.online.toString())
+                            context.startActivity(intent)
+                            Log.d("CHATID",  newChat!!.chat.id)
+                        }
+                    }
+                )
+            },
         verticalAlignment = Alignment.CenterVertically,
 
         ) {

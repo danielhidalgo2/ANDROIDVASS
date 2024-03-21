@@ -71,6 +71,9 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     // SystemUiController, para cambiar color de statusBar
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
+    // SwipeRefresh
+    implementation ("com.google.accompanist:accompanist-swiperefresh:0.24.13-rc")
+
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")

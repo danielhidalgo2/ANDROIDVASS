@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -54,9 +55,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImagePainter.State.Empty.painter
 import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.chat.whatsvass.R
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
+import com.chat.whatsvass.ui.theme.WhatsVassTheme
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.ButtonCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.NavigationBarCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.PasswordTextFieldCustom
@@ -73,8 +76,10 @@ class ProfileView : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
             val navController = rememberNavController()
             ProfileScreen(ProfileViewModel(), navController)
+
         }
         window.decorView.setOnTouchListener { _, _ ->
             hideKeyboard(this)
@@ -219,53 +224,40 @@ class ProfileView : ComponentActivity() {
 
     @Composable
     fun ImageProfile() {
+
         val context = LocalContext.current
-        var image by remember { mutableStateOf<Uri?>(null) }
-        var isImagePressed by remember { mutableStateOf(false) }
-        var isImageSelected = false
+        val selectedImage = remember { mutableStateOf<Uri?>(null) }
 
-        if (isImagePressed) {
-            /*   AlertDialogExample(
-                   context,
-                   "Tomar imagen desde",
-                   "Selecciona una opción")
-               {
-                   isImagePressed = false
-                   image = imageUri
-               }*/
-            chooseImage()
-            isImagePressed = false
-            isImageSelected = true
-            image = imageUri
+        // Abrir galeria
+        val getContent = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
+            selectedImage.value = uri
         }
-
+        
         Box(
             modifier = Modifier
                 .height(152.dp)
                 .width(152.dp)
         ) {
 
-            image = imageUri
-
-            val painter = if (image != null) {
-                rememberAsyncImagePainter(image)
-            } else {
-                painterResource(id = R.drawable.image_person)
+            var painter = painterResource(id = R.drawable.image_person)
+            selectedImage.value?.let { uri ->
+                if (uri != null){
+                    painter = rememberAsyncImagePainter(uri)
+                }
             }
             Image(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .height(152.dp)
-                    .width(152.dp),
-                painter = painter,
-                contentDescription = "",
-                contentScale = ContentScale.Crop
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .height(152.dp)
+                        .width(152.dp),
+            painter = painter,
+            contentDescription = "",
+            contentScale = ContentScale.Crop
             )
-
             Image(
                 modifier = Modifier
                     .clickable {
-                        isImagePressed = true
+                        getContent.launch("image/*")
                     }
                     .clip(CircleShape)
                     .background(Principal)

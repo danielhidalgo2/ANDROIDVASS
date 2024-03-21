@@ -3,9 +3,13 @@ package com.chat.whatsvass.ui.theme.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.ChatRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,7 +40,7 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun getMessages(token: String, chatIds: List<String>, offset: Int, limit: Int) {
+    suspend fun getMessages(token: String, chatIds: List<String>, offset: Int, limit: Int) {
         viewModelScope.launch {
             try {
                 val messagesMap = mutableMapOf<String, List<Message>>()
@@ -82,7 +86,6 @@ class HomeViewModel : ViewModel() {
     }
 
 }
-
 
 
 

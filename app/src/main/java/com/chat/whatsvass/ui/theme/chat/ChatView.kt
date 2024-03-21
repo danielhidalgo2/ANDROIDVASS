@@ -24,8 +24,6 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
@@ -37,12 +35,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +50,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.toColorInt
 import androidx.lifecycle.lifecycleScope
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_TOKEN
@@ -65,9 +60,13 @@ import com.chat.whatsvass.data.domain.repository.remote.response.create_message.
 import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
+import com.chat.whatsvass.ui.theme.home.HomeViewModel
 import com.chat.whatsvass.ui.theme.home.formatTimeFromApi
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
-import kotlinx.coroutines.async
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private lateinit var sharedPreferencesToken: SharedPreferences
@@ -95,7 +94,7 @@ class ChatView : ComponentActivity() {
 
 
             if (nick != null) {
-                ChatScreen(chatId = chatId, messages = messages, nick = nick, online = online!!)
+                ChatScreen(chatId = chatId, messages = messages, nick = nick, online = online!! , token!!)
             }
 
 
@@ -112,7 +111,8 @@ class ChatView : ComponentActivity() {
         chatId: String?,
         messages: Map<String, List<Message>>,
         nick: String,
-        online: String
+        online: String,
+        token: String
     ) {
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
@@ -124,8 +124,8 @@ class ChatView : ComponentActivity() {
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                TopBarChat(nick, online = online)
-                chatId?.let { MessageList(chatId = it, messages = messages) }
+                TopBarChat(nick, online)
+                chatId?.let { MessageList(chatId = it, messages = messages, token!!) }
             }
             BottomBar(chatId, onSendMessage = { /* Acción al enviar el mensaje */ })
         }
@@ -213,19 +213,32 @@ class ChatView : ComponentActivity() {
     }
 
     @Composable
-    fun MessageList(chatId: String, messages: Map<String, List<Message>>) {
+    fun MessageList(chatId: String, messages: Map<String, List<Message>>, token: String) {
         val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
+
+        var refreshing by remember { mutableStateOf(false) }
 
         val chatMessages = messages[chatId] ?: emptyList()
 
-        LazyColumn {
-            items(chatMessages) { message ->
-                if (message.source == sourceId) {
-                    MessageItem(message, true)
 
-                } else {
-                    MessageItem(message, false)
-
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(refreshing),
+            onRefresh = {
+                refreshing = true
+                MainScope().launch {
+                    viewModel.getMessagesForChat(token, chatId, 0, 1)
+                    delay(1000)
+                    refreshing = false
+                }
+            }
+        ) {
+            LazyColumn (Modifier.fillMaxSize()) {
+                items(chatMessages) { message ->
+                    if (message.source == sourceId) {
+                        MessageItem(message, true)
+                    } else {
+                        MessageItem(message, false)
+                    }
                 }
             }
         }

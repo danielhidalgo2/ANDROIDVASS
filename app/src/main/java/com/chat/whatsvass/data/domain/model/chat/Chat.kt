@@ -2,7 +2,7 @@ package com.chat.whatsvass.data.domain.model.chat
 
 
 data class Chat(
-    val chatId: String,
+    var chatId: String,
     val sourceId: String,
     val sourceNick: String,
     val sourceAvatar: String?,

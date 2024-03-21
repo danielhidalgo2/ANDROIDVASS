@@ -71,6 +71,8 @@ import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -214,15 +216,24 @@ fun TopBarAndList(
 
 
     LazyColumn {
-
         if (searchText.text.isEmpty()) {
-            items(contacts) { contact ->
+            items(contacts,
+                key = { contact ->
+                // La llave sirve para que cada valor se mueva con su celda
+                contact.id
+            }
+            ) { contact ->
+
                 ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id))
             }
         } else {
             listSearch =
                 contacts.filter { it.nick.contains(searchText.text, ignoreCase = true) }
-            items(listSearch) { contact ->
+            items(listSearch,
+                key = { contact ->
+                    contact.id
+                }
+            ) { contact ->
                 ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id))
             }
         }
@@ -296,25 +307,27 @@ fun ContactItem(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
+            .clickable {  }
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
             .background(colorWithOpacity)
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onPress = {
-
-                              },
+                    onPress = {},
                     onTap = {
                         viewModel.createNewChat(context, token, chatRequest)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            delay(150)
                         if (isNewChatCreated){
-                            val intent = Intent(context, ChatView::class.java)
-                            intent
-                                .putExtra("ChatID", newChat!!.chat.id)
-                                .putExtra("Nick", contact.nick)
-                                .putExtra("Online",  contact.online.toString())
-                            context.startActivity(intent)
-                            Log.d("CHATID",  newChat!!.chat.id)
+                                val intent = Intent(context, ChatView::class.java)
+                                intent
+                                    .putExtra("ChatID", newChat!!.chat.id)
+                                    .putExtra("Nick", contact.nick)
+                                    .putExtra("Online",  contact.online.toString())
+                                context.startActivity(intent)
+                                Log.d("CHATID",  newChat!!.chat.id)
+                            }
                         }
                     }
                 )
@@ -325,6 +338,7 @@ fun ContactItem(
         Spacer(modifier = Modifier.weight(0.1f))
         Box(
             modifier = Modifier
+                .clickable {  }
                 .size(50.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .background(Color.LightGray),

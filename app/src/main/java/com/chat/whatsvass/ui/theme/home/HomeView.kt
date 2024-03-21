@@ -585,7 +585,11 @@ fun TopBarHomeAndList(
                                 ignoreCase = true)
                         }
                     }
-                items(listSearch) { chat ->
+                items(listSearch,
+                    key = { chat ->
+                        // La llave sirve para que cada valor se mueva con su celda
+                        chat.chatId
+                    }) { chat ->
                     val chatMessages = messages[chat.chatId] ?: emptyList()
                     val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
                     val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick

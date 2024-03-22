@@ -107,6 +107,7 @@ class LoginView : AppCompatActivity() {
 
         setContent {
             val viewModel = remember { LoginViewModel(application) }
+            val viewModelCreateUser = remember { ProfileViewModel(application) }
 
             val username = remember { mutableStateOf("") }
             val password = remember { mutableStateOf("") }
@@ -132,7 +133,8 @@ class LoginView : AppCompatActivity() {
                     }
                 }
                 composable("profile") {
-                    ProfileView().ProfileScreen(viewModel = ProfileViewModel(), navController = navController )
+                    ProfileView().ProfileScreen(viewModelCreateUser, navController = navController)
+
                 }
                 // Agrega más composables para otras pantallas si es necesario
             }

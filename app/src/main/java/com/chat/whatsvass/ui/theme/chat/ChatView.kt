@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
@@ -234,7 +236,7 @@ class ChatView : ComponentActivity() {
                 }
             }
         ) {
-            LazyColumn (Modifier.fillMaxSize()) {
+            LazyColumn(Modifier.fillMaxSize()) {
                 items(chatMessages) { message ->
                     if (message.source == sourceId) {
                         MessageItem(message, true)
@@ -285,12 +287,12 @@ class ChatView : ComponentActivity() {
                         textAlign = alignment,
                     )
                     Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.height(2.dp))
 
                     Text(
                         text = formattedTime,
                         style = TextStyle(fontSize = 14.sp, color = Color.Gray),
-
-                        )
+                    )
                 }
             }
 

@@ -59,6 +59,7 @@ import com.chat.whatsvass.ui.theme.components.GeneralComponents.ButtonCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.NavigationBarCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.PasswordTextFieldCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.TextFieldCustom
+import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.login.LoginView
 import com.chat.whatsvass.ui.theme.login.LoginViewModel
@@ -77,8 +78,10 @@ class ProfileView : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val navController = rememberNavController()
-            ProfileScreen(ProfileViewModel(), navController)
+
+//            val navController = rememberNavController()
+//            ProfileScreen(ProfileViewModel(), navController)
+
         }
         window.decorView.setOnTouchListener { _, _ ->
             hideKeyboard(this)
@@ -206,9 +209,10 @@ class ProfileView : ComponentActivity() {
                         context,
                         "Usuario creado correctamente."
                     )
-                    if (register != null){
+                    //  IR HACIA HOME
+                    val intent = Intent(context, LoadingActivity::class.java)
+                    context.startActivity(intent)
 
-                    }
                 }
 
                 is ProfileViewModel.RegisterResult.Error -> {

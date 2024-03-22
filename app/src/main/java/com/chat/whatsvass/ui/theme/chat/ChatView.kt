@@ -9,7 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,15 +51,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import com.chat.whatsvass.R
+import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
+import com.chat.whatsvass.commons.DELAY_GET_MESSAGESFORCHAT
 import com.chat.whatsvass.commons.KEY_TOKEN
+import com.chat.whatsvass.commons.KNICK_ARGUMENT
+import com.chat.whatsvass.commons.LIMIT_GET_MESSAGESFORCHAT
+import com.chat.whatsvass.commons.OFFSET_GET_MESSAGESFORCHAT
+import com.chat.whatsvass.commons.ONLINE_ARGUMENT
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.response.create_message.MessageRequest
-import com.chat.whatsvass.ui.theme.Oscuro
-import com.chat.whatsvass.ui.theme.Principal
+import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
-import com.chat.whatsvass.ui.theme.home.HomeViewModel
 import com.chat.whatsvass.ui.theme.home.formatTimeFromApi
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -81,20 +85,20 @@ class ChatView : ComponentActivity() {
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
-        val chatId = intent.getStringExtra("ChatID")
-        val nick = intent.getStringExtra("Nick")
-        val online = intent.getStringExtra("Online")
+        val chatId = intent.getStringExtra(CHAT_ID_ARGUMENT)
+        val nick = intent.getStringExtra(KNICK_ARGUMENT)
+        val online = intent.getStringExtra(ONLINE_ARGUMENT)
 
         setContent {
             val messages by viewModel.message.collectAsState(emptyMap())
 
             if (token != null && chatId != null) {
-                viewModel.getMessagesForChat(token, chatId, offset = 0, limit = 100)
+                viewModel.getMessagesForChat(token, chatId, OFFSET_GET_MESSAGESFORCHAT, LIMIT_GET_MESSAGESFORCHAT)
             }
 
 
             if (nick != null) {
-                ChatScreen(chatId = chatId, messages = messages, nick = nick, online = online!! , token!!)
+                ChatScreen(chatId = chatId, messages = messages, nick = nick, online = online!!)
             }
 
 
@@ -111,8 +115,7 @@ class ChatView : ComponentActivity() {
         chatId: String?,
         messages: Map<String, List<Message>>,
         nick: String,
-        online: String,
-        token: String
+        online: String
     ) {
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
@@ -136,7 +139,7 @@ class ChatView : ComponentActivity() {
     fun TopBarChat(nick: String, online: String) {
         val userOnline = online.toBoolean()
         TopAppBar(
-            backgroundColor = Principal,
+            backgroundColor = Main,
             elevation = 4.dp,
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
         ) {
@@ -144,11 +147,10 @@ class ChatView : ComponentActivity() {
                 modifier = Modifier
                     .padding(vertical = 12.dp, horizontal = 16.dp)
                     .fillMaxWidth()
-                    .clickable { }
                     .requiredWidth(width = 368.dp)
                     .requiredHeight(height = 74.dp)
                     .clip(shape = RoundedCornerShape(20.dp))
-                    .background(Principal),
+                    .background(Main),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = {
@@ -226,8 +228,8 @@ class ChatView : ComponentActivity() {
             onRefresh = {
                 refreshing = true
                 MainScope().launch {
-                    viewModel.getMessagesForChat(token, chatId, 0, 1)
-                    delay(1000)
+                    viewModel.getMessagesForChat(token, chatId, OFFSET_GET_MESSAGESFORCHAT, LIMIT_GET_MESSAGESFORCHAT)
+                    delay(DELAY_GET_MESSAGESFORCHAT)
                     refreshing = false
                 }
             }
@@ -351,7 +353,7 @@ class ChatView : ComponentActivity() {
                     imageVector = Icons.AutoMirrored.Filled.Send,
                     contentDescription = "Enviar",
                     Modifier.size(40.dp),
-                    tint = Oscuro
+                    tint = Dark
                 )
             }
         }

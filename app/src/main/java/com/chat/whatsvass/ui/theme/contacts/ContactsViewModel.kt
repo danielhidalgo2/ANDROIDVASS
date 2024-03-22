@@ -5,9 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.commons.KEY_NICK
 import com.chat.whatsvass.commons.SHARED_USER_DATA
@@ -33,6 +31,9 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
     private val isTextWithOutContactsVisible = MutableStateFlow(false)
     var isTextWithOutVisibleFlow: Flow<Boolean> = isTextWithOutContactsVisible
 
+    private val isProgressBarVisible = MutableStateFlow(true)
+    var isProgressVisibleFlow: Flow<Boolean> = isProgressBarVisible
+
     private val _contactsResult = MutableStateFlow<List<Contacts>>(emptyList())
     val contactsResult: StateFlow<List<Contacts>> = _contactsResult
 
@@ -53,9 +54,10 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
             if (contactsResult.value.isEmpty()){
                 isTextWithOutContactsVisible.value = true
             }
+            isProgressBarVisible.value = false
         }
     }
-    suspend fun getContactsList(token: String) {
+    private suspend fun getContactsList(token: String) {
         try {
             val contacts = contactsRepository.getContacts(token!!)
             _contactsResult.value = contacts
@@ -82,7 +84,7 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
             isNewChatCreated.value = true
         }
     }
-    suspend fun createNewChatModel(context: Context, token: String, chatRequest: ChatRequest){
+    private suspend fun createNewChatModel(context: Context, token: String, chatRequest: ChatRequest){
             try {
                 val newChat = contactsRepository.createNewChat(token, chatRequest)
                 _newChatResult.value = newChat

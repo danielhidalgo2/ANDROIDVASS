@@ -1,10 +1,8 @@
 package com.chat.whatsvass.ui.theme.settings
 
-import android.accessibilityservice.FingerprintGestureController
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.hardware.fingerprint.FingerprintManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -20,8 +18,8 @@ import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_NOTIFICATIONS
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_SETTINGS
-import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.commons.SHARED_USER_DATA
+import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.databinding.ActivitySettingsViewBinding
 import com.chat.whatsvass.ui.theme.login.LoginView
 import kotlinx.coroutines.launch

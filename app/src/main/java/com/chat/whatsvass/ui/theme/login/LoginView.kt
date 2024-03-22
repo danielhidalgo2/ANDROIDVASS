@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import androidx.biometric.BiometricManager
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
@@ -13,11 +12,20 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -31,7 +39,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,31 +61,26 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_BIOMETRIC
-import com.chat.whatsvass.commons.KEY_ID
 import com.chat.whatsvass.commons.KEY_PASSWORD
 import com.chat.whatsvass.commons.KEY_USERNAME
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
-import com.chat.whatsvass.ui.theme.Claro
-import com.chat.whatsvass.ui.theme.Oscuro
-import com.chat.whatsvass.ui.theme.Principal
+import com.chat.whatsvass.ui.theme.Light
+import com.chat.whatsvass.ui.theme.Dark
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
-import com.chat.whatsvass.ui.theme.settings.SettingsView
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 const val Shape = 20
 
-// Hay que utilizar AppCompatActivity (En lugar de ComponentActivity) para que cuncione el biometrico
+// Hay que utilizar AppCompatActivity (En lugar de ComponentActivity) para que funcione el biometrico
 class LoginView : AppCompatActivity() {
 
     private lateinit var sharedPreferencesSettings: SharedPreferences
@@ -219,7 +227,7 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Claro)
+            .background(Light)
     ) {
         Column(
             modifier = Modifier
@@ -296,7 +304,7 @@ fun LoginScreen(
                         .align(Alignment.CenterHorizontally)
                         .padding(16.dp)
                         .size(70.dp),
-                    backgroundColor = Claro,
+                    backgroundColor = Light,
                     contentColor = White,
                     shape = CircleShape
                 ) {
@@ -448,7 +456,7 @@ fun LoginButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(Shape.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Oscuro),
+        colors = ButtonDefaults.buttonColors(containerColor = Dark),
     ) {
         Text(
             text = "Login",

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -82,6 +83,7 @@ class ChatView : ComponentActivity() {
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
+
         val chatId = intent.getStringExtra("ChatID")
         val nick = intent.getStringExtra("Nick")
         val online = intent.getStringExtra("Online")
@@ -121,7 +123,6 @@ class ChatView : ComponentActivity() {
         online: String,
         token: String
     ) {
-        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
         Column(
             modifier = Modifier

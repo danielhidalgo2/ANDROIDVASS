@@ -26,6 +26,7 @@
         <activity
             android:name=".ui.theme.chat.ChatView"
             android:exported="false"
+            android:windowSoftInputMode="adjustResize"
             android:label="@string/title_activity_chat_view"
             android:theme="@style/Theme.WhatsVass" />
         <activity

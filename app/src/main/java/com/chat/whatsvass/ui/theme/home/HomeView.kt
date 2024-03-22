@@ -3,15 +3,12 @@ package com.chat.whatsvass.ui.theme.home
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,7 +45,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -65,7 +61,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
@@ -79,22 +74,22 @@ import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
-import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Contrast
 import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 private lateinit var sharedPreferencesToken: SharedPreferences
 

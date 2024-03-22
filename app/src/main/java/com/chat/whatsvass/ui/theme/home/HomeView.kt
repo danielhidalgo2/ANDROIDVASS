@@ -61,30 +61,35 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
+import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
+import com.chat.whatsvass.commons.DELAY_GET_MESSAGES
 import com.chat.whatsvass.commons.KEY_TOKEN
+import com.chat.whatsvass.commons.KNICK_ARGUMENT
+import com.chat.whatsvass.commons.LIMIT_GET_MESSAGES
+import com.chat.whatsvass.commons.OFFSET_GET_MESSAGES
+import com.chat.whatsvass.commons.ONLINE_ARGUMENT
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
-import com.chat.whatsvass.ui.theme.Claro
-import com.chat.whatsvass.ui.theme.Contraste
-import com.chat.whatsvass.ui.theme.Oscuro
-import com.chat.whatsvass.ui.theme.Principal
+import com.chat.whatsvass.ui.theme.Contrast
+import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.Light
+import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 private lateinit var sharedPreferencesToken: SharedPreferences
 
@@ -124,14 +129,13 @@ class HomeView : ComponentActivity() {
             LaunchedEffect(key1 = chats) {
                 if (token != null && chats.isNotEmpty()) {
                     chatIds = chats.map { it.chatId }
-                    viewModel.getMessages(token, chatIds, offset = 0, limit = 1)
+                    viewModel.getMessages(token, chatIds, OFFSET_GET_MESSAGES, LIMIT_GET_MESSAGES)
                 }
             }
 
             HomeScreen(
                 chats = chats,
                 messages = messages,
-                navigation = navController,
                 viewModel,
                 token!!,
                 onDeleteChat = { chatId ->
@@ -176,7 +180,6 @@ class HomeView : ComponentActivity() {
 fun HomeScreen(
     chats: List<Chat>,
     messages: Map<String, List<Message>>,
-    navigation: NavController,
     viewModel: HomeViewModel,
     token: String,
     onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
@@ -204,8 +207,8 @@ fun HomeScreen(
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
                 .size(56.dp),
-            backgroundColor = Principal,
-            contentColor = Contraste,
+            backgroundColor = Main,
+            contentColor = Contrast,
             shape = CircleShape
         ) {
             Icon(
@@ -217,41 +220,12 @@ fun HomeScreen(
     }
 }
 
-
-@Composable
-fun ChatList(
-    chats: List<Chat>,
-    messages: Map<String, List<Message>>,
-    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
-) {
-    LazyColumn {
-        items(chats) { chat ->
-            val chatMessages = messages[chat.chatId] ?: emptyList()
-            val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
-            val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
-            val color: Color =
-                if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
-                    Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
-                } else {
-                    Color.Red // Si no, asigna otro color
-                }
-            ChatItem(
-                chat = chat,
-                messages = chatMessages,
-                name = name,
-                color = color,
-                onDeleteChat = { onDeleteChat(chat.chatId) })
-        }
-    }
-}
-
 fun formatTimeFromApi(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
     val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     val date = inputFormat.parse(dateTimeString)
     return outputFormat.format(date!!)
 }
-
 fun formatTimeFromApiToOrderList(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
     val outputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
@@ -267,7 +241,7 @@ fun ChatItem(
     color: Color,
     onDeleteChat: (chatId: String) -> Unit // Modificación del parámetro onDeleteChat
 ) {
-    val colorWithOpacity = Contraste.copy(alpha = 0.4f)
+    val colorWithOpacity = Contrast.copy(alpha = 0.4f)
     val context = LocalContext.current
     val online: Boolean = color == Color.Green
 
@@ -285,7 +259,6 @@ fun ChatItem(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
-            .clickable { }
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
@@ -298,9 +271,9 @@ fun ChatItem(
                     onTap = {
                         val intent = Intent(context, ChatView::class.java)
                         intent
-                            .putExtra("ChatID", chat.chatId)
-                            .putExtra("Nick", name)
-                            .putExtra("Online", online.toString())
+                            .putExtra(CHAT_ID_ARGUMENT, chat.chatId)
+                            .putExtra(KNICK_ARGUMENT, name)
+                            .putExtra(ONLINE_ARGUMENT, online.toString())
                         context.startActivity(intent)
                         Log.d("chatid", chat.chatId)
                     }
@@ -352,12 +325,12 @@ fun ChatItem(
         ) {
             Text(
                 text = name,
-                style = TextStyle(fontSize = 16.sp, color = Oscuro),
+                style = TextStyle(fontSize = 16.sp, color = Dark),
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = lastMessage?.message?.let { if (it.length > 15) it.take(15) + "..." else it } ?: "No hay mensajes",
-                style = TextStyle(fontSize = 14.sp, color = Claro),
+                style = TextStyle(fontSize = 14.sp, color = Light),
                 maxLines = 1
             )
         }
@@ -367,7 +340,7 @@ fun ChatItem(
 
         Text(
             text = formattedTime,
-            style = TextStyle(fontSize = 14.sp, color = Claro),
+            style = TextStyle(fontSize = 14.sp, color = Light),
             modifier = Modifier.align(Alignment.CenterVertically)
         )
 
@@ -412,6 +385,7 @@ fun TopBarHomeAndList(
     token: String,
     onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
 ) {
+    val isTextWithOutChatsVisible by viewModel.isTextWithOutChatsVisibleFlow.collectAsState(false)
     var searchText by remember { mutableStateOf(TextFieldValue()) }
     var listSearch by remember { mutableStateOf<List<Chat>>(emptyList()) }
     val chatsUpdates by viewModel.chats.collectAsState(emptyList())
@@ -419,26 +393,12 @@ fun TopBarHomeAndList(
     val context = LocalContext.current
     var refreshing by remember { mutableStateOf(false) }
 
-    // Ordenar chats por hora de ultimo mensaje
-    var mapOfChatIDandDateLast = mutableMapOf<String, String>()
-    for (i in chats) {
-        if (!messages[i.chatId].isNullOrEmpty()) {
-            if (!messages[i.chatId]!!.lastOrNull()!!.date.isNullOrEmpty()) {
-                val formattedTime =
-                    messages[i.chatId]!!.lastOrNull()!!.date.let { formatTimeFromApiToOrderList(it) }
-                mapOfChatIDandDateLast[i.chatId] = formattedTime
-            }
-        } else {
-            mapOfChatIDandDateLast[i.chatId] = "0"
-        }
-    }
-    val mapResultOrdered =
-        mapOfChatIDandDateLast.toList().sortedByDescending { (_, value) -> value }.toMap()
-    val listRestultOrdered = mapResultOrdered.keys.toList()
+    // Llamar a funcion para ordenar chats por fecha y hora
+    val listRestultOrdered = orderChatsByDate(chats, messages)
     Log.d("Mensajes ordenados", listRestultOrdered.toString())
 
     TopAppBar(
-        backgroundColor = Principal,
+        backgroundColor = Main,
         elevation = 4.dp,
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
     ) {
@@ -515,111 +475,156 @@ fun TopBarHomeAndList(
                     listOfChatsIds.add(i.chatId)
                 }
                 viewModel.getChats(token)
-                viewModel.getMessages(token, listOfChatsIds, 0, 1)
-                delay(1000)
+                viewModel.getMessages(token, listOfChatsIds, OFFSET_GET_MESSAGES, LIMIT_GET_MESSAGES)
+                delay(DELAY_GET_MESSAGES)
                 refreshing = false
             }
         }
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            //Nueva lista con los chats ordenados por fecha y hora
-            var chatsNew = chats.toMutableList()
-            for (i in chats) {
-                for (j in listRestultOrdered) {
-                    if (i.chatId == j) {
-                        chatsNew.removeAt(listRestultOrdered.indexOf(j))
-                        chatsNew.add(listRestultOrdered.indexOf(j), i)
-                    }
-                }
-            }
-            chatsNew = chatsNew.distinct().toMutableList()
 
-            for (i in chatsNew) {
-                Log.d("CHATNEW", i.chatId)
-            }
-            if (searchText.text.isNullOrEmpty() || searchText.text == "Buscar...") {
-                items(
-                    items = chatsNew,
-                    key = { chat ->
-                        // La llave sirve para que cada valor se mueva con su celda
-                        chat.chatId
-                    }
-                ) { chat ->
-                    val chatMessages = messages[chat.chatId] ?: emptyList()
-                    val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
-                    val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
-                    val color: Color = if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
-                        Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
-                    } else {
-                        Color.Red // Si no, asigna otro color
-                    }
-                    ChatItem(
-                        chat = chat,
-                        messages = chatMessages,
-                        name = name,
-                        color = color,
-                        onDeleteChat = { onDeleteChat(chat.chatId) })
-                }
-            } else {
-                listSearch =
-                    chatsNew.filter { chat ->
-                        val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
-                        if (chat.sourceId == sourceId) {
-                            chat.targetNick.contains(
-                                searchText.text,
-                                ignoreCase = true
-                            )
-                        } else {
-                            chat.sourceNick.contains(
-                                searchText.text,
-                                ignoreCase = true
-                            )
+
+        Box(Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                //Nueva lista con los chats ordenados por fecha y hora
+                var chatsNew = chats.toMutableList()
+                for (i in chats) {
+                    for (j in listRestultOrdered) {
+                        if (i.chatId == j) {
+                            chatsNew.removeAt(listRestultOrdered.indexOf(j))
+                            chatsNew.add(listRestultOrdered.indexOf(j), i)
                         }
                     }
-                items(listSearch,
-                    key = { chat ->
-                        // La llave sirve para que cada valor se mueva con su celda
-                        chat.chatId
-                    }) { chat ->
-                    val chatMessages = messages[chat.chatId] ?: emptyList()
-                    val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
-                    val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
-                    val color: Color = if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
-                        Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
-                    } else {
-                        Color.Red // Si no, asigna otro color
+                }
+                chatsNew = chatsNew.distinct().toMutableList()
+
+                for (i in chatsNew) {
+                    Log.d("CHATNEW", i.chatId)
+                }
+                if (searchText.text.isNullOrEmpty() || searchText.text == "Buscar...") {
+                    items(
+                        items = chatsNew,
+                        key = { chat ->
+                            // La llave sirve para que cada valor se mueva con su celda
+                            chat.chatId
+                        }
+                    ) { chat ->
+                        val chatMessages = messages[chat.chatId] ?: emptyList()
+                        val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
+                        val name =
+                            if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
+                        val color: Color =
+                            if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
+                                Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
+                            } else {
+                                Color.Red // Si no, asigna otro color
+                            }
+                        ChatItem(
+                            chat = chat,
+                            messages = chatMessages,
+                            name = name,
+                            color = color,
+                            onDeleteChat = { onDeleteChat(chat.chatId) })
                     }
-                    ChatItem(
-                        chat = chat,
-                        messages = chatMessages,
-                        name = name,
-                        color = color,
-                        onDeleteChat = { onDeleteChat(chat.chatId) })
+                } else {
+                    listSearch =
+                        chatsNew.filter { chat ->
+                            val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
+                            if (chat.sourceId == sourceId) {
+                                chat.targetNick.contains(
+                                    searchText.text,
+                                    ignoreCase = true
+                                )
+                            } else {
+                                chat.sourceNick.contains(
+                                    searchText.text,
+                                    ignoreCase = true
+                                )
+                            }
+                        }
+                    items(listSearch,
+                        key = { chat ->
+                            // La llave sirve para que cada valor se mueva con su celda
+                            chat.chatId
+                        }) { chat ->
+                        val chatMessages = messages[chat.chatId] ?: emptyList()
+                        val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
+                        val name =
+                            if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
+                        val color: Color =
+                            if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
+                                Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
+                            } else {
+                                Color.Red // Si no, asigna otro color
+                            }
+                        ChatItem(
+                            chat = chat,
+                            messages = chatMessages,
+                            name = name,
+                            color = color,
+                            onDeleteChat = { onDeleteChat(chat.chatId) })
+                    }
+                }
+            }
+
+            // Si no se encuentra el chat buscado se muestra texto: "Sin coincidencias"
+            if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == "Buscar...")) {
+                Column(
+                    modifier = Modifier
+                        .height(400.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Sin coincidencias",
+                        fontSize = 22.sp,
+                        color = Dark
+                    )
+                }
+            }
+
+            // Si no hay chats se muestra: "No tienes chats"
+            if (isTextWithOutChatsVisible) {
+                Column(
+                    modifier = Modifier
+                        .height(400.dp)
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "No tienes chats",
+                        fontSize = 22.sp,
+                        color = Dark
+                    )
                 }
             }
         }
     }
+}
 
-
-    // Si no se encuentra el contacto buscado se muestra texto: "Sin coincidencias"
-    if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == "Buscar...")) {
-        Column(
-            modifier = Modifier
-                .height(600.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Sin coincidencias",
-                fontSize = 22.sp,
-                color = Oscuro
-            )
+fun orderChatsByDate(chats: List<Chat>, messages: Map<String, List<Message>>) : List<String>{
+    // Ordenar chats por hora de ultimo mensaje
+    var mapOfChatIDandDateLast = mutableMapOf<String, String>()
+    for (i in chats) {
+        if (!messages[i.chatId].isNullOrEmpty()) {
+            if (!messages[i.chatId]!!.lastOrNull()!!.date.isNullOrEmpty()) {
+                val formattedTime =
+                    messages[i.chatId]!!.lastOrNull()!!.date.let { formatTimeFromApiToOrderList(it) }
+                mapOfChatIDandDateLast[i.chatId] = formattedTime
+            }
+        } else {
+            mapOfChatIDandDateLast[i.chatId] = "0"
         }
     }
+    val mapResultOrdered =
+        mapOfChatIDandDateLast.toList().sortedByDescending { (_, value) -> value }.toMap()
+    val listRestultOrdered = mapResultOrdered.keys.toList()
+    Log.d("Mensajes ordenados", listRestultOrdered.toString())
+
+    return listRestultOrdered
 }
 
 

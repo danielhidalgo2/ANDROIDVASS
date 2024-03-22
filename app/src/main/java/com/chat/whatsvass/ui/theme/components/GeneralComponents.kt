@@ -1,6 +1,5 @@
 package com.chat.whatsvass.ui.theme.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
@@ -39,8 +37,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
-import com.chat.whatsvass.ui.theme.Oscuro
-import com.chat.whatsvass.ui.theme.Principal
+import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.login.Shape
 
 object GeneralComponents {
@@ -50,7 +48,7 @@ object GeneralComponents {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            backgroundColor = Principal,
+            backgroundColor = Main,
             elevation = AppBarDefaults.TopAppBarElevation,
             title = {
                 IconButton(
@@ -60,7 +58,7 @@ object GeneralComponents {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_arrow_back),
                         contentDescription = "Back",
-                        tint = Oscuro
+                        tint = Dark
                     )
                 }
                 Row(
@@ -156,7 +154,7 @@ object GeneralComponents {
             onClick = onClick,
             modifier = modifier,
             shape = RoundedCornerShape(Shape.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Oscuro),
+            colors = ButtonDefaults.buttonColors(containerColor = Dark),
         ) {
             Text(
                 text = text,

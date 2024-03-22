@@ -3,14 +3,12 @@ package com.chat.whatsvass.ui.theme.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.ChatRepository
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -23,11 +21,23 @@ class HomeViewModel : ViewModel() {
     private val _chats = MutableStateFlow<List<Chat>>(emptyList())
     val chats: StateFlow<List<Chat>> = _chats
 
+    private val isTextWithOutChatsVisible = MutableStateFlow(false)
+    var isTextWithOutChatsVisibleFlow: Flow<Boolean> = isTextWithOutChatsVisible
+
     private val _messages = MutableStateFlow<Map<String, List<Message>>>(emptyMap())
     val messages: StateFlow<Map<String, List<Message>>> = _messages
 
     fun getChats(token: String) {
         viewModelScope.launch {
+            async {
+                getChatsList(token)
+            }.await()
+            if (chats.value.isEmpty()){
+                isTextWithOutChatsVisible.value = true
+            }
+        }
+    }
+    private suspend fun getChatsList(token: String) {
             try {
                 val chats = chatRepository.getChats(token)
                 _chats.value = chats
@@ -37,7 +47,6 @@ class HomeViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error al obtener los chats", e)
             }
-        }
     }
 
     suspend fun getMessages(token: String, chatIds: List<String>, offset: Int, limit: Int) {

@@ -14,8 +14,6 @@ import com.chat.whatsvass.commons.KEY_NOTIFICATIONS
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
-import com.chat.whatsvass.ui.theme.chat.ChatView
-import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.login.LoginView
@@ -54,7 +52,7 @@ class SplashView : AppCompatActivity() {
             finish()
         } else {
             splashScreen.setKeepOnScreenCondition { true }
-            startActivity(Intent(this, HomeView::class.java))
+            startActivity(Intent(this, LoadingActivity::class.java))
             finish()
         }
     }

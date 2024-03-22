@@ -1,16 +1,12 @@
 package com.chat.whatsvass.ui.theme.chat
 
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.chat.whatsvass.data.domain.model.chat.Chat
-import com.chat.whatsvass.data.domain.model.create_chat.CreatedChat
-import com.chat.whatsvass.data.domain.model.create_message.CreateMessage
+import com.chat.whatsvass.commons.LIMIT_GET_MESSAGESFORCHAT
+import com.chat.whatsvass.commons.OFFSET_GET_MESSAGESFORCHAT
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.ChatRepository
-import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.ChatRequest
 import com.chat.whatsvass.data.domain.repository.remote.response.create_message.MessageRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,9 +38,8 @@ class ChatViewModel: ViewModel() {
             try {
                 // Envía el mensaje
                 val newMessage = chatRepository.createNewMessage(token, messageRequest)
-
                 // Recarga todos los mensajes
-                getMessagesForChat(token, messageRequest.chat, offset = 0, limit = 100)
+                getMessagesForChat(token, messageRequest.chat, OFFSET_GET_MESSAGESFORCHAT, LIMIT_GET_MESSAGESFORCHAT)
 
                 Log.d("Nuevo chat", newMessage.toString())
             } catch (e: Exception) {

@@ -42,8 +42,9 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     _registerResult.value = RegisterResult.Success(register)
 
                     sharedPreferences.edit().putString(KEY_TOKEN, register.user.token).apply()
-                    sharedPreferences.edit().putString(SOURCE_ID, register.user.id).apply()
+                    sharedPreferences.edit().putString(KEY_ID, register.user.id).apply()
                     sharedPreferences.edit().putString(KEY_NICK, register.user.nick).apply()
+                    sharedPreferences.edit().putString(SOURCE_ID, register.user.id).apply()
                 } else {
                     _registerResult.value = RegisterResult.Error("Error al crear usuario")
                 }

@@ -43,7 +43,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,24 +57,29 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
+import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
 import com.chat.whatsvass.commons.KEY_ID
 import com.chat.whatsvass.commons.KEY_TOKEN
+import com.chat.whatsvass.commons.KNICK_ARGUMENT
+import com.chat.whatsvass.commons.ONLINE_ARGUMENT
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.data.domain.model.contacts.Contacts
 import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.ChatRequest
-import com.chat.whatsvass.ui.theme.Claro
-import com.chat.whatsvass.ui.theme.Contraste
-import com.chat.whatsvass.ui.theme.Oscuro
-import com.chat.whatsvass.ui.theme.Principal
+import com.chat.whatsvass.ui.theme.Light
+import com.chat.whatsvass.ui.theme.Contrast
+import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+
+const val DELAY_TO_OPEN_CHAT = 150L
 
 class ContactsView : ComponentActivity() {
     private val viewModel: ContactsViewModel by viewModels()
@@ -99,7 +103,7 @@ class ContactsView : ComponentActivity() {
             }
             // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
             val contactsResult by viewModel.contactsResult.collectAsState(emptyList())
-            ContactsScreen(this, token!!, myId!!, contactsResult, onSettingsClick = {}, viewModel)
+            ContactsScreen(this, token!!, myId!!, contactsResult, viewModel)
 
         }
         window.decorView.setOnTouchListener { _, _ ->
@@ -115,7 +119,6 @@ fun ContactsScreen(
     token: String,
     myId: String,
     contacts: List<Contacts>,
-    onSettingsClick: () -> Unit,
     viewModel: ContactsViewModel
 ) {
     Box(
@@ -126,7 +129,7 @@ fun ContactsScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TopBarAndList(context, token, myId, contacts, onSettingsClick, viewModel)
+            TopBarAndList(context, token, myId, contacts, viewModel)
 
             Spacer(modifier = Modifier.weight(1f))
         }
@@ -139,15 +142,15 @@ fun TopBarAndList(
     token: String,
     myId: String,
     contacts: List<Contacts>,
-    onSettingsClick: () -> Unit,
     viewModel: ContactsViewModel
 ) {
     val isTextWithOutContactsVisible by viewModel.isTextWithOutVisibleFlow.collectAsState(false)
+    val isProgressBarVisible by viewModel.isProgressVisibleFlow.collectAsState(true)
     var searchText by remember { mutableStateOf(TextFieldValue()) }
     var listSearch by remember { mutableStateOf<List<Contacts>>(emptyList()) }
 
     TopAppBar(
-        backgroundColor = Principal,
+        backgroundColor = Main,
         elevation = 4.dp,
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
     ) {
@@ -215,82 +218,81 @@ fun TopBarAndList(
     }
 
 
-    LazyColumn {
-        if (searchText.text.isEmpty()) {
-            items(contacts,
-                key = { contact ->
-                // La llave sirve para que cada valor se mueva con su celda
-                contact.id
-            }
-            ) { contact ->
-
-                ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id))
-            }
-        } else {
-            listSearch =
-                contacts.filter { it.nick.contains(searchText.text, ignoreCase = true) }
-            items(listSearch,
-                key = { contact ->
-                    contact.id
+    Box(modifier = Modifier.fillMaxSize()){
+        LazyColumn {
+            if (searchText.text.isEmpty()) {
+                items(contacts,
+                    key = { contact ->
+                        // La llave sirve para que cada valor se mueva con su celda
+                        contact.id
+                    }
+                ) { contact ->
+                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id))
                 }
-            ) { contact ->
-                ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id))
+            } else {
+                listSearch =
+                    contacts.filter { it.nick.contains(searchText.text, ignoreCase = true) }
+                items(listSearch,
+                    key = { contact ->
+                        contact.id
+                    }
+                ) { contact ->
+                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id))
+                }
+            }
+        }
+
+        // Si no hay contactos se muestra: "Sin contactos"
+        if (isTextWithOutContactsVisible) {
+            Column(
+                modifier = Modifier
+                    .height(400.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Sin contactos",
+                    fontSize = 22.sp,
+                    color = Dark
+                )
+            }
+        }
+
+        // Si no se encuentra el contacto buscado se muestra texto: "Sin coincidencias"
+        if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == "Buscar...")) {
+            Column(
+                modifier = Modifier
+                    .height(400.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Sin coincidencias",
+                    fontSize = 22.sp,
+                    color = Dark
+                )
+            }
+        }
+        // Si hay contactos y el searchText esta vacio se muestra el progressBar
+        if (isProgressBarVisible && searchText.text.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .height(400.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.width(64.dp),
+                    color = Light,
+                    trackColor = Dark,
+                )
             }
         }
     }
-
-    // Si no hay contactos se muestra: "Sin contactos"
-    if (isTextWithOutContactsVisible) {
-        Column(
-            modifier = Modifier
-                .height(400.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Sin contactos",
-                fontSize = 22.sp,
-                color = Oscuro
-            )
-        }
-    }
-    // Si hay contactos y el searchText esta vacio se muestra el progressBar
-    if (!isTextWithOutContactsVisible && searchText.text.isEmpty()) {
-        Column(
-            modifier = Modifier
-                .height(400.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.width(64.dp),
-                color = Claro,
-                trackColor = Oscuro,
-            )
-        }
-    }
-    // Si no se encuentra el contacto buscado se muestra texto: "Sin coincidencias"
-    if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == "Buscar...")) {
-        Column(
-            modifier = Modifier
-                .height(400.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Sin coincidencias",
-                fontSize = 22.sp,
-                color = Oscuro
-            )
-        }
-    }
-
-
 }
-
 @Composable
 fun ContactItem(
     context: Context,
@@ -299,7 +301,7 @@ fun ContactItem(
     viewModel: ContactsViewModel,
     chatRequest: ChatRequest,
 ) {
-    val colorWithOpacity = Contraste.copy(alpha = 0.4f)
+    val colorWithOpacity = Contrast.copy(alpha = 0.4f)
     val isNewChatCreated by viewModel.isNewChatCreatedFlow.collectAsState(false)
     val newChat by viewModel.newChatResult.collectAsState(null)
 
@@ -307,7 +309,6 @@ fun ContactItem(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .fillMaxWidth()
-            .clickable {  }
             .requiredWidth(width = 368.dp)
             .requiredHeight(height = 74.dp)
             .clip(shape = RoundedCornerShape(20.dp))
@@ -318,15 +319,15 @@ fun ContactItem(
                     onTap = {
                         viewModel.createNewChat(context, token, chatRequest)
                         CoroutineScope(Dispatchers.Main).launch {
-                            delay(150)
-                        if (isNewChatCreated){
+                            delay(DELAY_TO_OPEN_CHAT)
+                            if (isNewChatCreated) {
                                 val intent = Intent(context, ChatView::class.java)
                                 intent
-                                    .putExtra("ChatID", newChat!!.chat.id)
-                                    .putExtra("Nick", contact.nick)
-                                    .putExtra("Online",  contact.online.toString())
+                                    .putExtra(CHAT_ID_ARGUMENT, newChat!!.chat.id)
+                                    .putExtra(KNICK_ARGUMENT, contact.nick)
+                                    .putExtra(ONLINE_ARGUMENT, contact.online.toString())
                                 context.startActivity(intent)
-                                Log.d("CHATID",  newChat!!.chat.id)
+                                Log.d("CHATID", newChat!!.chat.id)
                             }
                         }
                     }
@@ -338,7 +339,6 @@ fun ContactItem(
         Spacer(modifier = Modifier.weight(0.1f))
         Box(
             modifier = Modifier
-                .clickable {  }
                 .size(50.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .background(Color.LightGray),
@@ -362,7 +362,7 @@ fun ContactItem(
         ) {
             Text(
                 text = contact.nick,
-                style = TextStyle(fontSize = 16.sp, color = Oscuro),
+                style = TextStyle(fontSize = 16.sp, color = Dark),
             )
         }
 

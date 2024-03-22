@@ -132,8 +132,7 @@ class LoginView : AppCompatActivity() {
                     }
                 }
                 composable("profile") {
-                    ProfileView().ProfileScreen(ProfileViewModel(), navController = navController)
-
+                    ProfileView().ProfileScreen(viewModel = ProfileViewModel(), navController = navController )
                 }
                 // Agrega más composables para otras pantallas si es necesario
             }

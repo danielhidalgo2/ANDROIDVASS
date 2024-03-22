@@ -21,6 +21,9 @@ class ProfileViewModel : ViewModel() {
     private val _registerResult = MutableStateFlow<RegisterResult?>(null)
     val registerResult: StateFlow<RegisterResult?> = _registerResult
 
+    private val _registerData = MutableStateFlow<Register?>(null)
+    val registerData: StateFlow<Register?> = _registerData
+
     fun registerUser(username: String, password: String, nick: String) {
         viewModelScope.launch(Dispatchers.IO) {
 
@@ -28,6 +31,8 @@ class ProfileViewModel : ViewModel() {
                 val register = userRepository.registerUser(username, password, nick)
                 if (register.user.token.isNotEmpty()) {
                     _registerResult.value = RegisterResult.Success(register)
+                    _registerData.value = register
+
                 } else {
                     _registerResult.value = RegisterResult.Error("Error al crear usuario")
                 }

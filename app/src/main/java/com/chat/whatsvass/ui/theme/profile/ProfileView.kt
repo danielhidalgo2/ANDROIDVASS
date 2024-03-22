@@ -1,7 +1,10 @@
 package com.chat.whatsvass.ui.theme.profile
 
 import android.annotation.SuppressLint
+import android.app.Application
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -24,42 +27,58 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.AndroidViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.chat.whatsvass.R
+import com.chat.whatsvass.commons.KEY_ID
+import com.chat.whatsvass.commons.KEY_NICK
+import com.chat.whatsvass.commons.KEY_TOKEN
+import com.chat.whatsvass.commons.SHARED_USER_DATA
+import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.ButtonCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.NavigationBarCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.PasswordTextFieldCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.TextFieldCustom
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
+import com.chat.whatsvass.ui.theme.login.LoginView
+import com.chat.whatsvass.ui.theme.login.LoginViewModel
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.login.showMessage
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 
 class ProfileView : ComponentActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
 
+        setContent {
             val navController = rememberNavController()
             ProfileScreen(ProfileViewModel(), navController)
-
         }
         window.decorView.setOnTouchListener { _, _ ->
             hideKeyboard(this)
@@ -79,6 +98,7 @@ class ProfileView : ComponentActivity() {
 
         val context = LocalContext.current
         val registerResult by viewModel.registerResult.collectAsState()
+        val register by viewModel.registerData.collectAsState()
         val keyboardController = LocalSoftwareKeyboardController.current
         //Prueba
 
@@ -186,10 +206,9 @@ class ProfileView : ComponentActivity() {
                         context,
                         "Usuario creado correctamente."
                     )
-                    //  IR HACIA HOME
-                    // Pasar parámetros
-                    val intent = Intent(context, LoadingActivity::class.java)
-                    context.startActivity(intent)
+                    if (register != null){
+
+                    }
                 }
 
                 is ProfileViewModel.RegisterResult.Error -> {
@@ -203,6 +222,9 @@ class ProfileView : ComponentActivity() {
             }
         }
     }
+
+
+
 
     @Composable
     fun ImageProfile() {

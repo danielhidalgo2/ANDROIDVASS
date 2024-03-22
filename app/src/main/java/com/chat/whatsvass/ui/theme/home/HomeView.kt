@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,13 +28,10 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
@@ -44,15 +39,12 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.minimumInteractiveComponentSize
-import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -83,20 +75,16 @@ import com.chat.whatsvass.ui.theme.Oscuro
 import com.chat.whatsvass.ui.theme.Principal
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.chat.ChatView
-import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.contacts.ContactsView
+import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import okhttp3.internal.notify
-import okhttp3.internal.notifyAll
 import java.text.SimpleDateFormat
-import java.util.Collections
 import java.util.Locale
-import java.util.Random
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 private lateinit var sharedPreferencesToken: SharedPreferences
 
@@ -263,6 +251,7 @@ fun formatTimeFromApi(dateTimeString: String): String {
     val date = inputFormat.parse(dateTimeString)
     return outputFormat.format(date!!)
 }
+
 fun formatTimeFromApiToOrderList(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
     val outputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
@@ -443,7 +432,7 @@ fun TopBarHomeAndList(
         }
     }
     val mapResultOrdered =
-        mapOfChatIDandDateLast.toList().sortedByDescending{ (_, value) -> value }.toMap()
+        mapOfChatIDandDateLast.toList().sortedByDescending { (_, value) -> value }.toMap()
     val listRestultOrdered = mapResultOrdered.keys.toList()
     Log.d("Mensajes ordenados", listRestultOrdered.toString())
 
@@ -537,9 +526,9 @@ fun TopBarHomeAndList(
         ) {
             //Nueva lista con los chats ordenados por fecha y hora
             var chatsNew = chats.toMutableList()
-            for (i in chats){
-                for (j in listRestultOrdered){
-                    if (i.chatId == j ){
+            for (i in chats) {
+                for (j in listRestultOrdered) {
+                    if (i.chatId == j) {
                         chatsNew.removeAt(listRestultOrdered.indexOf(j))
                         chatsNew.add(listRestultOrdered.indexOf(j), i)
                     }
@@ -547,7 +536,7 @@ fun TopBarHomeAndList(
             }
             chatsNew = chatsNew.distinct().toMutableList()
 
-            for (i in chatsNew){
+            for (i in chatsNew) {
                 Log.d("CHATNEW", i.chatId)
             }
             if (searchText.text.isNullOrEmpty() || searchText.text == "Buscar...") {
@@ -555,9 +544,9 @@ fun TopBarHomeAndList(
                     items = chatsNew,
                     key = { chat ->
                         // La llave sirve para que cada valor se mueva con su celda
-                       chat.chatId
+                        chat.chatId
                     }
-                ){ chat ->
+                ) { chat ->
                     val chatMessages = messages[chat.chatId] ?: emptyList()
                     val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
                     val name = if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
@@ -577,12 +566,16 @@ fun TopBarHomeAndList(
                 listSearch =
                     chatsNew.filter { chat ->
                         val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
-                        if (chat.sourceId == sourceId){
-                            chat.targetNick.contains(searchText.text,
-                                ignoreCase = true)
+                        if (chat.sourceId == sourceId) {
+                            chat.targetNick.contains(
+                                searchText.text,
+                                ignoreCase = true
+                            )
                         } else {
-                            chat.sourceNick.contains(searchText.text,
-                                ignoreCase = true)
+                            chat.sourceNick.contains(
+                                searchText.text,
+                                ignoreCase = true
+                            )
                         }
                     }
                 items(listSearch,

@@ -356,11 +356,12 @@ fun ChatItem(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = lastMessage?.message ?: "No hay mensajes",
+                text = lastMessage?.message?.let { if (it.length > 15) it.take(15) + "..." else it } ?: "No hay mensajes",
                 style = TextStyle(fontSize = 14.sp, color = Claro),
                 maxLines = 1
             )
         }
+
 
         Spacer(modifier = Modifier.weight(1f))
 

@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_NICK
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.data.domain.model.contacts.Contacts
@@ -91,7 +92,8 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
                 Log.d("Nuevo chat", newChat.toString())
 
             } catch (e: Exception) {
-                Toast.makeText(context, "Error al crear chat", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    context.getString(R.string.errorCreatingChat), Toast.LENGTH_SHORT).show()
                 Log.d("Nuevo chat", "Error al crear chat: ${e.message}")
             }
     }

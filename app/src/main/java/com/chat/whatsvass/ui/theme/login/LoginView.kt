@@ -53,6 +53,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -115,7 +116,7 @@ class LoginView : AppCompatActivity() {
             val navController = rememberNavController()
 
 
-            NavHost(navController = navController, startDestination = "login") {
+            NavHost(navController = navController, startDestination = stringResource(R.string.login)) {
                 composable("login") {
 
                     LoginScreen(
@@ -161,7 +162,7 @@ fun setupAuthBiometric(context: Context): Boolean {
         canAuthenticate = true
 
         prompt = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Login con tus credenciales")
+            .setTitle(context.getString(R.string.loginWithYourCredentials))
             //.setSubtitle("Método alternativo")
             .setAllowedAuthenticators(
                 BiometricManager.Authenticators.BIOMETRIC_STRONG
@@ -192,7 +193,7 @@ fun loginBiometric(
                     // Ir hacia la siguiente pantalla
                     val intent = Intent(context, LoadingActivity::class.java)
                     context.startActivity(intent)
-                    showMessage(context, "¡Bienvenido $username!")
+                    showMessage(context, context.getString(R.string.welcome, username))
                     auth(true)
                 }
             }).authenticate(prompt)
@@ -293,12 +294,13 @@ fun LoginScreen(
                                 } else {
                                     showMessage(
                                         context,
-                                        "No se pudo iniciar sesión, intente nuevamente."
+                                        context.getString(R.string.failedToLoginTryAgain)
                                     )
                                 }
                             }
                         } else {
-                            showMessage(context, "Habilita el sensor biométrico en tu dispositivo.")
+                            showMessage(context,
+                                context.getString(R.string.enableTheBiometricSensor))
                         }
                     },
                     modifier = Modifier
@@ -311,7 +313,7 @@ fun LoginScreen(
                 ) {
                     androidx.compose.material.Icon(
                         painter = painterResource(id = R.drawable.icon_fingerprint),
-                        contentDescription = "biometric",
+                        contentDescription = stringResource(R.string.biometric),
                         modifier = Modifier.size(50.dp)
                     )
                 }
@@ -349,7 +351,7 @@ fun LoginScreen(
     viewModel._loginResult.collectAsState().value?.let { result ->
         when (result) {
             is LoginViewModel.LoginResult.Error -> {
-                errorMessage = "Los credenciales no son correctos"
+                errorMessage = stringResource(R.string.credentialsAreNotCorrect)
             }
 
             is LoginViewModel.LoginResult.Success -> {
@@ -359,7 +361,7 @@ fun LoginScreen(
 
                     errorMessage = null
                 } else {
-                    errorMessage = "Por favor, introduce usuario y contraseña"
+                    errorMessage = stringResource(R.string.pleaseEnterUserAndPassword)
                 }
             }
 
@@ -374,7 +376,7 @@ fun LoginScreen(
 fun Logo() {
     Image(
         painter = painterResource(id = R.drawable.logo),
-        contentDescription = "Logo",
+        contentDescription = stringResource(R.string.logo),
         modifier = Modifier.size(218.dp),
         contentScale = ContentScale.Fit
     )
@@ -391,7 +393,7 @@ fun UserTextField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { androidx.compose.material.Text("Ingrese su usuario") },
+        label = { androidx.compose.material.Text(stringResource(R.string.enterYourUser)) },
         shape = RoundedCornerShape(20.dp),
         singleLine = true,
         modifier = modifier,
@@ -417,7 +419,7 @@ fun PasswordTextField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { androidx.compose.material.Text("Ingrese su contraseña") },
+        label = { androidx.compose.material.Text(stringResource(R.string.enterYourPassword)) },
         shape = RoundedCornerShape(Shape.dp),
         singleLine = true,
         keyboardOptions = KeyboardOptions(
@@ -445,7 +447,7 @@ fun PasswordTextField(
                 } else {
                     ImageVector.vectorResource(id = R.drawable.visible_on)
                 }
-                Icon(icon, contentDescription = "Toggle Password Visibility")
+                Icon(icon, contentDescription = stringResource(id = R.string.togglePasswordVisibility))
             }
         }
     )
@@ -460,7 +462,7 @@ fun LoginButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         colors = ButtonDefaults.buttonColors(containerColor = Dark),
     ) {
         Text(
-            text = "Login",
+            text = stringResource(id = R.string.login),
             modifier = Modifier.align(Alignment.CenterVertically)
         )
     }
@@ -470,7 +472,7 @@ fun LoginButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 fun CreateAccountText(navController: NavController) {
     Text(
-        text = "Crear usuario",
+        text = stringResource(R.string.CreateUser),
         color = Color.White,
         fontSize = 18.sp,
         modifier = Modifier.clickable {

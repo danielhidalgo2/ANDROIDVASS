@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    android:background="@color/light"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/light"
     tools:context=".ui.theme.settings.SettingsView">
 
     <androidx.appcompat.widget.Toolbar
@@ -22,130 +21,131 @@
         android:id="@+id/btnBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/icon_arrow_back"
-        android:background="@color/main"
         android:layout_marginStart="40dp"
+        android:background="@color/main"
+        android:contentDescription="@string/back"
+        android:src="@drawable/icon_arrow_back"
         app:layout_constraintBottom_toBottomOf="@id/toolbarMain"
         app:layout_constraintStart_toStartOf="@id/toolbarMain"
-        app:layout_constraintTop_toTopOf="@id/toolbarMain"/>
+        app:layout_constraintTop_toTopOf="@id/toolbarMain" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ajustes"
+        android:text="@string/titleSettings"
         android:textColor="@color/white"
         android:textSize="22sp"
         app:layout_constraintBottom_toBottomOf="@id/toolbarMain"
-        app:layout_constraintStart_toStartOf="@id/toolbarMain"
         app:layout_constraintEnd_toEndOf="@id/toolbarMain"
-        app:layout_constraintTop_toTopOf="@id/toolbarMain"/>
+        app:layout_constraintStart_toStartOf="@id/toolbarMain"
+        app:layout_constraintTop_toTopOf="@id/toolbarMain" />
 
     <TextView
         android:id="@+id/txtNotifications"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Notificaciones"
-        android:textColor="@color/white"
         android:layout_marginTop="40dp"
+        android:text="@string/notifications"
+        android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/switchNotifications"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/switchNotifications"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
 
     <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/switchNotifications"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:thumbTint="@color/dark"
-        app:trackTint="@color/light"
         android:layout_marginBottom="50dp"
-        app:trackDecorationTint="@color/dark"
-        tools:ignore="UseSwitchCompatOrMaterialXml"
+        app:layout_constraintBottom_toTopOf="@id/txtMode"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/txtMode"/>
+        app:thumbTint="@color/dark"
+        app:trackDecorationTint="@color/dark"
+        app:trackTint="@color/light"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
     <TextView
         android:id="@+id/txtMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tema oscuro"
+        android:layout_marginBottom="100dp"
+        android:text="@string/darkMode"
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:layout_marginBottom="100dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/switchMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:thumbTint="@color/dark"
-        app:trackTint="@color/light"
-        app:trackDecorationTint="@color/dark"
+        app:layout_constraintBottom_toTopOf="@id/txtBiometric"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtMode"
-        app:layout_constraintBottom_toTopOf="@id/txtBiometric"/>
+        app:thumbTint="@color/dark"
+        app:trackDecorationTint="@color/dark"
+        app:trackTint="@color/light" />
 
     <TextView
         android:id="@+id/txtBiometric"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Biométrico"
-        android:textColor="@color/white"
         android:layout_marginTop="50dp"
+        android:text="@string/biometricSettings"
+        android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/switchMode"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/switchMode" />
 
 
     <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/switchBiometric"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:thumbTint="@color/dark"
-        app:trackTint="@color/light"
-        app:trackDecorationTint="@color/dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtBiometric"/>
+        app:layout_constraintTop_toBottomOf="@+id/txtBiometric"
+        app:thumbTint="@color/dark"
+        app:trackDecorationTint="@color/dark"
+        app:trackTint="@color/light" />
 
     <TextView
         android:id="@+id/txtLanguage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Idioma"
-        android:textColor="@color/white"
         android:layout_marginTop="10dp"
+        android:text="@string/language"
+        android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/switchBiometric"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/switchBiometric" />
 
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnLogout"
+        style="@style/App.Btn"
         android:layout_width="200dp"
         android:layout_height="60dp"
         android:layout_marginBottom="40dp"
-        style="@style/App.Btn"
-        android:text="Desconectar"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/dark"
         android:background="@drawable/button_custom"
+        android:backgroundTint="@color/dark"
+        android:text="@string/btnLogout"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

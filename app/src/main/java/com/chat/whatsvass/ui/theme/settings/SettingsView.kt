@@ -57,7 +57,7 @@ class SettingsView : AppCompatActivity() {
                 setUpViewModel()
                 viewModel.logoutUser(token)
             } else {
-                Toast.makeText(this, "Error al cerrar sesión", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.failedToLogout), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -81,7 +81,8 @@ class SettingsView : AppCompatActivity() {
                     sharedPreferencesToken.edit().putString(KEY_TOKEN, null).apply()
                     sharedPreferencesToken.edit().putString(SOURCE_ID, null).apply()
 
-                    Toast.makeText(this@SettingsView, "Usuario desconectado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SettingsView,
+                        getString(R.string.disconnectedUser), Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@SettingsView, LoginView::class.java))
                     finish()
                 }

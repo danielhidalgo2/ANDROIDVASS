@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
@@ -65,9 +66,9 @@ import com.chat.whatsvass.commons.ONLINE_ARGUMENT
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.data.domain.model.contacts.Contacts
 import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.ChatRequest
-import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Contrast
 import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.chat.ChatView
@@ -171,7 +172,7 @@ fun TopBarAndList(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.search),
                         tint = Color.Black,
                         modifier = Modifier.size(24.dp)
                     )
@@ -188,7 +189,7 @@ fun TopBarAndList(
                             ) {
                                 if (searchText.text.isEmpty()) {
                                     Text(
-                                        text = "Buscar...",
+                                        text = stringResource(R.string.textFieldSearch),
                                         style = MaterialTheme.typography.body1,
                                         color = Color.Gray
                                     )
@@ -209,7 +210,7 @@ fun TopBarAndList(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_settings),
-                    contentDescription = "Settings",
+                    contentDescription = stringResource(R.string.settings),
                     tint = Color.Black,
                     modifier = Modifier.size(36.dp)
                 )
@@ -220,8 +221,10 @@ fun TopBarAndList(
 
     Box(modifier = Modifier.fillMaxSize()){
         LazyColumn {
+            // Ordenar contactos alfabeticamente
+            val sortedContacts = contacts.sortedBy {it.nick.replaceFirstChar { it.uppercaseChar()}}
             if (searchText.text.isEmpty()) {
-                items(contacts,
+                items(sortedContacts,
                     key = { contact ->
                         // La llave sirve para que cada valor se mueva con su celda
                         contact.id
@@ -231,7 +234,7 @@ fun TopBarAndList(
                 }
             } else {
                 listSearch =
-                    contacts.filter { it.nick.contains(searchText.text, ignoreCase = true) }
+                    sortedContacts.filter { it.nick.contains(searchText.text, ignoreCase = true) }
                 items(listSearch,
                     key = { contact ->
                         contact.id
@@ -252,7 +255,7 @@ fun TopBarAndList(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Sin contactos",
+                    text = stringResource(R.string.withoutContacts),
                     fontSize = 22.sp,
                     color = Dark
                 )
@@ -260,7 +263,7 @@ fun TopBarAndList(
         }
 
         // Si no se encuentra el contacto buscado se muestra texto: "Sin coincidencias"
-        if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == "Buscar...")) {
+        if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == R.string.textFieldSearch.toString())) {
             Column(
                 modifier = Modifier
                     .height(400.dp)
@@ -269,7 +272,7 @@ fun TopBarAndList(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Sin coincidencias",
+                    text = stringResource(R.string.noMatches),
                     fontSize = 22.sp,
                     color = Dark
                 )
@@ -347,7 +350,7 @@ fun ContactItem(
 
             Image(
                 painter = painterResource(id = R.drawable.image_person),
-                contentDescription = "Foto de perfil",
+                contentDescription = stringResource(id = R.string.ProfilePhoto),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(4.dp)

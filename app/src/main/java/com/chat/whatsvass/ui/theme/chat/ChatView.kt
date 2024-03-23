@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -176,7 +177,7 @@ class ChatView : ComponentActivity() {
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.image_person),
-                            contentDescription = "Foto de perfil",
+                            contentDescription = stringResource(R.string.ProfilePhoto),
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(4.dp)
@@ -189,7 +190,7 @@ class ChatView : ComponentActivity() {
                         color = Color.Red
                     Icon(
                         painter = painterResource(id = R.drawable.ic_circle),
-                        contentDescription = "Custom Icon",
+                        contentDescription = stringResource(R.string.CustomIcon),
                         tint = color, // Comprobar si esta online / offline
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
@@ -326,7 +327,7 @@ class ChatView : ComponentActivity() {
                     .padding(end = 8.dp)
                     .background(Color.Transparent)
                     .clip(RoundedCornerShape(40.dp)),
-                placeholder = { Text(text = "Escribe un mensaje...") },
+                placeholder = { Text(text = stringResource(R.string.WriteAMessage)) },
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color.Transparent, // Ocultar la línea de foco
                     unfocusedIndicatorColor = Color.Transparent // Ocultar la línea de enfoque
@@ -352,7 +353,7 @@ class ChatView : ComponentActivity() {
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = "Enviar",
+                    contentDescription = stringResource(R.string.Send),
                     Modifier.size(40.dp),
                     tint = Dark
                 )

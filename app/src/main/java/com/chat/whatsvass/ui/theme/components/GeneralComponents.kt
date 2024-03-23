@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -57,7 +58,7 @@ object GeneralComponents {
                     onClick = onBackClick) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_arrow_back),
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.back),
                         tint = Dark
                     )
                 }
@@ -141,7 +142,7 @@ object GeneralComponents {
                     } else {
                         ImageVector.vectorResource(id = R.drawable.visible_on)
                     }
-                    Icon(icon, contentDescription = "Toggle Password Visibility")
+                    Icon(icon, contentDescription = stringResource(R.string.togglePasswordVisibility))
                 }
             }
         )

@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_ID
 import com.chat.whatsvass.commons.KEY_NICK
 import com.chat.whatsvass.commons.KEY_TOKEN
@@ -33,7 +34,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loginUser(username: String, password: String) {
         if (username.isEmpty() || password.isEmpty()) {
-            _loginResult.value = LoginResult.Error("Por favor, ingrese su usuario y contraseña")
+            _loginResult.value = LoginResult.Error(R.string.pleaseEnterUserAndPassword.toString())
             return
         }
 
@@ -51,14 +52,14 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
 
                 } else {
-                    _loginResult.value = LoginResult.Error("Usuario o contraseña incorrectos")
+                    _loginResult.value = LoginResult.Error(R.string.incorrectUserOrPassword.toString())
                     Log.d(
                         "LoginViewModel",
                         "Inicio de sesión fallido. Usuario o contraseña incorrectos"
                     )
                 }
             } catch (e: Exception) {
-                _loginResult.value = LoginResult.Error("Error al iniciar sesión: ${e.message}")
+                _loginResult.value = LoginResult.Error("${R.string.failedToLogin} ${e.message}")
                 Log.e("LoginViewModel", "Error al iniciar sesión: ${e.message}")
             }
         }

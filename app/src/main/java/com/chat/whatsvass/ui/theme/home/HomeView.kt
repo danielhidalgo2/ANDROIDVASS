@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
@@ -213,7 +214,7 @@ fun HomeScreen(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_add),
-                contentDescription = "add",
+                contentDescription = stringResource(R.string.add),
                 modifier = Modifier.size(32.dp)
             )
         }
@@ -295,7 +296,7 @@ fun ChatItem(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.image_person),
-                    contentDescription = "Foto de perfil",
+                    contentDescription = stringResource(id = R.string.ProfilePhoto),
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(4.dp)
@@ -304,7 +305,7 @@ fun ChatItem(
 
             Icon(
                 painter = painterResource(id = R.drawable.ic_circle),
-                contentDescription = "Custom Icon",
+                contentDescription = stringResource(id = R.string.CustomIcon),
                 tint = color, // Comprobar si esta online / offline
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -329,7 +330,9 @@ fun ChatItem(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = lastMessage?.message?.let { if (it.length > 15) it.take(15) + "..." else it } ?: "No hay mensajes",
+                text = lastMessage?.message?.let { if (it.length > 15) it.take(15) + "..." else it } ?: stringResource(
+                    id = R.string.thereAreNoMessages
+                ),
                 style = TextStyle(fontSize = 14.sp, color = Light),
                 maxLines = 1
             )
@@ -351,8 +354,8 @@ fun ChatItem(
         if (showDialog.value) {
             AlertDialog(
                 onDismissRequest = { showDialog.value = false },
-                title = { Text("Eliminar chat") },
-                text = { Text("¿Estás seguro de que quieres eliminar este chat?") },
+                title = { Text(stringResource(R.string.deleteChat)) },
+                text = { Text(stringResource(R.string.areYouSureToDeleteChat)) },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -360,14 +363,14 @@ fun ChatItem(
                             onDeleteChat(chat.chatId) // Llamada al callback con el chatId
                         }
                     ) {
-                        Text("Sí")
+                        Text(stringResource(R.string.yes))
                     }
                 },
                 dismissButton = {
                     Button(
                         onClick = { showDialog.value = false }
                     ) {
-                        Text("Cancelar")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )
@@ -419,7 +422,7 @@ fun TopBarHomeAndList(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
-                        contentDescription = "Search",
+                        contentDescription = stringResource(id = R.string.search),
                         tint = Color.Black,
                         modifier = Modifier.size(24.dp)
                     )
@@ -436,7 +439,7 @@ fun TopBarHomeAndList(
                             ) {
                                 if (searchText.text.isEmpty()) {
                                     Text(
-                                        text = "Buscar...",
+                                        text = stringResource(id = R.string.textFieldSearch),
                                         style = MaterialTheme.typography.body1,
                                         color = Color.Gray
                                     )
@@ -457,7 +460,7 @@ fun TopBarHomeAndList(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_settings),
-                    contentDescription = "Settings",
+                    contentDescription = stringResource(id = R.string.settings),
                     tint = Color.Black,
                     modifier = Modifier.size(36.dp)
                 )
@@ -481,14 +484,13 @@ fun TopBarHomeAndList(
             }
         }
     ) {
-
-
         Box(Modifier.fillMaxSize()) {
+            var chatsNew = chats.toMutableList()
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
                 //Nueva lista con los chats ordenados por fecha y hora
-                var chatsNew = chats.toMutableList()
+
                 for (i in chats) {
                     for (j in listRestultOrdered) {
                         if (i.chatId == j) {
@@ -502,7 +504,7 @@ fun TopBarHomeAndList(
                 for (i in chatsNew) {
                     Log.d("CHATNEW", i.chatId)
                 }
-                if (searchText.text.isNullOrEmpty() || searchText.text == "Buscar...") {
+                if (searchText.text.isNullOrEmpty() || searchText.text == R.string.textFieldSearch.toString()) {
                     items(
                         items = chatsNew,
                         key = { chat ->
@@ -569,7 +571,7 @@ fun TopBarHomeAndList(
             }
 
             // Si no se encuentra el chat buscado se muestra texto: "Sin coincidencias"
-            if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == "Buscar...")) {
+            if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == R.string.textFieldSearch.toString())) {
                 Column(
                     modifier = Modifier
                         .height(400.dp)
@@ -578,7 +580,7 @@ fun TopBarHomeAndList(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Sin coincidencias",
+                        text = stringResource(id = R.string.noMatches),
                         fontSize = 22.sp,
                         color = Dark
                     )
@@ -586,7 +588,7 @@ fun TopBarHomeAndList(
             }
 
             // Si no hay chats se muestra: "No tienes chats"
-            if (isTextWithOutChatsVisible) {
+            if (isTextWithOutChatsVisible && chatsNew.isEmpty()) {
                 Column(
                     modifier = Modifier
                         .height(400.dp)
@@ -595,7 +597,7 @@ fun TopBarHomeAndList(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "No tienes chats",
+                        text =  stringResource(id = R.string.thereAreNoChats),
                         fontSize = 22.sp,
                         color = Dark
                     )

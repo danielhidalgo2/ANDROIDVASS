@@ -2,6 +2,7 @@ package com.chat.whatsvass.ui.theme.profile
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -35,6 +36,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -95,13 +97,13 @@ class ProfileView : ComponentActivity() {
             ) {
 
                 NavigationBarCustom(
-                    text = "Crear Perfil",
+                    text = stringResource(R.string.createProfile),
                     onBackClick = { navController.popBackStack() })
                 Spacer(modifier = Modifier.height(20.dp))
                 ImageProfile()
                 Spacer(modifier = Modifier.height(40.dp))
                 val user = TextFieldCustom(
-                    "Usuario",
+                    stringResource(R.string.user),
                     onImeActionPerformed = { action ->
                         if (action == ImeAction.Done || action == ImeAction.Next) {
                             keyboardController?.hide()
@@ -110,7 +112,7 @@ class ProfileView : ComponentActivity() {
                 )
                 Spacer(modifier = Modifier.height(20.dp))
                 val nick = TextFieldCustom(
-                    "Nick",
+                    stringResource(R.string.nick),
                     onImeActionPerformed = { action ->
                         if (action == ImeAction.Done || action == ImeAction.Next) {
                             keyboardController?.hide()
@@ -119,7 +121,7 @@ class ProfileView : ComponentActivity() {
                 )
                 Spacer(modifier = Modifier.height(20.dp))
                 val password = PasswordTextFieldCustom(
-                    "Contraseña",
+                    stringResource(R.string.password),
                     onImeActionPerformed = { action ->
                         if (action == ImeAction.Done || action == ImeAction.Next) {
                             keyboardController?.hide()
@@ -128,7 +130,7 @@ class ProfileView : ComponentActivity() {
                 )
                 Spacer(modifier = Modifier.height(20.dp))
                 val confirmPassword = PasswordTextFieldCustom(
-                    "Repetir Contraseña",
+                    stringResource(R.string.repeatPassword),
                     onImeActionPerformed = { action ->
                         if (action == ImeAction.Done || action == ImeAction.Next) {
                             viewModel.registerUser(user, nick, password)
@@ -141,23 +143,21 @@ class ProfileView : ComponentActivity() {
                     onClick = {
                         if (user.isNullOrEmpty()) {
                             Toast.makeText(
-                                context,
-                                "Ingresa tu nombre de usuario",
+                                context, R.string.enterYourUsername,
                                 Toast.LENGTH_SHORT
                             )
                                 .show()
                         } else if (nick.isNullOrEmpty()) {
-                            Toast.makeText(context, "Ingresa tu nick", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, R.string.enterYourNick, Toast.LENGTH_SHORT).show()
                         } else if (password.isNullOrEmpty()) {
-                            Toast.makeText(context, "Ingresa una contraseña", Toast.LENGTH_SHORT)
+                            Toast.makeText(context,R.string.enterAPassword, Toast.LENGTH_SHORT)
                                 .show()
                         } else if (confirmPassword.isNullOrEmpty()) {
-                            Toast.makeText(context, "Confirma tu contraseña", Toast.LENGTH_SHORT)
+                            Toast.makeText(context, R.string.confirmYourPassword, Toast.LENGTH_SHORT)
                                 .show()
                         } else if (password != confirmPassword) {
                             Toast.makeText(
-                                context,
-                                "Las contraseñas deben ser iguales",
+                                context, R.string.passwordsMustBeTheSame,
                                 Toast.LENGTH_SHORT
                             )
                                 .show()
@@ -172,7 +172,7 @@ class ProfileView : ComponentActivity() {
                         .fillMaxWidth()
                         .padding(horizontal = 95.dp)
                         .height(60.dp),
-                    text = "Crear Usuario"
+                    text = stringResource(R.string.createUser)
                 )
                 Spacer(modifier = Modifier.height(40.dp))
             }
@@ -185,9 +185,9 @@ class ProfileView : ComponentActivity() {
                     (registerResult as ProfileViewModel.RegisterResult.Success).register
                     showMessage(
                         context,
-                        "Usuario creado correctamente."
+                        stringResource(R.string.userCreatedSuccessfully)
                     )
-                    //  IR HACIA HOME
+                    // Ir hacia loading
                     val intent = Intent(context, LoadingActivity::class.java)
                     context.startActivity(intent)
 
@@ -196,7 +196,7 @@ class ProfileView : ComponentActivity() {
                 is ProfileViewModel.RegisterResult.Error -> {
                     val errorMessage =
                         (registerResult as ProfileViewModel.RegisterResult.Error).message
-                    showMessage(context, "No se pudo crear el usuario, intente nuevamente.")
+                    showMessage(context, stringResource(R.string.failedToCreateUserTryAgain))
                     Log.d("Error al crear usuario", "Error al crear usuario: $errorMessage")
                 }
 

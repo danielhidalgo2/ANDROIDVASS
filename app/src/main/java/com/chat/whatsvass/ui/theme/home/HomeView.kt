@@ -72,6 +72,7 @@ import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
 import com.chat.whatsvass.commons.DELAY_GET_MESSAGES
+import com.chat.whatsvass.commons.KEY_PASSWORD
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.KNICK_ARGUMENT
 import com.chat.whatsvass.commons.LIMIT_GET_MESSAGES
@@ -115,6 +116,8 @@ class HomeView : ComponentActivity() {
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
+        val pass = sharedPreferencesToken.getString(KEY_PASSWORD, null)
+
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 // No hagas nada cuando se presiona el botón de retroceso
@@ -129,6 +132,8 @@ class HomeView : ComponentActivity() {
                 if (token != null) {
                     viewModel.getChats(token)
                     Log.d("HomeView", "Obteniendo chats con token: $token")
+                    Log.d("Encrypt", "Variable guardada $pass")
+
                 }
             }
 

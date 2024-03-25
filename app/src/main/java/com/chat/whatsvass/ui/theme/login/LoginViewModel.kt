@@ -14,9 +14,11 @@ import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import com.chat.whatsvass.data.domain.repository.remote.response.login.LoginResponse
+import com.chat.whatsvass.usecases.Encrypt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import java.security.MessageDigest
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -37,14 +39,14 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             _loginResult.value = LoginResult.Error(R.string.pleaseEnterUserAndPassword.toString())
             return
         }
+        val encryptedPassword = Encrypt().encryptPassword(password)
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val login = userRepository.loginUser(username, password)
+                val login = userRepository.loginUser(username, encryptedPassword)
                 if (login.token.isNotEmpty()) {
                     _loginResult.value = LoginResult.Success(login)
                     Log.d("LoginViewModel", "Inicio de sesión exitoso. Token: ${login.token}")
-
                     sharedPreferences.edit().putString(KEY_TOKEN, login.token).apply()
                     sharedPreferences.edit().putString(KEY_ID, login.user.id).apply()
                     sharedPreferences.edit().putString(KEY_NICK, login.user.nick).apply()
@@ -64,6 +66,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+
 
 
 }

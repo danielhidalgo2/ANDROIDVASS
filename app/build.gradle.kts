@@ -18,6 +18,10 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "CLAVE_SECRETA", "\"WhatsVass3lm3j0r\"")
+        buildConfigField("String", "BASE_URL", "\"https://mock-movilidad.vass.es/chatvass/api/\"")
+
     }
 
     buildTypes {
@@ -36,6 +40,8 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
+
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"

@@ -85,6 +85,7 @@ import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
+import com.chat.whatsvass.usecases.Encrypt
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
@@ -339,9 +340,10 @@ fun LoginScreen(
             LoginButton(
                 onClick = {
                     // Guardar datos en sharedPreferences para utilizarlos en el biometrico
+                    val encryptPassword = Encrypt().encryptPassword(password)
                     val edit = sharedPreferences.edit()
                     edit.putString(KEY_USERNAME, username).apply()
-                    edit.putString(KEY_PASSWORD, password).apply()
+                    edit.putString(KEY_PASSWORD, encryptPassword).apply()
 
                     viewModel.loginUser(username, password)
                 }, modifier = Modifier

@@ -43,6 +43,8 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.chat.whatsvass.R
+import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.ButtonCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.NavigationBarCustom
@@ -75,7 +77,7 @@ class ProfileView : ComponentActivity() {
     }
 
     @Composable
-    fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
+    fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController,  isDarkModeActive: Boolean) {
 
         // Cambiar color de statusBar en compose
         /*   val systemUiController = rememberSystemUiController()
@@ -91,7 +93,7 @@ class ProfileView : ComponentActivity() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xff8091f2))
+                .background(if (isDarkModeActive) Dark else Light)
         ) {
             Column(
                 modifier = Modifier
@@ -107,6 +109,7 @@ class ProfileView : ComponentActivity() {
                 Spacer(modifier = Modifier.height(40.dp))
                 val user = TextFieldCustom(
                     stringResource(R.string.user),
+                    isDarkModeActive,
                     onImeActionPerformed = { action ->
                         if (action == ImeAction.Done || action == ImeAction.Next) {
                             keyboardController?.hide()
@@ -116,6 +119,7 @@ class ProfileView : ComponentActivity() {
                 Spacer(modifier = Modifier.height(20.dp))
                 val nick = TextFieldCustom(
                     stringResource(R.string.nick),
+                    isDarkModeActive,
                     onImeActionPerformed = { action ->
                         if (action == ImeAction.Done || action == ImeAction.Next) {
                             keyboardController?.hide()
@@ -125,6 +129,7 @@ class ProfileView : ComponentActivity() {
                 Spacer(modifier = Modifier.height(20.dp))
                 val password = PasswordTextFieldCustom(
                     stringResource(R.string.password),
+                    isDarkModeActive,
                     onImeActionPerformed = { action ->
                         if (action == ImeAction.Done || action == ImeAction.Next) {
                             keyboardController?.hide()
@@ -134,6 +139,7 @@ class ProfileView : ComponentActivity() {
                 Spacer(modifier = Modifier.height(20.dp))
                 val confirmPassword = PasswordTextFieldCustom(
                     stringResource(R.string.repeatPassword),
+                    isDarkModeActive,
                     onImeActionPerformed = { action ->
                         if (action == ImeAction.Done || action == ImeAction.Next) {
                             viewModel.registerUser(user, nick, password)
@@ -236,7 +242,8 @@ class ProfileView : ComponentActivity() {
                     modifier = Modifier
                         .clip(CircleShape)
                         .height(152.dp)
-                        .width(152.dp),
+                        .width(152.dp)
+                        .background(Color.LightGray),
             painter = painter,
             contentDescription = "",
             contentScale = ContentScale.Crop

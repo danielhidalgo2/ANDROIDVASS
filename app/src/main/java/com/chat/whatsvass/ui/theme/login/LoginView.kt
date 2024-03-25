@@ -162,7 +162,7 @@ class LoginView : AppCompatActivity() {
                 }
                 composable("profile") {
                     window.statusBarColor = ContextCompat.getColor(this@LoginView, R.color.main)
-                    ProfileView().ProfileScreen(viewModelCreateUser, navController = navController)
+                    ProfileView().ProfileScreen(viewModelCreateUser, navController = navController, isDarkModeActive)
                 }
                 // Agrega más composables para otras pantallas si es necesario
             }

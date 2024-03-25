@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.lifecycleScope
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_BIOMETRIC
@@ -21,6 +22,7 @@ import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.databinding.ActivitySettingsViewBinding
+import com.chat.whatsvass.ui.theme.Dark
 import com.chat.whatsvass.ui.theme.login.LoginView
 import kotlinx.coroutines.launch
 
@@ -37,16 +39,21 @@ class SettingsView : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.navigationBarColor = ContextCompat.getColor(this, R.color.light)
 
         binding = ActivitySettingsViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         binding.btnBack.setOnClickListener {
             finish() // Volver a la pantalla anterior cuando se presiona el botón de retroceso
         }
-
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
+        val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
+        if (isDarkModeActive){
+            window.navigationBarColor = ContextCompat.getColor(this, R.color.dark)
+            binding.main.setBackgroundColor(getColor(R.color.dark))
+        } else {
+            window.navigationBarColor = ContextCompat.getColor(this, R.color.light)
+            binding.main.setBackgroundColor(getColor(R.color.light))
+        }
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
         initVars(sharedPreferencesSettings)
@@ -114,13 +121,15 @@ class SettingsView : AppCompatActivity() {
         }
         binding.switchMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                enableDarkMode()
                 edit.putBoolean(KEY_MODE, true)
                 edit.commit()
+                binding.main.setBackgroundColor(getColor(R.color.dark))
+                window.navigationBarColor = ContextCompat.getColor(this, R.color.dark)
             } else {
-                disableDarkMode()
                 edit.putBoolean(KEY_MODE, false)
                 edit.commit()
+                binding.main.setBackgroundColor(getColor(R.color.light))
+                window.navigationBarColor = ContextCompat.getColor(this, R.color.light)
             }
         }
         binding.switchBiometric.setOnCheckedChangeListener { _, isChecked ->

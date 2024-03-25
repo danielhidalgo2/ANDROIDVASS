@@ -15,7 +15,7 @@
     </style>
 
     <style name="App.Btn" parent="Widget.AppCompat.Button">
-        <item name="backgroundTint">@color/dark</item>
+        <item name="backgroundTint">@color/main</item>
         <item name="android:textColor">@color/white</item>
         <item name="rippleColor">@color/dark</item>
         <item name="android:textStyle">normal</item>

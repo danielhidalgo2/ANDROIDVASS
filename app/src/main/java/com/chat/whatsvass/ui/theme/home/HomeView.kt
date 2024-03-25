@@ -121,7 +121,7 @@ class HomeView : ComponentActivity() {
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
-        val isDarkModeActive = mutableStateOf(sharedPreferencesSettings.getBoolean(KEY_MODE, false))
+        val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
         
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {

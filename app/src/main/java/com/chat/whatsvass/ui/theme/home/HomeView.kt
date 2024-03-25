@@ -56,6 +56,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -122,7 +123,6 @@ class HomeView : ComponentActivity() {
         onBackPressedDispatcher.addCallback(this, callback)
 
         setContent {
-
             // Observar el resultado del ViewModel para obtener los chats
             LaunchedEffect(key1 = viewModel) {
                 if (token != null) {
@@ -185,7 +185,6 @@ class HomeView : ComponentActivity() {
 
     }
 }
-
 
 @Composable
 fun HomeScreen(
@@ -366,7 +365,7 @@ fun ChatItem(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = lastMessage?.message?.let { if (it.length > 15) it.take(15) + "..." else it } ?: stringResource(
+                text = lastMessage?.message?.let { if (it.length > 15) it.take(12) + "..." else it } ?: stringResource(
                     id = R.string.thereAreNoMessages
                 ),
                 style = TextStyle(fontSize = 14.sp, color = Light),

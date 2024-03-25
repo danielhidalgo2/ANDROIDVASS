@@ -290,6 +290,7 @@ fun ChatItem(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
+
         Spacer(modifier = Modifier.weight(0.1f))
         Box(
             modifier = Modifier

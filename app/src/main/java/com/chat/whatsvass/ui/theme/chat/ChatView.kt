@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Colors
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -167,7 +168,8 @@ class ChatView : ComponentActivity() {
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_arrow_back),
-                        contentDescription = "Back"
+                        contentDescription = "Back",
+                        tint = Dark
                     )
                 }
                 Spacer(modifier = Modifier.weight(0.1f))
@@ -214,10 +216,12 @@ class ChatView : ComponentActivity() {
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    textAlign = TextAlign.Center,
                     modifier = Modifier
+                        .padding(start = 40.dp)
                         .weight(1f)
                 )
+
+
 
             }
         }

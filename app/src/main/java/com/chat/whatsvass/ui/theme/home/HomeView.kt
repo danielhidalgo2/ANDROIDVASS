@@ -50,6 +50,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -61,6 +62,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
@@ -91,6 +93,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 private lateinit var sharedPreferencesToken: SharedPreferences
@@ -229,11 +232,34 @@ fun HomeScreen(
 }
 
 fun formatTimeFromApi(dateTimeString: String): String {
+    val calendar = Calendar.getInstance()
+    val day = calendar[Calendar.DAY_OF_MONTH]
+    val month = calendar[Calendar.MONTH] + 1
+    val year = calendar[Calendar.YEAR]
+    val today = "$day-$month-$year"
+    val todayMonthAndYear = "$month-$year"
+    Log.d("FECHAACTUAL", today)
+
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
     val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-    val outputFormatDay = SimpleDateFormat("dd-MM", Locale.getDefault())
+    val outputFormatDate = SimpleDateFormat("d-M-yyyy")
+    val outputFormatDay = SimpleDateFormat("d")
+    val outputFormatDayToShow = SimpleDateFormat("d-M-yy")
+    val outputFormatMonthAndYear = SimpleDateFormat("M-yy")
     val date = inputFormat.parse(dateTimeString)
-    return outputFormat.format(date!!) + "\n" + outputFormatDay.format(date!!)
+    val dateToCompare =  outputFormatDate.format(date).toString()
+
+    // Si las fechas son iguales devuelve la hora
+    if (today == dateToCompare){
+        return outputFormat.format(date)
+        // Si el mes y año son iguales, se resta el dia de hoy con el del ultimo mensaje, si es 1, el mensaje es de ayer
+    } else if ((todayMonthAndYear == outputFormatMonthAndYear.format(date!!)) && ((day - outputFormatDay.format(date).toString().toInt()) == 1)){
+        return outputFormat.format(date) + "\nAyer"
+        // Para el resto se muestra la hora y fecha
+    } else {
+        return outputFormat.format(date) + "\n${outputFormatDayToShow.format(date)}"
+    }
+
 }
 fun formatTimeFromApiToOrderList(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
@@ -352,7 +378,7 @@ fun ChatItem(
         Text(
             text = formattedTime,
             style = TextStyle(fontSize = 14.sp, color = Light),
-            modifier = Modifier.align(Alignment.CenterVertically)
+            textAlign = TextAlign.End
         )
 
         Spacer(modifier = Modifier.weight(0.1f))

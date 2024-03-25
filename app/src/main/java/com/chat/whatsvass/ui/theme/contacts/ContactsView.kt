@@ -61,14 +61,17 @@ import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
 import com.chat.whatsvass.commons.KEY_ID
+import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.KNICK_ARGUMENT
 import com.chat.whatsvass.commons.ONLINE_ARGUMENT
+import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.data.domain.model.contacts.Contacts
 import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.ChatRequest
 import com.chat.whatsvass.ui.theme.Contrast
 import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.DarkMode
 import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
@@ -86,6 +89,7 @@ const val DELAY_TO_OPEN_CHAT = 150L
 class ContactsView : ComponentActivity() {
     private val viewModel: ContactsViewModel by viewModels()
     private lateinit var sharedPreferencesUserData: SharedPreferences
+    private lateinit var sharedPreferencesSettings: SharedPreferences
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,6 +104,9 @@ class ContactsView : ComponentActivity() {
         val token = sharedPreferencesUserData.getString(KEY_TOKEN, null)
         val myId = sharedPreferencesUserData.getString(KEY_ID, null)
 
+        sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
+        val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
+
         setContent {
 
             // Observar el resultado del ViewModel
@@ -110,7 +117,7 @@ class ContactsView : ComponentActivity() {
             }
             // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
             val contactsResult by viewModel.contactsResult.collectAsState(emptyList())
-            ContactsScreen(this, token!!, myId!!, contactsResult, viewModel)
+            ContactsScreen(this, token!!, myId!!, contactsResult, viewModel, isDarkModeActive)
 
         }
         window.decorView.setOnTouchListener { _, _ ->
@@ -126,12 +133,13 @@ fun ContactsScreen(
     token: String,
     myId: String,
     contacts: List<Contacts>,
-    viewModel: ContactsViewModel
+    viewModel: ContactsViewModel,
+    isDarkModeActive: Boolean
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(if (isDarkModeActive) DarkMode else White)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()

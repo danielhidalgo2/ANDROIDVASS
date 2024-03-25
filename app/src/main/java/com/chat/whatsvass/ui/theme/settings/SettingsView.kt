@@ -23,6 +23,9 @@ import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.databinding.ActivitySettingsViewBinding
 import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.contacts.ContactsView
+import com.chat.whatsvass.ui.theme.home.HomeScreen
+import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.LoginView
 import kotlinx.coroutines.launch
 

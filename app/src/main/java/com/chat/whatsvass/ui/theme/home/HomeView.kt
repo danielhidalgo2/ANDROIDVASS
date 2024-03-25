@@ -69,17 +69,20 @@ import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
 import com.chat.whatsvass.commons.DELAY_GET_MESSAGES
+import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.KNICK_ARGUMENT
 import com.chat.whatsvass.commons.LIMIT_GET_MESSAGES
 import com.chat.whatsvass.commons.OFFSET_GET_MESSAGES
 import com.chat.whatsvass.commons.ONLINE_ARGUMENT
+import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.ui.theme.Contrast
 import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.DarkMode
 import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.WhatsVassTheme
@@ -93,11 +96,13 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import okhttp3.internal.notifyAll
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 private lateinit var sharedPreferencesToken: SharedPreferences
+private lateinit var sharedPreferencesSettings: SharedPreferences
 
 class HomeView : ComponentActivity() {
     private val viewModel: HomeViewModel by viewModels()
@@ -106,15 +111,18 @@ class HomeView : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
         window.decorView.apply {
             @Suppress("DEPRECATION")
-            systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            systemUiVisibility =
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         }
 
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
+        sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
+        val isDarkModeActive = mutableStateOf(sharedPreferencesSettings.getBoolean(KEY_MODE, false))
+        
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 // No hagas nada cuando se presiona el botón de retroceso
@@ -145,19 +153,19 @@ class HomeView : ComponentActivity() {
                 }
             }
 
-            WhatsVassTheme (darkTheme = true){
-                HomeScreen(
-                    chats = chats,
-                    messages = messages,
-                    viewModel,
-                    token!!,
-                    onDeleteChat = { chatId ->
-                        // Lógica para eliminar el chat en el ViewModel
-                        viewModel.deleteChat(token!!, chatId)
-                    }
-                )
-            }
+            HomeScreen(
+                chats = chats,
+                messages = messages,
+                viewModel,
+                token!!,
+                isDarkModeActive,
+                onDeleteChat = { chatId ->
+                    // Lógica para eliminar el chat en el ViewModel
+                    viewModel.deleteChat(token!!, chatId)
+                }
+            )
         }
+
 
         window.decorView.setOnTouchListener { _, _ ->
             hideKeyboard(this)
@@ -184,7 +192,6 @@ class HomeView : ComponentActivity() {
             // Actualizar el estado en línea del usuario como "fuera de línea" cuando se pausa la actividad
             viewModel.updateUserOnlineStatus(token, false)
         }
-
     }
 }
 
@@ -194,6 +201,7 @@ fun HomeScreen(
     messages: Map<String, List<Message>>,
     viewModel: HomeViewModel,
     token: String,
+    isDarkModeActive: Boolean,
     onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
 ) {
     val context = LocalContext.current
@@ -201,7 +209,7 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(if (isDarkModeActive) DarkMode else White)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -249,13 +257,16 @@ fun formatTimeFromApi(dateTimeString: String): String {
     val outputFormatDayToShow = SimpleDateFormat("d-M-yy")
     val outputFormatMonthAndYear = SimpleDateFormat("M-yy")
     val date = inputFormat.parse(dateTimeString)
-    val dateToCompare =  outputFormatDate.format(date).toString()
+    val dateToCompare = outputFormatDate.format(date).toString()
 
     // Si las fechas son iguales devuelve la hora
-    if (today == dateToCompare){
+    if (today == dateToCompare) {
         return outputFormat.format(date)
         // Si el mes y año son iguales, se resta el dia de hoy con el del ultimo mensaje, si es 1, el mensaje es de ayer
-    } else if ((todayMonthAndYear == outputFormatMonthAndYear.format(date!!)) && ((day - outputFormatDay.format(date).toString().toInt()) == 1)){
+    } else if ((todayMonthAndYear == outputFormatMonthAndYear.format(date!!)) && ((day - outputFormatDay.format(
+            date
+        ).toString().toInt()) == 1)
+    ) {
         return outputFormat.format(date) + "\nAyer"
         // Para el resto se muestra la hora y fecha
     } else {
@@ -263,6 +274,7 @@ fun formatTimeFromApi(dateTimeString: String): String {
     }
 
 }
+
 fun formatTimeFromApiToOrderList(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
     val outputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
@@ -367,9 +379,10 @@ fun ChatItem(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = lastMessage?.message?.let { if (it.length > 15) it.take(12) + "..." else it } ?: stringResource(
-                    id = R.string.thereAreNoMessages
-                ),
+                text = lastMessage?.message?.let { if (it.length > 15) it.take(12) + "..." else it }
+                    ?: stringResource(
+                        id = R.string.thereAreNoMessages
+                    ),
                 style = TextStyle(fontSize = 14.sp, color = Light),
                 maxLines = 1
             )
@@ -515,7 +528,12 @@ fun TopBarHomeAndList(
                     listOfChatsIds.add(i.chatId)
                 }
                 viewModel.getChats(token)
-                viewModel.getMessages(token, listOfChatsIds, OFFSET_GET_MESSAGES, LIMIT_GET_MESSAGES)
+                viewModel.getMessages(
+                    token,
+                    listOfChatsIds,
+                    OFFSET_GET_MESSAGES,
+                    LIMIT_GET_MESSAGES
+                )
                 delay(DELAY_GET_MESSAGES)
                 refreshing = false
             }
@@ -634,7 +652,7 @@ fun TopBarHomeAndList(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text =  stringResource(id = R.string.thereAreNoChats),
+                        text = stringResource(id = R.string.thereAreNoChats),
                         fontSize = 22.sp,
                         color = Dark
                     )
@@ -644,7 +662,7 @@ fun TopBarHomeAndList(
     }
 }
 
-fun orderChatsByDate(chats: List<Chat>, messages: Map<String, List<Message>>) : List<String>{
+fun orderChatsByDate(chats: List<Chat>, messages: Map<String, List<Message>>): List<String> {
     // Ordenar chats por hora de ultimo mensaje
     val mapOfChatIDandDateLast = mutableMapOf<String, String>()
     for (i in chats) {

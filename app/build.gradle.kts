@@ -15,6 +15,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "BASE_URL", "\"https://mock-movilidad.vass.es/chatvass/api/\"")
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -36,6 +37,7 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -90,6 +92,7 @@ dependencies {
     implementation("androidx.navigation:navigation-runtime-ktx:2.7.7")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
+    implementation("androidx.media3:media3-effect:1.3.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

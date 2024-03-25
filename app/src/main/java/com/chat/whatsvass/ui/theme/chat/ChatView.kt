@@ -57,16 +57,19 @@ import androidx.lifecycle.lifecycleScope
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
 import com.chat.whatsvass.commons.DELAY_GET_MESSAGESFORCHAT
+import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.KNICK_ARGUMENT
 import com.chat.whatsvass.commons.LIMIT_GET_MESSAGESFORCHAT
 import com.chat.whatsvass.commons.OFFSET_GET_MESSAGESFORCHAT
 import com.chat.whatsvass.commons.ONLINE_ARGUMENT
+import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.response.create_message.MessageRequest
 import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.DarkMode
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.home.formatTimeFromApi
@@ -78,6 +81,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private lateinit var sharedPreferencesToken: SharedPreferences
+private lateinit var sharedPreferencesSettings: SharedPreferences
 
 class ChatView : ComponentActivity() {
     private val viewModel: ChatViewModel by viewModels()
@@ -95,6 +99,9 @@ class ChatView : ComponentActivity() {
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
+        sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
+        val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
+
         val chatId = intent.getStringExtra(CHAT_ID_ARGUMENT)
         val nick = intent.getStringExtra(KNICK_ARGUMENT)
         val online = intent.getStringExtra(ONLINE_ARGUMENT)
@@ -108,7 +115,7 @@ class ChatView : ComponentActivity() {
 
 
             if (nick != null) {
-                ChatScreen(chatId = chatId, messages = messages, nick = nick, online = online!!)
+                ChatScreen(chatId = chatId, messages = messages, nick = nick, online = online!!, isDarkModeActive)
             }
 
 
@@ -125,14 +132,15 @@ class ChatView : ComponentActivity() {
         chatId: String?,
         messages: Map<String, List<Message>>,
         nick: String,
-        online: String
+        online: String,
+        isDarkModeActive: Boolean
     ) {
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(if (isDarkModeActive) DarkMode else White)
         ) {
             Column(
                 modifier = Modifier.weight(1f)

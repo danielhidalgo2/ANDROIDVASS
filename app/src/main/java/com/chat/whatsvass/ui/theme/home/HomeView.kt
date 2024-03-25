@@ -1,5 +1,6 @@
 package com.chat.whatsvass.ui.theme.home
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -50,7 +51,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -101,6 +101,7 @@ private lateinit var sharedPreferencesToken: SharedPreferences
 class HomeView : ComponentActivity() {
     private val viewModel: HomeViewModel by viewModels()
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -281,7 +282,7 @@ fun ChatItem(
     val online: Boolean = color == Color.Green
 
     // Obtener el último mensaje si existe
-    val lastMessage = messages!!.lastOrNull()
+    val lastMessage = messages.lastOrNull()
 
     // Formatear la fecha del mensaje para mostrar solo la hora
     val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it) } ?: "N/A"
@@ -643,7 +644,7 @@ fun TopBarHomeAndList(
 
 fun orderChatsByDate(chats: List<Chat>, messages: Map<String, List<Message>>) : List<String>{
     // Ordenar chats por hora de ultimo mensaje
-    var mapOfChatIDandDateLast = mutableMapOf<String, String>()
+    val mapOfChatIDandDateLast = mutableMapOf<String, String>()
     for (i in chats) {
         if (!messages[i.chatId].isNullOrEmpty()) {
             if (!messages[i.chatId]!!.lastOrNull()!!.date.isNullOrEmpty()) {

@@ -56,7 +56,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -83,6 +82,7 @@ import com.chat.whatsvass.ui.theme.Contrast
 import com.chat.whatsvass.ui.theme.Dark
 import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
+import com.chat.whatsvass.ui.theme.WhatsVassTheme
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.contacts.ContactsView
@@ -145,16 +145,18 @@ class HomeView : ComponentActivity() {
                 }
             }
 
-            HomeScreen(
-                chats = chats,
-                messages = messages,
-                viewModel,
-                token!!,
-                onDeleteChat = { chatId ->
-                    // Lógica para eliminar el chat en el ViewModel
-                    viewModel.deleteChat(token!!, chatId)
-                }
-            )
+            WhatsVassTheme (darkTheme = true){
+                HomeScreen(
+                    chats = chats,
+                    messages = messages,
+                    viewModel,
+                    token!!,
+                    onDeleteChat = { chatId ->
+                        // Lógica para eliminar el chat en el ViewModel
+                        viewModel.deleteChat(token!!, chatId)
+                    }
+                )
+            }
         }
 
         window.decorView.setOnTouchListener { _, _ ->

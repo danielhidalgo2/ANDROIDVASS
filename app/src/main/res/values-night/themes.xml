@@ -3,12 +3,13 @@
     <style name="Base.Theme.WhatsVass" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:statusBarColor">@color/main</item>
         <item name="android:navigationBarColor">@color/main</item>
-    </style>
 
+
+    </style>
     <style name="Theme.WhatsVass" parent="Base.Theme.WhatsVass" />
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/light</item>
+        <item name="windowSplashScreenBackground">@color/dark</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/logo_splash</item>
         <item name="windowSplashScreenAnimationDuration">300</item>
         <item name="postSplashScreenTheme">@style/Theme.WhatsVass</item>

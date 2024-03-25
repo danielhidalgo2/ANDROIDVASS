@@ -356,7 +356,7 @@ fun ContactItem(
 
             Image(
                 painter = painterResource(id = R.drawable.image_person),
-                contentDescription = stringResource(id = R.string.ProfilePhoto),
+                contentDescription = stringResource(id = R.string.profilePhoto),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(4.dp)

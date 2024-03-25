@@ -3,17 +3,12 @@ package com.chat.whatsvass.ui.theme.home
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -217,7 +212,7 @@ fun HomeScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
                 .padding(bottom = 35.dp)
                 .size(56.dp),
             backgroundColor = Main,
@@ -236,8 +231,9 @@ fun HomeScreen(
 fun formatTimeFromApi(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
     val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val outputFormatDay = SimpleDateFormat("dd-MM", Locale.getDefault())
     val date = inputFormat.parse(dateTimeString)
-    return outputFormat.format(date!!)
+    return outputFormat.format(date!!) + "\n" + outputFormatDay.format(date!!)
 }
 fun formatTimeFromApiToOrderList(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
@@ -308,7 +304,7 @@ fun ChatItem(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.image_person),
-                    contentDescription = stringResource(id = R.string.ProfilePhoto),
+                    contentDescription = stringResource(id = R.string.profilePhoto),
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(4.dp)
@@ -317,7 +313,7 @@ fun ChatItem(
 
             Icon(
                 painter = painterResource(id = R.drawable.ic_circle),
-                contentDescription = stringResource(id = R.string.CustomIcon),
+                contentDescription = stringResource(id = R.string.customIcon),
                 tint = color, // Comprobar si esta online / offline
                 modifier = Modifier
                     .align(Alignment.BottomEnd)

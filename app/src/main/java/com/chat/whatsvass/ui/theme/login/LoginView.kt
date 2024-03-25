@@ -488,7 +488,7 @@ fun LoginButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
 fun CreateAccountText(navController: NavController) {
 
     Text(
-        text = stringResource(R.string.CreateUser),
+        text = stringResource(R.string.createUser),
         color = Color.White,
         fontSize = 18.sp,
         modifier = Modifier.clickable {

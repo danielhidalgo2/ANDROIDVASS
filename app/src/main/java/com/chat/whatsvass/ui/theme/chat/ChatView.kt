@@ -184,7 +184,7 @@ class ChatView : ComponentActivity() {
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.image_person),
-                            contentDescription = stringResource(R.string.ProfilePhoto),
+                            contentDescription = stringResource(R.string.profilePhoto),
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(4.dp)
@@ -197,7 +197,7 @@ class ChatView : ComponentActivity() {
                         color = Color.Red
                     Icon(
                         painter = painterResource(id = R.drawable.ic_circle),
-                        contentDescription = stringResource(R.string.CustomIcon),
+                        contentDescription = stringResource(R.string.customIcon),
                         tint = color, // Comprobar si esta online / offline
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
@@ -322,7 +322,7 @@ class ChatView : ComponentActivity() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
                 .padding(bottom = 35.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -335,7 +335,7 @@ class ChatView : ComponentActivity() {
                     .padding(end = 8.dp)
                     .background(Color.Transparent)
                     .clip(RoundedCornerShape(40.dp)),
-                placeholder = { Text(text = stringResource(R.string.WriteAMessage)) },
+                placeholder = { Text(text = stringResource(R.string.writeAMessage)) },
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color.Transparent, // Ocultar la línea de foco
                     unfocusedIndicatorColor = Color.Transparent // Ocultar la línea de enfoque

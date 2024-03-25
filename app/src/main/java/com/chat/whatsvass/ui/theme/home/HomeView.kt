@@ -3,11 +3,17 @@ package com.chat.whatsvass.ui.theme.home
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -100,6 +106,12 @@ class HomeView : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
+        window.decorView.apply {
+            @Suppress("DEPRECATION")
+            systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        }
+
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
@@ -173,7 +185,6 @@ class HomeView : ComponentActivity() {
         }
 
     }
-
 }
 
 
@@ -207,6 +218,7 @@ fun HomeScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
+                .padding(bottom = 35.dp)
                 .size(56.dp),
             backgroundColor = Main,
             contentColor = Contrast,
@@ -628,6 +640,8 @@ fun orderChatsByDate(chats: List<Chat>, messages: Map<String, List<Message>>) : 
 
     return listRestultOrdered
 }
+
+
 
 
 

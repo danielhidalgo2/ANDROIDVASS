@@ -14,6 +14,11 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -62,6 +67,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -74,10 +80,16 @@ import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.security.Principal
 
 const val Shape = 20
 
@@ -116,9 +128,12 @@ class LoginView : AppCompatActivity() {
             val navController = rememberNavController()
 
 
-            NavHost(navController = navController, startDestination = stringResource(R.string.login)) {
-                composable("login") {
+            NavHost(navController = navController, startDestination = stringResource(R.string.login),
+                enterTransition = { fadeIn(animationSpec = tween(200))},
+                exitTransition = { fadeOut(animationSpec = tween(200)) }) {
 
+                composable("login") {
+                    window.statusBarColor = ContextCompat.getColor(this@LoginView, R.color.light)
                     LoginScreen(
                         viewModel,
                         username.value,
@@ -134,8 +149,8 @@ class LoginView : AppCompatActivity() {
                     }
                 }
                 composable("profile") {
+                    window.statusBarColor = ContextCompat.getColor(this@LoginView, R.color.main)
                     ProfileView().ProfileScreen(viewModelCreateUser, navController = navController)
-
                 }
                 // Agrega más composables para otras pantallas si es necesario
             }
@@ -471,6 +486,7 @@ fun LoginButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
 
 @Composable
 fun CreateAccountText(navController: NavController) {
+
     Text(
         text = stringResource(R.string.CreateUser),
         color = Color.White,
@@ -482,6 +498,10 @@ fun CreateAccountText(navController: NavController) {
 
     )
 }
+
+
+
+
 
 
 // Función auxiliar para mostrar mensajes en la aplicación

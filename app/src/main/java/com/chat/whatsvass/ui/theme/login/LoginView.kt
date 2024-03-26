@@ -17,8 +17,6 @@ import androidx.biometric.BiometricPrompt
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -67,7 +65,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -78,19 +75,13 @@ import com.chat.whatsvass.commons.KEY_PASSWORD
 import com.chat.whatsvass.commons.KEY_USERNAME
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
-import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Dark
-import com.chat.whatsvass.ui.theme.Main
+import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.loading.LoadingActivity
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
 import com.chat.whatsvass.usecases.Encrypt
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.security.Principal
 
 const val Shape = 20
 
@@ -205,7 +196,8 @@ fun loginBiometric(
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
-                    viewModel.loginUser(username, password)
+                    val decryptPassword = Encrypt().decryptPassword(password)
+                    viewModel.loginUser(username, decryptPassword)
                     // Ir hacia la siguiente pantalla
                     val intent = Intent(context, LoadingActivity::class.java)
                     context.startActivity(intent)

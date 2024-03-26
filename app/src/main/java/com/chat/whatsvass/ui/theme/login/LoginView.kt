@@ -17,8 +17,6 @@ import androidx.biometric.BiometricPrompt
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,7 +55,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -68,7 +65,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -85,14 +81,9 @@ import com.chat.whatsvass.ui.theme.Dark
 import com.chat.whatsvass.ui.theme.DarkMode
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
-import com.chat.whatsvass.ui.theme.loading.LoadingActivity
+import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.security.Principal
 
 const val Shape = 20
 
@@ -218,7 +209,7 @@ fun loginBiometric(
                     super.onAuthenticationSucceeded(result)
                     viewModel.loginUser(username, password)
                     // Ir hacia la siguiente pantalla
-                    val intent = Intent(context, LoadingActivity::class.java)
+                    val intent = Intent(context, HomeView::class.java)
                     context.startActivity(intent)
                     showMessage(context, context.getString(R.string.welcome, username))
                     auth(true)
@@ -385,7 +376,7 @@ fun LoginScreen(
 
             is LoginViewModel.LoginResult.Success -> {
                 if (username.isNotEmpty() && password.isNotEmpty()) {
-                    val intent = Intent(context, LoadingActivity::class.java)
+                    val intent = Intent(context, HomeView::class.java)
                     context.startActivity(intent)
 
                     errorMessage = null
@@ -393,7 +384,6 @@ fun LoginScreen(
                     errorMessage = stringResource(R.string.pleaseEnterUserAndPassword)
                 }
             }
-
         }
     }
 }

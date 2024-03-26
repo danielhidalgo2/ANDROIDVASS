@@ -115,9 +115,7 @@ class HomeView : ComponentActivity() {
 
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
-        //BORRAR DESPUES
 
-        val pass = sharedPreferencesToken.getString(KEY_PASSWORD, null)
 
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -133,8 +131,6 @@ class HomeView : ComponentActivity() {
                 if (token != null) {
                     viewModel.getChats(token)
                     Log.d("HomeView", "Obteniendo chats con token: $token")
-                    Log.d("Encrypt", "Variable guardada $pass")
-
                 }
             }
 

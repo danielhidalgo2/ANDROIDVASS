@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -196,7 +197,9 @@ fun loginBiometric(
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
+                    Log.d("EncryptLogin", password)
                     val decryptPassword = Encrypt().decryptPassword(password)
+                    Log.d("EncryptLogin", decryptPassword)
                     viewModel.loginUser(username, decryptPassword)
                     // Ir hacia la siguiente pantalla
                     val intent = Intent(context, LoadingActivity::class.java)

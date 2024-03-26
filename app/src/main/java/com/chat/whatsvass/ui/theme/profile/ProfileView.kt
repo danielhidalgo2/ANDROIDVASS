@@ -196,24 +196,32 @@ class ProfileView : ComponentActivity() {
         }
 
         if (registerResult != null) {
-            if (registerResult!!.success.toString() == "true") {
-                showMessage(
-                    context,
-                    stringResource(R.string.userCreatedSuccessfully)
-                )
-                val intent = Intent(context, HomeView::class.java)
-                context.startActivity(intent)
-            } else {
-                showMessage(
-                    context,
-                    stringResource(R.string.couldNotDisconnect)
-                )
+            when (registerResult) {
+                is ProfileViewModel.RegisterResult.Success -> {
+                    (registerResult as ProfileViewModel.RegisterResult.Success).register
+                    showMessage(
+                        context,
+                        stringResource(R.string.userCreatedSuccessfully)
+                    )
+                    // Ir hacia loading
+                    val intent = Intent(context, HomeView::class.java)
+                    context.startActivity(intent)
+
+                }
+
+                is ProfileViewModel.RegisterResult.Error -> {
+                    val errorMessage =
+                        (registerResult as ProfileViewModel.RegisterResult.Error).message
+                    showMessage(context, stringResource(R.string.failedToCreateUserTryAgain))
+                    Log.d("Error al crear usuario", "Error al crear usuario: $errorMessage")
+                }
+
+                else -> {}
             }
         }
 
     }
-
-
+    
     @Composable
     fun ImageProfile() {
         val selectedImage = remember { mutableStateOf<Uri?>(null) }

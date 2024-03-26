@@ -42,7 +42,6 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     fun registerUser(username: String, password: String, nick: String) {
         viewModelScope.launch(Dispatchers.IO) {
-
             try {
                 val register = userRepository.registerUser(username, password, nick)
                 if (register.user.token.isNotEmpty()) {
@@ -55,16 +54,13 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
                     sharedPreferencesSettings.edit().putBoolean(KEY_BIOMETRIC, false).apply()
                 } else {
-                    _registerResult.value = RegisterResult.Error(R.string.failedToCreateUser.toString())
+                    _registerResult.value = RegisterResult.Error(R.string.failedToCreateUserTryAgain.toString())
                 }
             } catch (e: Exception) {
                 _registerResult.value = RegisterResult.Error("${R.string.failedToCreateUser} ${e.message}")
             }
-
         }
     }
-
-
 }
 
 

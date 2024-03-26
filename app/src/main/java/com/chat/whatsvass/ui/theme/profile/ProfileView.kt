@@ -49,7 +49,7 @@ import com.chat.whatsvass.ui.theme.components.GeneralComponents.ButtonCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.NavigationBarCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.PasswordTextFieldCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.TextFieldCustom
-import com.chat.whatsvass.ui.theme.loading.LoadingActivity
+import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.login.showMessage
 
@@ -196,7 +196,7 @@ class ProfileView : ComponentActivity() {
                         stringResource(R.string.userCreatedSuccessfully)
                     )
                     // Ir hacia loading
-                    val intent = Intent(context, LoadingActivity::class.java)
+                    val intent = Intent(context, HomeView::class.java)
                     context.startActivity(intent)
 
                 }

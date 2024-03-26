@@ -73,6 +73,7 @@ import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
 import com.chat.whatsvass.commons.DELAY_GET_MESSAGES
 import com.chat.whatsvass.commons.KEY_MODE
+import com.chat.whatsvass.commons.KEY_PASSWORD
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.KNICK_ARGUMENT
 import com.chat.whatsvass.commons.LIMIT_GET_MESSAGES
@@ -126,7 +127,8 @@ class HomeView : ComponentActivity() {
 
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
         val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
-        
+
+
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 // No hagas nada cuando se presiona el botón de retroceso

@@ -1,12 +1,12 @@
 package com.chat.whatsvass.data.domain.repository.remote.response
 
-import com.chat.whatsvass.BuildConfig.BASE_URL
+import com.chat.whatsvass.BuildConfig
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitClient {
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

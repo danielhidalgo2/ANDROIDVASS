@@ -1,5 +1,6 @@
 package com.chat.whatsvass.data.domain.repository.remote
 
+import android.util.Log
 import com.chat.whatsvass.data.domain.model.logout.Logout
 import com.chat.whatsvass.data.domain.model.register.Register
 import com.chat.whatsvass.data.domain.repository.remote.response.login.LoginResponse
@@ -8,12 +9,18 @@ import com.chat.whatsvass.data.domain.repository.remote.mapper.LogoutMapper
 import com.chat.whatsvass.data.domain.repository.remote.mapper.RegisterMapper
 import com.chat.whatsvass.data.domain.repository.remote.response.ApiService
 import com.chat.whatsvass.data.domain.repository.remote.response.RetrofitClient
+import com.chat.whatsvass.usecases.Encrypt
 
 class UserRepository {
     private val apiService: ApiService = RetrofitClient.apiService
 
     suspend fun loginUser(username: String, password: String): LoginResponse {
-        val request = LoginMapper().mapRequest(username, password)
+        Log.d("Encrypt", "Encriptada $password")
+
+        val desencryptedPassword = Encrypt().decryptPassword(password)
+        Log.d("Encrypt", "Desencriptada $desencryptedPassword")
+
+        val request = LoginMapper().mapRequest(username, desencryptedPassword)
         return apiService.loginUser(request)
     }
     suspend fun registerUser(username: String, password: String, nick:String): Register {

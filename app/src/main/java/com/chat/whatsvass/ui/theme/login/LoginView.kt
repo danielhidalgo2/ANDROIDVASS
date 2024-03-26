@@ -76,14 +76,15 @@ import com.chat.whatsvass.commons.KEY_PASSWORD
 import com.chat.whatsvass.commons.KEY_USERNAME
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
-import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.DarkMode
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
+import com.chat.whatsvass.usecases.Encrypt
 
 const val Shape = 20
 
@@ -207,7 +208,8 @@ fun loginBiometric(
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
-                    viewModel.loginUser(username, password)
+                    val decryptPassword = Encrypt().decryptPassword(password)
+                    viewModel.loginUser(username, decryptPassword)
                     // Ir hacia la siguiente pantalla
                     val intent = Intent(context, HomeView::class.java)
                     context.startActivity(intent)
@@ -344,9 +346,10 @@ fun LoginScreen(
             LoginButton(
                 onClick = {
                     // Guardar datos en sharedPreferences para utilizarlos en el biometrico
+                    val encryptPassword = Encrypt().encryptPassword(password)
                     val edit = sharedPreferences.edit()
                     edit.putString(KEY_USERNAME, username).apply()
-                    edit.putString(KEY_PASSWORD, password).apply()
+                    edit.putString(KEY_PASSWORD, encryptPassword).apply()
 
                     viewModel.loginUser(username, password)
                 }, modifier = Modifier
@@ -384,6 +387,7 @@ fun LoginScreen(
                     errorMessage = stringResource(R.string.pleaseEnterUserAndPassword)
                 }
             }
+
         }
     }
 }

@@ -235,7 +235,7 @@ fun TopBarAndList(
             IconButton(
                 onClick = {
                     val intent = Intent(context, SettingsView::class.java)
-                    intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     intent.putExtra(VIEW_FROM, "Contacts")
                     context.startActivity(intent)
                 },
@@ -252,31 +252,34 @@ fun TopBarAndList(
 
 
     Box(modifier = Modifier.fillMaxSize()){
-        LazyColumn {
-            // Ordenar contactos alfabeticamente
-            val sortedContacts = contacts.sortedBy {it.nick.replaceFirstChar { it.uppercaseChar()}}
-            if (searchText.text.isEmpty()) {
-                items(sortedContacts,
-                    key = { contact ->
-                        // La llave sirve para que cada valor se mueva con su celda
-                        contact.id
+        if (!isProgressBarVisible){
+            LazyColumn {
+                // Ordenar contactos alfabeticamente
+                val sortedContacts = contacts.sortedBy {it.nick.replaceFirstChar { it.uppercaseChar()}}
+                if (searchText.text.isEmpty()) {
+                    items(sortedContacts,
+                        key = { contact ->
+                            // La llave sirve para que cada valor se mueva con su celda
+                            contact.id
+                        }
+                    ) { contact ->
+                        ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
                     }
-                ) { contact ->
-                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
-                }
-            } else {
-                listSearch =
-                    sortedContacts.filter { it.nick.contains(searchText.text, ignoreCase = true) }
-                items(listSearch,
-                    key = { contact ->
-                        contact.id
+                } else {
+                    listSearch =
+                        sortedContacts.filter { it.nick.contains(searchText.text, ignoreCase = true) }
+                    items(listSearch,
+                        key = { contact ->
+                            contact.id
+                        }
+                    ) { contact ->
+                        ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
                     }
-                ) { contact ->
-                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
                 }
             }
         }
 
+        val textColor =  if (isDarkModeActive) White else Dark
         // Si no hay contactos se muestra: "Sin contactos"
         if (isTextWithOutContactsVisible) {
             Column(
@@ -289,7 +292,7 @@ fun TopBarAndList(
                 Text(
                     text = stringResource(R.string.withoutContacts),
                     fontSize = 22.sp,
-                    color = Dark
+                    color =  textColor
                 )
             }
         }
@@ -306,7 +309,7 @@ fun TopBarAndList(
                 Text(
                     text = stringResource(R.string.noMatches),
                     fontSize = 22.sp,
-                    color = Dark
+                    color =  textColor
                 )
             }
         }

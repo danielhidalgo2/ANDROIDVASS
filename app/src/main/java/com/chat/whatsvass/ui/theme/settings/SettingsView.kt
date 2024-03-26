@@ -86,7 +86,7 @@ class SettingsView : AppCompatActivity() {
         binding.btnLogout.setOnClickListener {
             if (token != null) {
                 setUpViewModel()
-                viewModel.logoutUser(token)
+                viewModel.logoutUser(token, this)
             } else {
                 Toast.makeText(this, getString(R.string.failedToLogout), Toast.LENGTH_SHORT).show()
             }
@@ -108,7 +108,7 @@ class SettingsView : AppCompatActivity() {
     private fun setUpViewModel() {
         lifecycleScope.launch {
             viewModel.logoutResult.collect {
-                if (it.toString() == "Success(logout=Logout successful)") {
+                if (it == "Logout successful") {
                     sharedPreferencesToken.edit().putString(KEY_TOKEN, null).apply()
                     sharedPreferencesToken.edit().putString(SOURCE_ID, null).apply()
 

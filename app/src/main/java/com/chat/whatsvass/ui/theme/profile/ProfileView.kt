@@ -76,7 +76,11 @@ class ProfileView : ComponentActivity() {
     }
 
     @Composable
-    fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController,  isDarkModeActive: Boolean) {
+    fun ProfileScreen(
+        viewModel: ProfileViewModel,
+        navController: NavController,
+        isDarkModeActive: Boolean
+    ) {
 
         // Cambiar color de statusBar en compose
         /*   val systemUiController = rememberSystemUiController()
@@ -156,12 +160,17 @@ class ProfileView : ComponentActivity() {
                             )
                                 .show()
                         } else if (nick.isNullOrEmpty()) {
-                            Toast.makeText(context, R.string.enterYourNick, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, R.string.enterYourNick, Toast.LENGTH_SHORT)
+                                .show()
                         } else if (password.isNullOrEmpty()) {
-                            Toast.makeText(context,R.string.enterAPassword, Toast.LENGTH_SHORT)
+                            Toast.makeText(context, R.string.enterAPassword, Toast.LENGTH_SHORT)
                                 .show()
                         } else if (confirmPassword.isNullOrEmpty()) {
-                            Toast.makeText(context, R.string.confirmYourPassword, Toast.LENGTH_SHORT)
+                            Toast.makeText(
+                                context,
+                                R.string.confirmYourPassword,
+                                Toast.LENGTH_SHORT
+                            )
                                 .show()
                         } else if (password != confirmPassword) {
                             Toast.makeText(
@@ -187,33 +196,22 @@ class ProfileView : ComponentActivity() {
         }
 
         if (registerResult != null) {
-            // Manejar el resultado del inicio de sesión aquí
-            when (registerResult) {
-                is ProfileViewModel.RegisterResult.Success -> {
-                    (registerResult as ProfileViewModel.RegisterResult.Success).register
-                    showMessage(
-                        context,
-                        stringResource(R.string.userCreatedSuccessfully)
-                    )
-                    // Ir hacia loading
-                    val intent = Intent(context, HomeView::class.java)
-                    context.startActivity(intent)
-
-                }
-
-                is ProfileViewModel.RegisterResult.Error -> {
-                    val errorMessage =
-                        (registerResult as ProfileViewModel.RegisterResult.Error).message
-                    showMessage(context, stringResource(R.string.failedToCreateUserTryAgain))
-                    Log.d("Error al crear usuario", "Error al crear usuario: $errorMessage")
-                }
-
-                else -> {}
+            if (registerResult!!.success.toString() == "true") {
+                showMessage(
+                    context,
+                    stringResource(R.string.userCreatedSuccessfully)
+                )
+                val intent = Intent(context, HomeView::class.java)
+                context.startActivity(intent)
+            } else {
+                showMessage(
+                    context,
+                    stringResource(R.string.couldNotDisconnect)
+                )
             }
         }
+
     }
-
-
 
 
     @Composable
@@ -221,10 +219,11 @@ class ProfileView : ComponentActivity() {
         val selectedImage = remember { mutableStateOf<Uri?>(null) }
 
         // Abrir galeria
-        val getContent = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
-            selectedImage.value = uri
-        }
-        
+        val getContent =
+            rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
+                selectedImage.value = uri
+            }
+
         Box(
             modifier = Modifier
                 .height(152.dp)
@@ -233,19 +232,19 @@ class ProfileView : ComponentActivity() {
 
             var painter = painterResource(id = R.drawable.image_person)
             selectedImage.value?.let { uri ->
-                if (uri != null){
+                if (uri != null) {
                     painter = rememberAsyncImagePainter(uri)
                 }
             }
             Image(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .height(152.dp)
-                        .width(152.dp)
-                        .background(Color.LightGray),
-            painter = painter,
-            contentDescription = "",
-            contentScale = ContentScale.Crop
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .height(152.dp)
+                    .width(152.dp)
+                    .background(Color.LightGray),
+                painter = painter,
+                contentDescription = "",
+                contentScale = ContentScale.Crop
             )
             Image(
                 modifier = Modifier

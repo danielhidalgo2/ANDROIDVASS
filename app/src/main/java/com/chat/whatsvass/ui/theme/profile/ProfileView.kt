@@ -2,7 +2,6 @@ package com.chat.whatsvass.ui.theme.profile
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log

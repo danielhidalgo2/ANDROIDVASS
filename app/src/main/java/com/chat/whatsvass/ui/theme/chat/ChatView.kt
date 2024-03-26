@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +27,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Colors
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -70,15 +70,18 @@ import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.response.create_message.MessageRequest
 import com.chat.whatsvass.ui.theme.Dark
 import com.chat.whatsvass.ui.theme.DarkMode
+import com.chat.whatsvass.ui.theme.Gray
+import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
-import com.chat.whatsvass.ui.theme.home.formatTimeFromApi
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 private lateinit var sharedPreferencesToken: SharedPreferences
 private lateinit var sharedPreferencesSettings: SharedPreferences
@@ -146,9 +149,9 @@ class ChatView : ComponentActivity() {
                 modifier = Modifier.weight(1f)
             ) {
                 TopBarChat(nick, online)
-                chatId?.let { MessageList(chatId = it, messages = messages, token!!) }
+                chatId?.let { MessageList(chatId = it, messages = messages, token!!, isDarkModeActive) }
             }
-            BottomBar(chatId, onSendMessage = { /* Acción al enviar el mensaje */ })
+            BottomBar(chatId, isDarkModeActive, onSendMessage = { /* Acción al enviar el mensaje */ })
         }
     }
 
@@ -236,7 +239,7 @@ class ChatView : ComponentActivity() {
     }
 
     @Composable
-    fun MessageList(chatId: String, messages: Map<String, List<Message>>, token: String) {
+    fun MessageList(chatId: String, messages: Map<String, List<Message>>, token: String, isDarkModeActive: Boolean) {
         val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
 
         var refreshing by remember { mutableStateOf(false) }
@@ -258,9 +261,9 @@ class ChatView : ComponentActivity() {
             LazyColumn(Modifier.fillMaxSize()) {
                 items(chatMessages) { message ->
                     if (message.source == sourceId) {
-                        MessageItem(message, true)
+                        MessageItem(message, true, isDarkModeActive)
                     } else {
-                        MessageItem(message, false)
+                        MessageItem(message, false, isDarkModeActive)
                     }
                 }
             }
@@ -269,17 +272,17 @@ class ChatView : ComponentActivity() {
 
 
     @Composable
-    fun MessageItem(messages: Message, isSentByUser: Boolean) {
+    fun MessageItem(messages: Message, isSentByUser: Boolean, isDarkModeActive: Boolean) {
         val horizontalPadding = 30.dp
         val verticalPadding = 8.dp
 
 
-        val backgroundColor = White
+        val backgroundColor = if (isDarkModeActive) Gray else White
         val alignment = if (isSentByUser) TextAlign.Start else TextAlign.End
         val startPadding = if (isSentByUser) horizontalPadding else 0.dp
         val endPadding = if (isSentByUser) 0.dp else horizontalPadding
 
-        val formattedTime = formatTimeFromApi(messages.date) ?: "N/A"
+        val formattedTime = formatTimeFromApiHour(messages.date) ?: "N/A"
 
 
         Row(
@@ -297,6 +300,7 @@ class ChatView : ComponentActivity() {
                         shape = RoundedCornerShape(16.dp)
                     )
                     .padding(vertical = verticalPadding, horizontal = horizontalPadding)
+
             ) {
 
                 Column(modifier = Modifier.align(Alignment.BottomEnd)) {
@@ -310,7 +314,7 @@ class ChatView : ComponentActivity() {
 
                     Text(
                         text = formattedTime,
-                        style = TextStyle(fontSize = 14.sp, color = Color.Gray),
+                        style = TextStyle(fontSize = 14.sp, color =  if (isDarkModeActive) Color.Black else Color.Gray),
                     )
                 }
             }
@@ -324,6 +328,7 @@ class ChatView : ComponentActivity() {
     @Composable
     fun BottomBar(
         chatId: String?,
+        isDarkModeActive: Boolean,
         onSendMessage: (String) -> Unit,
     ) {
         var messageText by remember { mutableStateOf("") }
@@ -375,9 +380,16 @@ class ChatView : ComponentActivity() {
                     imageVector = Icons.AutoMirrored.Filled.Send,
                     contentDescription = stringResource(R.string.Send),
                     Modifier.size(40.dp),
-                    tint = Dark
+                    tint =  if (isDarkModeActive) White else Dark
                 )
             }
         }
+    }
+
+    private fun formatTimeFromApiHour(dateTimeString: String): String {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val date = inputFormat.parse(dateTimeString)
+        return outputFormat.format(date!!)
     }
 }

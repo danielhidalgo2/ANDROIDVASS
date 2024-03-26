@@ -87,6 +87,8 @@ object GeneralComponents {
     @Composable
     fun TextFieldCustom(label: String, isDarkModeActive: Boolean, onImeActionPerformed: (ImeAction) -> Unit): String {
         var data by remember { mutableStateOf("") }
+        val colorText = if (isDarkModeActive) White else Color.Black
+
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -107,8 +109,9 @@ object GeneralComponents {
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 containerColor = if (isDarkModeActive) DarkMode else White,
-                cursorColor = if (isDarkModeActive) White else Color.Black,
-                focusedTextColor = if (isDarkModeActive) White else Color.Black
+                cursorColor = colorText,
+                focusedTextColor = colorText,
+                unfocusedTextColor = colorText
             )
         )
         return data
@@ -119,6 +122,7 @@ object GeneralComponents {
     fun PasswordTextFieldCustom(label: String, isDarkModeActive: Boolean, onImeActionPerformed: (ImeAction) -> Unit): String {
         var password by remember { mutableStateOf("") }
         var passwordVisibility by remember { mutableStateOf(false) }
+        val colorText = if (isDarkModeActive) White else Color.Black
 
         TextField(
             modifier = Modifier
@@ -145,8 +149,9 @@ object GeneralComponents {
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 containerColor = if (isDarkModeActive) DarkMode else White,
-                cursorColor = if (isDarkModeActive) White else Color.Black,
-                focusedTextColor = if (isDarkModeActive) White else Color.Black
+                cursorColor = colorText,
+                focusedTextColor = colorText,
+                unfocusedTextColor = colorText
             ),
             trailingIcon = {
                 IconButton(

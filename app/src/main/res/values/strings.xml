@@ -62,4 +62,5 @@
     <string name="biometricSettings">Biometric</string>
     <string name="language">Language</string>
     <string name="btnLogout">Logout</string>
+    <string name="yesterday">Yesterday</string>
 </resources>

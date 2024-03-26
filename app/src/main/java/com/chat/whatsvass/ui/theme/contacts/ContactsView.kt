@@ -144,7 +144,7 @@ fun ContactsScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TopBarAndList(context, token, myId, contacts, viewModel)
+            TopBarAndList(context, token, myId, contacts, viewModel, isDarkModeActive)
 
             Spacer(modifier = Modifier.weight(1f))
         }
@@ -157,7 +157,8 @@ fun TopBarAndList(
     token: String,
     myId: String,
     contacts: List<Contacts>,
-    viewModel: ContactsViewModel
+    viewModel: ContactsViewModel,
+    isDarkModeActive: Boolean
 ) {
     val isTextWithOutContactsVisible by viewModel.isTextWithOutVisibleFlow.collectAsState(false)
     val isProgressBarVisible by viewModel.isProgressVisibleFlow.collectAsState(true)
@@ -244,7 +245,7 @@ fun TopBarAndList(
                         contact.id
                     }
                 ) { contact ->
-                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id))
+                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
                 }
             } else {
                 listSearch =
@@ -254,7 +255,7 @@ fun TopBarAndList(
                         contact.id
                     }
                 ) { contact ->
-                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id))
+                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
                 }
             }
         }
@@ -317,6 +318,7 @@ fun ContactItem(
     token: String,
     viewModel: ContactsViewModel,
     chatRequest: ChatRequest,
+    isDarkModeActive: Boolean
 ) {
     val colorWithOpacity = Contrast.copy(alpha = 0.4f)
     val isNewChatCreated by viewModel.isNewChatCreatedFlow.collectAsState(false)
@@ -379,7 +381,7 @@ fun ContactItem(
         ) {
             Text(
                 text = contact.nick,
-                style = TextStyle(fontSize = 16.sp, color = Dark),
+                style = TextStyle(fontSize = 16.sp, color =  if (isDarkModeActive) White else Dark),
             )
         }
 

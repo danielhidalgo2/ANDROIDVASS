@@ -115,6 +115,7 @@ class HomeView : ComponentActivity() {
 
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        //BORRAR DESPUES
 
         val pass = sharedPreferencesToken.getString(KEY_PASSWORD, null)
 

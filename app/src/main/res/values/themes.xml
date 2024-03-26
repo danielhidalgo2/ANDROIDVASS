@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.WhatsVass" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.WhatsVass" parent="Theme.Material3.Light.NoActionBar">
         <item name="android:statusBarColor">@color/main</item>
         <item name="android:navigationBarColor">@color/main</item>
     </style>
@@ -15,7 +15,7 @@
     </style>
 
     <style name="App.Btn" parent="Widget.AppCompat.Button">
-        <item name="backgroundTint">@color/dark</item>
+        <item name="backgroundTint">@color/main</item>
         <item name="android:textColor">@color/white</item>
         <item name="rippleColor">@color/dark</item>
         <item name="android:textStyle">normal</item>

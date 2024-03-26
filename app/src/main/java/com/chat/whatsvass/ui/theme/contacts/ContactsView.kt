@@ -61,14 +61,18 @@ import androidx.compose.ui.unit.sp
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
 import com.chat.whatsvass.commons.KEY_ID
+import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.KNICK_ARGUMENT
 import com.chat.whatsvass.commons.ONLINE_ARGUMENT
+import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
+import com.chat.whatsvass.commons.VIEW_FROM
 import com.chat.whatsvass.data.domain.model.contacts.Contacts
 import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.ChatRequest
 import com.chat.whatsvass.ui.theme.Contrast
 import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.DarkMode
 import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
@@ -86,6 +90,7 @@ const val DELAY_TO_OPEN_CHAT = 150L
 class ContactsView : ComponentActivity() {
     private val viewModel: ContactsViewModel by viewModels()
     private lateinit var sharedPreferencesUserData: SharedPreferences
+    private lateinit var sharedPreferencesSettings: SharedPreferences
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,6 +105,9 @@ class ContactsView : ComponentActivity() {
         val token = sharedPreferencesUserData.getString(KEY_TOKEN, null)
         val myId = sharedPreferencesUserData.getString(KEY_ID, null)
 
+        sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
+        val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
+
         setContent {
 
             // Observar el resultado del ViewModel
@@ -110,7 +118,9 @@ class ContactsView : ComponentActivity() {
             }
             // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
             val contactsResult by viewModel.contactsResult.collectAsState(emptyList())
-            ContactsScreen(this, token!!, myId!!, contactsResult, viewModel)
+            ContactsScreen(this, token!!, myId!!, contactsResult, viewModel, isDarkModeActive) {
+                finish()
+            }
 
         }
         window.decorView.setOnTouchListener { _, _ ->
@@ -126,22 +136,25 @@ fun ContactsScreen(
     token: String,
     myId: String,
     contacts: List<Contacts>,
-    viewModel: ContactsViewModel
+    viewModel: ContactsViewModel,
+    isDarkModeActive: Boolean,
+    onBackClicked: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(if (isDarkModeActive) DarkMode else White)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TopBarAndList(context, token, myId, contacts, viewModel)
+            TopBarAndList(context, token, myId, contacts, viewModel, isDarkModeActive, onBackClicked)
 
             Spacer(modifier = Modifier.weight(1f))
         }
     }
 }
+
 
 @Composable
 fun TopBarAndList(
@@ -149,7 +162,9 @@ fun TopBarAndList(
     token: String,
     myId: String,
     contacts: List<Contacts>,
-    viewModel: ContactsViewModel
+    viewModel: ContactsViewModel,
+    isDarkModeActive: Boolean,
+    onBackClicked: () -> Unit
 ) {
     val isTextWithOutContactsVisible by viewModel.isTextWithOutVisibleFlow.collectAsState(false)
     val isProgressBarVisible by viewModel.isProgressVisibleFlow.collectAsState(true)
@@ -166,6 +181,13 @@ fun TopBarAndList(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(onClick = onBackClicked) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_arrow_back),
+                    contentDescription = "Back",
+                    tint = Dark
+                )
+            }
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -176,6 +198,8 @@ fun TopBarAndList(
 
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
+
+                    Spacer(modifier = Modifier.weight(0.1f))
                     Icon(
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
                         contentDescription = stringResource(R.string.search),
@@ -211,6 +235,7 @@ fun TopBarAndList(
             IconButton(
                 onClick = {
                     val intent = Intent(context, SettingsView::class.java)
+                    intent.putExtra(VIEW_FROM, "Contacts")
                     context.startActivity(intent)
                 },
             ) {
@@ -236,7 +261,7 @@ fun TopBarAndList(
                         contact.id
                     }
                 ) { contact ->
-                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id))
+                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
                 }
             } else {
                 listSearch =
@@ -246,7 +271,7 @@ fun TopBarAndList(
                         contact.id
                     }
                 ) { contact ->
-                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id))
+                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
                 }
             }
         }
@@ -309,6 +334,7 @@ fun ContactItem(
     token: String,
     viewModel: ContactsViewModel,
     chatRequest: ChatRequest,
+    isDarkModeActive: Boolean
 ) {
     val colorWithOpacity = Contrast.copy(alpha = 0.4f)
     val isNewChatCreated by viewModel.isNewChatCreatedFlow.collectAsState(false)
@@ -356,7 +382,7 @@ fun ContactItem(
 
             Image(
                 painter = painterResource(id = R.drawable.image_person),
-                contentDescription = stringResource(id = R.string.ProfilePhoto),
+                contentDescription = stringResource(id = R.string.profilePhoto),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(4.dp)
@@ -371,7 +397,7 @@ fun ContactItem(
         ) {
             Text(
                 text = contact.nick,
-                style = TextStyle(fontSize = 16.sp, color = Dark),
+                style = TextStyle(fontSize = 16.sp, color =  if (isDarkModeActive) White else Dark),
             )
         }
 

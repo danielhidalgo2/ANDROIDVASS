@@ -6,9 +6,9 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.chat.whatsvass.R
@@ -20,7 +20,10 @@ import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
+import com.chat.whatsvass.commons.VIEW_FROM
 import com.chat.whatsvass.databinding.ActivitySettingsViewBinding
+import com.chat.whatsvass.ui.theme.contacts.ContactsView
+import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.LoginView
 import kotlinx.coroutines.launch
 
@@ -35,18 +38,46 @@ class SettingsView : AppCompatActivity() {
     private var isBiometricChecked = false
     private var isLanguageChecked = false
 
+    private var finalDarkMode = false
+    private var initialDarkMode = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.navigationBarColor = ContextCompat.getColor(this, R.color.light)
+
+        val viewFrom = intent.getStringExtra(VIEW_FROM)
 
         binding = ActivitySettingsViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener {
-            finish() // Volver a la pantalla anterior cuando se presiona el botón de retroceso
+        sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
+        val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
+
+        // Si el modo oscuro cambia, se crea de nuevo la actividad anterior
+        finalDarkMode = isDarkModeActive
+        initialDarkMode = isDarkModeActive
+
+        if (isDarkModeActive){
+            window.navigationBarColor = ContextCompat.getColor(this, R.color.dark)
+            binding.main.setBackgroundColor(getColor(R.color.dark))
+        } else {
+            window.navigationBarColor = ContextCompat.getColor(this, R.color.light)
+            binding.main.setBackgroundColor(getColor(R.color.light))
         }
 
-        sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
+        binding.btnBack.setOnClickListener {
+            if (viewFrom == "Home" && (initialDarkMode != finalDarkMode) ){
+                val intent = Intent(this, HomeView::class.java)
+                startActivity(intent)
+                finish()
+            } else if (viewFrom == "Contacts" && (initialDarkMode != finalDarkMode)){
+                val intent = Intent(this, ContactsView::class.java)
+                startActivity(intent)
+                finish()
+            } else {
+                finish() // Volver a la pantalla anterior cuando se presiona el botón de retroceso
+            }
+
+        }
+
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
         initVars(sharedPreferencesSettings)
@@ -114,13 +145,17 @@ class SettingsView : AppCompatActivity() {
         }
         binding.switchMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                enableDarkMode()
                 edit.putBoolean(KEY_MODE, true)
                 edit.commit()
+                binding.main.setBackgroundColor(getColor(R.color.dark))
+                window.navigationBarColor = ContextCompat.getColor(this, R.color.dark)
+                finalDarkMode = true
             } else {
-                disableDarkMode()
                 edit.putBoolean(KEY_MODE, false)
                 edit.commit()
+                binding.main.setBackgroundColor(getColor(R.color.light))
+                window.navigationBarColor = ContextCompat.getColor(this, R.color.light)
+                finalDarkMode = false
             }
         }
         binding.switchBiometric.setOnCheckedChangeListener { _, isChecked ->
@@ -134,18 +169,25 @@ class SettingsView : AppCompatActivity() {
         }
     }
 
+    // Ver manera alternativa*
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val viewFrom = intent.getStringExtra(VIEW_FROM)
+        if (viewFrom == "Home" && (initialDarkMode != finalDarkMode) ){
+            val intent = Intent(this, HomeView::class.java)
+            startActivity(intent)
+            finish()
+        } else if (viewFrom == "Contacts" && (initialDarkMode != finalDarkMode)){
+            val intent = Intent(this, ContactsView::class.java)
+            startActivity(intent)
+            finish()
+        } else {
+            finish() // Volver a la pantalla anterior cuando se presiona el botón de retroceso
+        }
+    }
+
     override fun onSupportNavigateUp(): Boolean {
-        finish() // Volver a la pantalla anterior cuando se presiona la flecha hacia atrás en el ActionBar
+        finish() // Volver a la pantalla anterior cuando se presiona el botón de retroceso
         return true
-    }
-
-    private fun enableDarkMode() {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        delegate.applyDayNight()
-    }
-
-    private fun disableDarkMode() {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        delegate.applyDayNight()
     }
 }

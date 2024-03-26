@@ -56,27 +56,33 @@ import androidx.lifecycle.lifecycleScope
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
 import com.chat.whatsvass.commons.DELAY_GET_MESSAGESFORCHAT
+import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.KNICK_ARGUMENT
 import com.chat.whatsvass.commons.LIMIT_GET_MESSAGESFORCHAT
 import com.chat.whatsvass.commons.OFFSET_GET_MESSAGESFORCHAT
 import com.chat.whatsvass.commons.ONLINE_ARGUMENT
+import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.response.create_message.MessageRequest
+import com.chat.whatsvass.ui.theme.Contrast
 import com.chat.whatsvass.ui.theme.Dark
+import com.chat.whatsvass.ui.theme.DarkMode
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
-import com.chat.whatsvass.ui.theme.home.formatTimeFromApi
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 private lateinit var sharedPreferencesToken: SharedPreferences
+private lateinit var sharedPreferencesSettings: SharedPreferences
 
 class ChatView : ComponentActivity() {
     private val viewModel: ChatViewModel by viewModels()
@@ -94,6 +100,9 @@ class ChatView : ComponentActivity() {
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
+        sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
+        val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
+
         val chatId = intent.getStringExtra(CHAT_ID_ARGUMENT)
         val nick = intent.getStringExtra(KNICK_ARGUMENT)
         val online = intent.getStringExtra(ONLINE_ARGUMENT)
@@ -107,7 +116,7 @@ class ChatView : ComponentActivity() {
 
 
             if (nick != null) {
-                ChatScreen(chatId = chatId, messages = messages, nick = nick, online = online!!)
+                ChatScreen(chatId = chatId, messages = messages, nick = nick, online = online!!, isDarkModeActive)
             }
 
 
@@ -124,22 +133,23 @@ class ChatView : ComponentActivity() {
         chatId: String?,
         messages: Map<String, List<Message>>,
         nick: String,
-        online: String
+        online: String,
+        isDarkModeActive: Boolean
     ) {
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(if (isDarkModeActive) DarkMode else Color.White)
         ) {
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 TopBarChat(nick, online)
-                chatId?.let { MessageList(chatId = it, messages = messages, token!!) }
+                chatId?.let { MessageList(chatId = it, messages = messages, token!!, isDarkModeActive) }
             }
-            BottomBar(chatId, onSendMessage = { /* Acción al enviar el mensaje */ })
+            BottomBar(chatId, isDarkModeActive, onSendMessage = { /* Acción al enviar el mensaje */ })
         }
     }
 
@@ -167,7 +177,8 @@ class ChatView : ComponentActivity() {
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_arrow_back),
-                        contentDescription = "Back"
+                        contentDescription = "Back",
+                        tint = Dark
                     )
                 }
                 Spacer(modifier = Modifier.weight(0.1f))
@@ -184,7 +195,7 @@ class ChatView : ComponentActivity() {
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.image_person),
-                            contentDescription = stringResource(R.string.ProfilePhoto),
+                            contentDescription = stringResource(R.string.profilePhoto),
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(4.dp)
@@ -197,7 +208,7 @@ class ChatView : ComponentActivity() {
                         color = Color.Red
                     Icon(
                         painter = painterResource(id = R.drawable.ic_circle),
-                        contentDescription = stringResource(R.string.CustomIcon),
+                        contentDescription = stringResource(R.string.customIcon),
                         tint = color, // Comprobar si esta online / offline
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
@@ -214,17 +225,19 @@ class ChatView : ComponentActivity() {
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    textAlign = TextAlign.Center,
                     modifier = Modifier
+                        .padding(start = 40.dp)
                         .weight(1f)
                 )
+
+
 
             }
         }
     }
 
     @Composable
-    fun MessageList(chatId: String, messages: Map<String, List<Message>>, token: String) {
+    fun MessageList(chatId: String, messages: Map<String, List<Message>>, token: String, isDarkModeActive: Boolean) {
         val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
 
         var refreshing by remember { mutableStateOf(false) }
@@ -246,9 +259,9 @@ class ChatView : ComponentActivity() {
             LazyColumn(Modifier.fillMaxSize()) {
                 items(chatMessages) { message ->
                     if (message.source == sourceId) {
-                        MessageItem(message, true)
+                        MessageItem(message, true, isDarkModeActive)
                     } else {
-                        MessageItem(message, false)
+                        MessageItem(message, false, isDarkModeActive)
                     }
                 }
             }
@@ -257,17 +270,17 @@ class ChatView : ComponentActivity() {
 
 
     @Composable
-    fun MessageItem(messages: Message, isSentByUser: Boolean) {
+    fun MessageItem(messages: Message, isSentByUser: Boolean, isDarkModeActive: Boolean) {
         val horizontalPadding = 30.dp
         val verticalPadding = 8.dp
 
 
-        val backgroundColor = White
+        val backgroundColor = if (isDarkModeActive) Contrast.copy(alpha = 0.4f) else White
         val alignment = if (isSentByUser) TextAlign.Start else TextAlign.End
         val startPadding = if (isSentByUser) horizontalPadding else 0.dp
         val endPadding = if (isSentByUser) 0.dp else horizontalPadding
 
-        val formattedTime = formatTimeFromApi(messages.date) ?: "N/A"
+        val formattedTime = formatTimeFromApiHour(messages.date) ?: "N/A"
 
 
         Row(
@@ -285,12 +298,13 @@ class ChatView : ComponentActivity() {
                         shape = RoundedCornerShape(16.dp)
                     )
                     .padding(vertical = verticalPadding, horizontal = horizontalPadding)
+
             ) {
 
                 Column(modifier = Modifier.align(Alignment.BottomEnd)) {
                     Text(
                         text = messages.message ?: "No hay mensajes",
-                        color = Color.Black,
+                        color =  if (isDarkModeActive) White else Color.Black,
                         textAlign = alignment,
                     )
                     Spacer(modifier = Modifier.weight(1f))
@@ -298,7 +312,7 @@ class ChatView : ComponentActivity() {
 
                     Text(
                         text = formattedTime,
-                        style = TextStyle(fontSize = 14.sp, color = Color.Gray),
+                        style = TextStyle(fontSize = 14.sp, color =  if (isDarkModeActive) White else Color.Gray),
                     )
                 }
             }
@@ -312,6 +326,7 @@ class ChatView : ComponentActivity() {
     @Composable
     fun BottomBar(
         chatId: String?,
+        isDarkModeActive: Boolean,
         onSendMessage: (String) -> Unit,
     ) {
         var messageText by remember { mutableStateOf("") }
@@ -322,8 +337,8 @@ class ChatView : ComponentActivity() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
-                .padding(bottom = 35.dp),
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 30.dp, top = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -335,7 +350,7 @@ class ChatView : ComponentActivity() {
                     .padding(end = 8.dp)
                     .background(Color.Transparent)
                     .clip(RoundedCornerShape(40.dp)),
-                placeholder = { Text(text = stringResource(R.string.WriteAMessage)) },
+                placeholder = { Text(text = stringResource(R.string.writeAMessage)) },
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color.Transparent, // Ocultar la línea de foco
                     unfocusedIndicatorColor = Color.Transparent // Ocultar la línea de enfoque
@@ -363,9 +378,16 @@ class ChatView : ComponentActivity() {
                     imageVector = Icons.AutoMirrored.Filled.Send,
                     contentDescription = stringResource(R.string.Send),
                     Modifier.size(40.dp),
-                    tint = Dark
+                    tint =  if (isDarkModeActive) White else Dark
                 )
             }
         }
+    }
+
+    private fun formatTimeFromApiHour(dateTimeString: String): String {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val date = inputFormat.parse(dateTimeString)
+        return outputFormat.format(date!!)
     }
 }

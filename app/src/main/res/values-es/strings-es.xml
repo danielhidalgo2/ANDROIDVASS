@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WhatsVass</string>
+    <string name="title_activity_logo">Logo</string>
+    <string name="title_activity_login_view">LoginView</string>
+    <!-- TODO: Remove or change this placeholder text -->
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_chat_view">ChatView</string>
+
+    <string name="profilePhoto">Foto de perfil</string>
+    <string name="customIcon">Icono personalizado</string>
+    <string name="writeAMessage">Escribe un mensaje...</string>
+    <string name="Send">Enviar</string>
+    <string name="back">Regresar</string>
+    <string name="togglePasswordVisibility">Toggle visibilidad de contraseña</string>
+    <string name="search">Buscar</string>
+    <string name="textFieldSearch">Buscar...</string>
+    <string name="settings">Ajustes</string>
+    <string name="withoutContacts">Sin contactos</string>
+    <string name="noMatches">Sin coincidencias</string>
+    <string name="errorCreatingChat">Error al crear chat</string>
+    <string name="add">Añadir</string>
+    <string name="thereAreNoMessages">No hay mensajes</string>
+    <string name="deleteChat">Eliminar chat</string>
+    <string name="areYouSureToDeleteChat">¿Estás seguro de que quieres eliminar este chat?</string>
+    <string name="yes">Sí</string>
+    <string name="cancel">Cancelar</string>
+    <string name="thereAreNoChats">No tienes chats</string>
+    <string name="login">Login</string>
+    <string name="loginWithYourCredentials">Iniciar sesión con tus credenciales</string>
+    <string name="welcome">¡Bienvenido %1$s!</string>
+    <string name="failedToLoginTryAgain">No se pudo iniciar sesión, intente nuevamente.</string>
+    <string name="enableTheBiometricSensor">Habilita el sensor biométrico en tu dispositivo.</string>
+    <string name="biometric">Biométrico</string>
+    <string name="credentialsAreNotCorrect">Los credenciales no son correctas</string>
+    <string name="pleaseEnterUserAndPassword">Por favor, introduce usuario y contraseña</string>
+    <string name="logo">Logo</string>
+    <string name="enterYourUser">Ingrese su usuario</string>
+    <string name="enterYourPassword">Ingrese su contraseña</string>
+    <string name="incorrectUserOrPassword">Usuario o contraseña incorrectos</string>
+    <string name="failedToLogin">Error al iniciar sesión:</string>
+    <string name="createProfile">Crear Perfil</string>
+    <string name="user">Usuario</string>
+    <string name="nick">Nick</string>
+    <string name="password">Contraseña</string>
+    <string name="repeatPassword">Repetir Contraseña</string>
+    <string name="enterYourUsername">Ingresa tu nombre de usuario</string>
+    <string name="enterYourNick">Ingresa tu nick</string>
+    <string name="enterAPassword">Ingresa una contraseña</string>
+    <string name="confirmYourPassword">Confirma tu contraseña</string>
+    <string name="passwordsMustBeTheSame">Las contraseñas deben ser iguales</string>
+    <string name="createUser">Crear Usuario</string>
+    <string name="userCreatedSuccessfully">Usuario creado correctamente.</string>
+    <string name="failedToCreateUserTryAgain">No se pudo crear el usuario, intente nuevamente.</string>
+    <string name="failedToCreateUser">Error al crear usuario</string>
+    <string name="failedToLogout">Error al cerrar sesión</string>
+    <string name="disconnectedUser">Usuario desconectado</string>
+    <string name="titleSettings">Ajustes</string>
+    <string name="notifications">Notificaciones</string>
+    <string name="darkMode">Tema oscuro</string>
+    <string name="biometricSettings">Biométrico</string>
+    <string name="language">Idioma</string>
+    <string name="btnLogout">Desconectar</string>
+    <string name="yesterday">Ayer</string>
+</resources>

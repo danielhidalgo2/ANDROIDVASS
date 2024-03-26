@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -72,14 +71,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_BIOMETRIC
+import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_PASSWORD
 import com.chat.whatsvass.commons.KEY_USERNAME
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.ui.theme.Dark
 import com.chat.whatsvass.ui.theme.Light
+import com.chat.whatsvass.ui.theme.DarkMode
+import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
-import com.chat.whatsvass.ui.theme.loading.LoadingActivity
+import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
 import com.chat.whatsvass.usecases.Encrypt
@@ -94,15 +96,19 @@ class LoginView : AppCompatActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.statusBarColor = ContextCompat.getColor(this, R.color.light)
-        window.navigationBarColor = ContextCompat.getColor(this, R.color.light)
-
         super.onCreate(savedInstanceState)
-
-        sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
-        val isBiometricActive = sharedPreferencesSettings.getBoolean(KEY_BIOMETRIC, false)
-
         sharedPreferencesUserData = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
+        sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
+
+        val isBiometricActive = sharedPreferencesSettings.getBoolean(KEY_BIOMETRIC, false)
+        val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
+        if (isDarkModeActive){
+            window.statusBarColor = ContextCompat.getColor(this, R.color.dark)
+            window.navigationBarColor = ContextCompat.getColor(this, R.color.dark)
+        } else {
+            window.statusBarColor = ContextCompat.getColor(this, R.color.light)
+            window.navigationBarColor = ContextCompat.getColor(this, R.color.light)
+        }
 
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -126,7 +132,11 @@ class LoginView : AppCompatActivity() {
                 exitTransition = { fadeOut(animationSpec = tween(200)) }) {
 
                 composable("login") {
-                    window.statusBarColor = ContextCompat.getColor(this@LoginView, R.color.light)
+                    if (isDarkModeActive){
+                        window.statusBarColor = ContextCompat.getColor(this@LoginView, R.color.dark)
+                    } else {
+                        window.statusBarColor = ContextCompat.getColor(this@LoginView, R.color.light)
+                    }
                     LoginScreen(
                         viewModel,
                         username.value,
@@ -134,7 +144,8 @@ class LoginView : AppCompatActivity() {
                         navController = navController,
                         isBiometricActive,
                         this@LoginView,
-                        sharedPreferencesUserData
+                        sharedPreferencesUserData,
+                        isDarkModeActive
                     ) { newUser, newPassword ->
                         username.value = newUser
                         password.value = newPassword
@@ -143,7 +154,7 @@ class LoginView : AppCompatActivity() {
                 }
                 composable("profile") {
                     window.statusBarColor = ContextCompat.getColor(this@LoginView, R.color.main)
-                    ProfileView().ProfileScreen(viewModelCreateUser, navController = navController)
+                    ProfileView().ProfileScreen(viewModelCreateUser, navController = navController, isDarkModeActive)
                 }
                 // Agrega más composables para otras pantallas si es necesario
             }
@@ -197,12 +208,10 @@ fun loginBiometric(
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
-                    Log.d("EncryptLogin", password)
                     val decryptPassword = Encrypt().decryptPassword(password)
-                    Log.d("EncryptLogin", decryptPassword)
                     viewModel.loginUser(username, decryptPassword)
                     // Ir hacia la siguiente pantalla
-                    val intent = Intent(context, LoadingActivity::class.java)
+                    val intent = Intent(context, HomeView::class.java)
                     context.startActivity(intent)
                     showMessage(context, context.getString(R.string.welcome, username))
                     auth(true)
@@ -228,8 +237,8 @@ fun LoginScreen(
     isBiometricActive: Boolean,
     activity: LoginView,
     sharedPreferences: SharedPreferences,
+    isDarkModeActive: Boolean,
     onCredentialsChange: (String, String) -> Unit
-
 ) {
 
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -240,7 +249,7 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Light)
+            .background(if (isDarkModeActive) Dark else Light)
     ) {
         Column(
             modifier = Modifier
@@ -257,6 +266,7 @@ fun LoginScreen(
                 .height(60.dp)
             UserTextField(
                 value = username,
+                isDarkModeActive,
                 onValueChange = { onCredentialsChange(it, password) },
                 onImeActionPerformed = { action ->
                     if (action == ImeAction.Done || action == ImeAction.Next) {
@@ -268,6 +278,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(40.dp))
             PasswordTextField(
                 value = password,
+                isDarkModeActive,
                 onValueChange = { onCredentialsChange(username, it) },
                 modifier = textFieldModifier,
                 onImeActionPerformed = { action ->
@@ -368,7 +379,7 @@ fun LoginScreen(
 
             is LoginViewModel.LoginResult.Success -> {
                 if (username.isNotEmpty() && password.isNotEmpty()) {
-                    val intent = Intent(context, LoadingActivity::class.java)
+                    val intent = Intent(context, HomeView::class.java)
                     context.startActivity(intent)
 
                     errorMessage = null
@@ -379,10 +390,7 @@ fun LoginScreen(
 
         }
     }
-
-
 }
-
 
 @Composable
 fun Logo() {
@@ -398,14 +406,22 @@ fun Logo() {
 @Composable
 fun UserTextField(
     value: String,
+    isDarkModeActive: Boolean,
     onValueChange: (String) -> Unit,
     onImeActionPerformed: (ImeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorText = if (isDarkModeActive) White else Color.Black
+
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { androidx.compose.material.Text(stringResource(R.string.enterYourUser)) },
+        label = {
+            Text(
+                text = stringResource(R.string.enterYourUser),
+                color =  if (isDarkModeActive) White else Color.Black,
+                fontSize = 14.sp
+            ) },
         shape = RoundedCornerShape(20.dp),
         singleLine = true,
         modifier = modifier,
@@ -413,7 +429,11 @@ fun UserTextField(
         keyboardActions = KeyboardActions(onDone = { onImeActionPerformed(ImeAction.Next) }),
         colors = TextFieldDefaults.textFieldColors(
             focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            unfocusedIndicatorColor = Color.Transparent,
+            containerColor = if (isDarkModeActive) DarkMode else White,
+            cursorColor = colorText,
+            focusedTextColor = colorText,
+            unfocusedTextColor = colorText
         )
     )
 }
@@ -422,16 +442,25 @@ fun UserTextField(
 @Composable
 fun PasswordTextField(
     value: String,
+    isDarkModeActive: Boolean,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     onImeActionPerformed: (ImeAction) -> Unit
 
 ) {
     var passwordVisibility by remember { mutableStateOf(false) }
+    val colorText = if (isDarkModeActive) White else Color.Black
+
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { androidx.compose.material.Text(stringResource(R.string.enterYourPassword)) },
+        label = {
+            androidx.compose.material.Text(
+                text = stringResource(R.string.enterYourPassword),
+                color =  if (isDarkModeActive) White else Color.Black,
+                fontSize = 14.sp
+            )
+                },
         shape = RoundedCornerShape(Shape.dp),
         singleLine = true,
         keyboardOptions = KeyboardOptions(
@@ -447,7 +476,11 @@ fun PasswordTextField(
         modifier = modifier,
         colors = TextFieldDefaults.textFieldColors(
             focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            unfocusedIndicatorColor = Color.Transparent,
+            containerColor = if (isDarkModeActive) DarkMode else White,
+            cursorColor = colorText,
+            focusedTextColor = colorText,
+            unfocusedTextColor = colorText
         ),
         trailingIcon = {
             IconButton(
@@ -459,7 +492,7 @@ fun PasswordTextField(
                 } else {
                     ImageVector.vectorResource(id = R.drawable.visible_on)
                 }
-                Icon(icon, contentDescription = stringResource(id = R.string.togglePasswordVisibility))
+                Icon(icon, contentDescription = stringResource(id = R.string.togglePasswordVisibility), tint = if (isDarkModeActive) White else Color.Black)
             }
         }
     )
@@ -471,7 +504,7 @@ fun LoginButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(Shape.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Dark),
+        colors = ButtonDefaults.buttonColors(containerColor = Main),
     ) {
         Text(
             text = stringResource(id = R.string.login),
@@ -485,7 +518,7 @@ fun LoginButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
 fun CreateAccountText(navController: NavController) {
 
     Text(
-        text = stringResource(R.string.CreateUser),
+        text = stringResource(R.string.createUser),
         color = Color.White,
         fontSize = 18.sp,
         modifier = Modifier.clickable {

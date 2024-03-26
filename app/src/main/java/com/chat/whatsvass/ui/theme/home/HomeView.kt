@@ -165,7 +165,7 @@ class HomeView : ComponentActivity() {
                 isDarkModeActive,
                 onDeleteChat = { chatId ->
                     // Lógica para eliminar el chat en el ViewModel
-                    viewModel.deleteChat(token!!, chatId)
+                    viewModel.deleteChat(token, chatId)
                 }
             )
         }

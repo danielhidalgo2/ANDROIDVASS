@@ -118,7 +118,9 @@ class ContactsView : ComponentActivity() {
             }
             // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
             val contactsResult by viewModel.contactsResult.collectAsState(emptyList())
-            ContactsScreen(this, token!!, myId!!, contactsResult, viewModel, isDarkModeActive)
+            ContactsScreen(this, token!!, myId!!, contactsResult, viewModel, isDarkModeActive) {
+                finish()
+            }
 
         }
         window.decorView.setOnTouchListener { _, _ ->
@@ -135,7 +137,8 @@ fun ContactsScreen(
     myId: String,
     contacts: List<Contacts>,
     viewModel: ContactsViewModel,
-    isDarkModeActive: Boolean
+    isDarkModeActive: Boolean,
+    onBackClicked: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -145,12 +148,13 @@ fun ContactsScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TopBarAndList(context, token, myId, contacts, viewModel, isDarkModeActive)
+            TopBarAndList(context, token, myId, contacts, viewModel, isDarkModeActive, onBackClicked)
 
             Spacer(modifier = Modifier.weight(1f))
         }
     }
 }
+
 
 @Composable
 fun TopBarAndList(
@@ -159,7 +163,8 @@ fun TopBarAndList(
     myId: String,
     contacts: List<Contacts>,
     viewModel: ContactsViewModel,
-    isDarkModeActive: Boolean
+    isDarkModeActive: Boolean,
+    onBackClicked: () -> Unit
 ) {
     val isTextWithOutContactsVisible by viewModel.isTextWithOutVisibleFlow.collectAsState(false)
     val isProgressBarVisible by viewModel.isProgressVisibleFlow.collectAsState(true)
@@ -176,6 +181,13 @@ fun TopBarAndList(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(onClick = onBackClicked) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_arrow_back),
+                    contentDescription = "Back",
+                    tint = Dark
+                )
+            }
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -186,6 +198,8 @@ fun TopBarAndList(
 
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
+
+                    Spacer(modifier = Modifier.weight(0.1f))
                     Icon(
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
                         contentDescription = stringResource(R.string.search),

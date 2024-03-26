@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.provider.Settings.Global.getString
 import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
@@ -15,6 +16,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,6 +63,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -181,7 +184,6 @@ class HomeView : ComponentActivity() {
             // Actualizar el estado en línea del usuario como "en línea" cuando se reanuda la actividad
             viewModel.updateUserOnlineStatus(token, true)
         }
-
     }
 
     override fun onPause() {
@@ -214,7 +216,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TopBarHomeAndList(chats, messages, viewModel, token, onDeleteChat)
+            TopBarHomeAndList(chats, messages, viewModel, token, isDarkModeActive, onDeleteChat)
             Spacer(modifier = Modifier.weight(1f))
 
         }
@@ -241,23 +243,24 @@ fun HomeScreen(
     }
 }
 
-fun formatTimeFromApi(dateTimeString: String): String {
+fun formatTimeFromApi(dateTimeString: String, context: Context): String {
     val calendar = Calendar.getInstance()
     val day = calendar[Calendar.DAY_OF_MONTH]
     val month = calendar[Calendar.MONTH] + 1
     val year = calendar[Calendar.YEAR]
     val today = "$day-$month-$year"
     val todayMonthAndYear = "$month-$year"
-    Log.d("FECHAACTUAL", today)
+    Log.d("FECHAACTUAL", todayMonthAndYear)
 
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
     val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     val outputFormatDate = SimpleDateFormat("d-M-yyyy")
     val outputFormatDay = SimpleDateFormat("d")
     val outputFormatDayToShow = SimpleDateFormat("d-M-yy")
-    val outputFormatMonthAndYear = SimpleDateFormat("M-yy")
+    val outputFormatMonthAndYear = SimpleDateFormat("M-yyyy")
     val date = inputFormat.parse(dateTimeString)
     val dateToCompare = outputFormatDate.format(date).toString()
+    Log.d("FECHAACTUAL", outputFormatMonthAndYear.format(date!!))
 
     // Si las fechas son iguales devuelve la hora
     if (today == dateToCompare) {
@@ -267,7 +270,7 @@ fun formatTimeFromApi(dateTimeString: String): String {
             date
         ).toString().toInt()) == 1)
     ) {
-        return outputFormat.format(date) + "\nAyer"
+        return outputFormat.format(date) + "\n${context.getString(R.string.yesterday)}"
         // Para el resto se muestra la hora y fecha
     } else {
         return outputFormat.format(date) + "\n${outputFormatDayToShow.format(date)}"
@@ -288,6 +291,7 @@ fun ChatItem(
     messages: List<Message?>,
     name: String,
     color: Color,
+    isDarkModeActive: Boolean,
     onDeleteChat: (chatId: String) -> Unit // Modificación del parámetro onDeleteChat
 ) {
     val colorWithOpacity = Contrast.copy(alpha = 0.4f)
@@ -297,8 +301,8 @@ fun ChatItem(
     // Obtener el último mensaje si existe
     val lastMessage = messages.lastOrNull()
 
-    // Formatear la fecha del mensaje para mostrar solo la hora
-    val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it) } ?: "N/A"
+    // Formatear la fecha del mensaje para mostrar la hora y fecha
+    val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it, context) } ?: "N/A"
 
     // Estado para controlar si el diálogo está mostrándose
     val showDialog = remember { mutableStateOf(false) }
@@ -375,7 +379,7 @@ fun ChatItem(
         ) {
             Text(
                 text = name,
-                style = TextStyle(fontSize = 16.sp, color = Dark),
+                style = TextStyle(fontSize = 16.sp, color = if (isDarkModeActive) White else Dark, fontWeight = FontWeight.Bold)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -383,7 +387,7 @@ fun ChatItem(
                     ?: stringResource(
                         id = R.string.thereAreNoMessages
                     ),
-                style = TextStyle(fontSize = 14.sp, color = Light),
+                style = TextStyle(fontSize = 14.sp, color = if (isDarkModeActive) White else Light),
                 maxLines = 1
             )
         }
@@ -393,7 +397,7 @@ fun ChatItem(
 
         Text(
             text = formattedTime,
-            style = TextStyle(fontSize = 14.sp, color = Light),
+            style = TextStyle(fontSize = 14.sp, color = if (isDarkModeActive) White else Light),
             textAlign = TextAlign.End
         )
 
@@ -436,6 +440,7 @@ fun TopBarHomeAndList(
     messages: Map<String, List<Message>>,
     viewModel: HomeViewModel,
     token: String,
+    isDarkModeActive: Boolean,
     onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
 ) {
     val isTextWithOutChatsVisible by viewModel.isTextWithOutChatsVisibleFlow.collectAsState(false)
@@ -582,6 +587,7 @@ fun TopBarHomeAndList(
                             messages = chatMessages,
                             name = name,
                             color = color,
+                            isDarkModeActive = isDarkModeActive,
                             onDeleteChat = { onDeleteChat(chat.chatId) })
                     }
                 } else {
@@ -620,6 +626,7 @@ fun TopBarHomeAndList(
                             messages = chatMessages,
                             name = name,
                             color = color,
+                            isDarkModeActive = isDarkModeActive,
                             onDeleteChat = { onDeleteChat(chat.chatId) })
                     }
                 }

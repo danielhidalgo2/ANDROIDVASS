@@ -420,6 +420,8 @@ fun UserTextField(
     onImeActionPerformed: (ImeAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorText = if (isDarkModeActive) White else Color.Black
+
     TextField(
         value = value,
         onValueChange = onValueChange,
@@ -438,8 +440,9 @@ fun UserTextField(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             containerColor = if (isDarkModeActive) DarkMode else White,
-            cursorColor = if (isDarkModeActive) White else Color.Black,
-            focusedTextColor = if (isDarkModeActive) White else Color.Black
+            cursorColor = colorText,
+            focusedTextColor = colorText,
+            unfocusedTextColor = colorText
         )
     )
 }
@@ -455,6 +458,8 @@ fun PasswordTextField(
 
 ) {
     var passwordVisibility by remember { mutableStateOf(false) }
+    val colorText = if (isDarkModeActive) White else Color.Black
+
     TextField(
         value = value,
         onValueChange = onValueChange,
@@ -482,8 +487,9 @@ fun PasswordTextField(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             containerColor = if (isDarkModeActive) DarkMode else White,
-            cursorColor = if (isDarkModeActive) White else Color.Black,
-            focusedTextColor = if (isDarkModeActive) White else Color.Black
+            cursorColor = colorText,
+            focusedTextColor = colorText,
+            unfocusedTextColor = colorText
         ),
         trailingIcon = {
             IconButton(

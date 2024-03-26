@@ -3,6 +3,8 @@ package com.chat.whatsvass.ui.theme.profile
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.R
@@ -16,6 +18,7 @@ import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.register.Register
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -39,7 +42,6 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     fun registerUser(username: String, password: String, nick: String) {
         viewModelScope.launch(Dispatchers.IO) {
-
             try {
                 val register = userRepository.registerUser(username, password, nick)
                 if (register.user.token.isNotEmpty()) {
@@ -52,18 +54,14 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
                     sharedPreferencesSettings.edit().putBoolean(KEY_BIOMETRIC, false).apply()
                 } else {
-                    _registerResult.value = RegisterResult.Error(R.string.failedToCreateUser.toString())
+                    _registerResult.value = RegisterResult.Error(R.string.failedToCreateUserTryAgain.toString())
                 }
             } catch (e: Exception) {
                 _registerResult.value = RegisterResult.Error("${R.string.failedToCreateUser} ${e.message}")
             }
-
         }
     }
-
-
 }
-
 
 
 

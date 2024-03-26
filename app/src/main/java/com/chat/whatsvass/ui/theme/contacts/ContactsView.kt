@@ -77,6 +77,7 @@ import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.chat.ChatView
+import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import kotlinx.coroutines.CoroutineScope
@@ -118,9 +119,7 @@ class ContactsView : ComponentActivity() {
             }
             // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
             val contactsResult by viewModel.contactsResult.collectAsState(emptyList())
-            ContactsScreen(this, token!!, myId!!, contactsResult, viewModel, isDarkModeActive) {
-                finish()
-            }
+            ContactsScreen(this, token!!, myId!!, contactsResult, viewModel, isDarkModeActive)
 
         }
         window.decorView.setOnTouchListener { _, _ ->
@@ -137,8 +136,7 @@ fun ContactsScreen(
     myId: String,
     contacts: List<Contacts>,
     viewModel: ContactsViewModel,
-    isDarkModeActive: Boolean,
-    onBackClicked: () -> Unit
+    isDarkModeActive: Boolean
 ) {
     Box(
         modifier = Modifier
@@ -148,7 +146,7 @@ fun ContactsScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TopBarAndList(context, token, myId, contacts, viewModel, isDarkModeActive, onBackClicked)
+            TopBarAndList(context, token, myId, contacts, viewModel, isDarkModeActive)
 
             Spacer(modifier = Modifier.weight(1f))
         }
@@ -163,8 +161,7 @@ fun TopBarAndList(
     myId: String,
     contacts: List<Contacts>,
     viewModel: ContactsViewModel,
-    isDarkModeActive: Boolean,
-    onBackClicked: () -> Unit
+    isDarkModeActive: Boolean
 ) {
     val isTextWithOutContactsVisible by viewModel.isTextWithOutVisibleFlow.collectAsState(false)
     val isProgressBarVisible by viewModel.isProgressVisibleFlow.collectAsState(true)
@@ -181,7 +178,10 @@ fun TopBarAndList(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onBackClicked) {
+            IconButton(onClick = {
+                val intent = Intent(context, HomeView::class.java)
+                context.startActivity(intent)
+            }) {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_arrow_back),
                     contentDescription = "Back",
@@ -235,6 +235,7 @@ fun TopBarAndList(
             IconButton(
                 onClick = {
                     val intent = Intent(context, SettingsView::class.java)
+                    intent.flags = (Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     intent.putExtra(VIEW_FROM, "Contacts")
                     context.startActivity(intent)
                 },
@@ -251,31 +252,34 @@ fun TopBarAndList(
 
 
     Box(modifier = Modifier.fillMaxSize()){
-        LazyColumn {
-            // Ordenar contactos alfabeticamente
-            val sortedContacts = contacts.sortedBy {it.nick.replaceFirstChar { it.uppercaseChar()}}
-            if (searchText.text.isEmpty()) {
-                items(sortedContacts,
-                    key = { contact ->
-                        // La llave sirve para que cada valor se mueva con su celda
-                        contact.id
+        if (!isProgressBarVisible){
+            LazyColumn {
+                // Ordenar contactos alfabeticamente
+                val sortedContacts = contacts.sortedBy {it.nick.replaceFirstChar { it.uppercaseChar()}}
+                if (searchText.text.isEmpty()) {
+                    items(sortedContacts,
+                        key = { contact ->
+                            // La llave sirve para que cada valor se mueva con su celda
+                            contact.id
+                        }
+                    ) { contact ->
+                        ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
                     }
-                ) { contact ->
-                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
-                }
-            } else {
-                listSearch =
-                    sortedContacts.filter { it.nick.contains(searchText.text, ignoreCase = true) }
-                items(listSearch,
-                    key = { contact ->
-                        contact.id
+                } else {
+                    listSearch =
+                        sortedContacts.filter { it.nick.contains(searchText.text, ignoreCase = true) }
+                    items(listSearch,
+                        key = { contact ->
+                            contact.id
+                        }
+                    ) { contact ->
+                        ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
                     }
-                ) { contact ->
-                    ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
                 }
             }
         }
 
+        val textColor =  if (isDarkModeActive) White else Dark
         // Si no hay contactos se muestra: "Sin contactos"
         if (isTextWithOutContactsVisible) {
             Column(
@@ -288,7 +292,7 @@ fun TopBarAndList(
                 Text(
                     text = stringResource(R.string.withoutContacts),
                     fontSize = 22.sp,
-                    color = Dark
+                    color =  textColor
                 )
             }
         }
@@ -305,7 +309,7 @@ fun TopBarAndList(
                 Text(
                     text = stringResource(R.string.noMatches),
                     fontSize = 22.sp,
-                    color = Dark
+                    color =  textColor
                 )
             }
         }

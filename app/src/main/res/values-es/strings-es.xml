@@ -52,7 +52,7 @@
     <string name="passwordsMustBeTheSame">Las contraseñas deben ser iguales</string>
     <string name="createUser">Crear Usuario</string>
     <string name="userCreatedSuccessfully">Usuario creado correctamente.</string>
-    <string name="failedToCreateUserTryAgain">No se pudo crear el usuario, intente nuevamente.</string>
+    <string name="failedToCreateUserTryAgain">El usuario ya existe.</string>
     <string name="failedToCreateUser">Error al crear usuario</string>
     <string name="failedToLogout">Error al cerrar sesión</string>
     <string name="disconnectedUser">Usuario desconectado</string>
@@ -63,4 +63,5 @@
     <string name="language">Idioma</string>
     <string name="btnLogout">Desconectar</string>
     <string name="yesterday">Ayer</string>
+    <string name="couldNotDisconnect">No se pudo desconectar, intente de nuevo.</string>
 </resources>

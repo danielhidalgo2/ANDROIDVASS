@@ -67,6 +67,7 @@ import com.chat.whatsvass.commons.KNICK_ARGUMENT
 import com.chat.whatsvass.commons.ONLINE_ARGUMENT
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
+import com.chat.whatsvass.commons.VIEW_FROM
 import com.chat.whatsvass.data.domain.model.contacts.Contacts
 import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.ChatRequest
 import com.chat.whatsvass.ui.theme.Contrast
@@ -220,6 +221,7 @@ fun TopBarAndList(
             IconButton(
                 onClick = {
                     val intent = Intent(context, SettingsView::class.java)
+                    intent.putExtra(VIEW_FROM, "Contacts")
                     context.startActivity(intent)
                 },
             ) {

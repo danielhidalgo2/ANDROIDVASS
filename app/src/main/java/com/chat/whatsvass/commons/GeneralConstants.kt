@@ -21,6 +21,7 @@ const val SOURCE_ID = "Source"
 const val CHAT_ID_ARGUMENT = "ChatID"
 const val KNICK_ARGUMENT = "Nick"
 const val ONLINE_ARGUMENT = "Online"
+const val VIEW_FROM = "ViewFrom"
 
 // getMessagesForChat
 const val LIMIT_GET_MESSAGESFORCHAT = 100

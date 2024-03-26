@@ -396,10 +396,7 @@ fun LoginScreen(
 
         }
     }
-
-
 }
-
 
 @Composable
 fun Logo() {

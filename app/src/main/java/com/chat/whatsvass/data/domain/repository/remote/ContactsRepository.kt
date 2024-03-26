@@ -4,12 +4,9 @@ import com.chat.whatsvass.data.domain.model.contacts.Contacts
 import com.chat.whatsvass.data.domain.model.create_chat.CreatedChat
 import com.chat.whatsvass.data.domain.repository.remote.mapper.ContactsMapper
 import com.chat.whatsvass.data.domain.repository.remote.mapper.CreatedChatMapper
-import com.chat.whatsvass.data.domain.repository.remote.mapper.LogoutMapper
 import com.chat.whatsvass.data.domain.repository.remote.response.ApiService
 import com.chat.whatsvass.data.domain.repository.remote.response.RetrofitClient
-import com.chat.whatsvass.data.domain.repository.remote.response.chat.ChatResponse
 import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.ChatRequest
-import com.chat.whatsvass.data.domain.repository.remote.response.create_chat.CreatedChatResponse
 
 class ContactsRepository {
     private val apiService: ApiService = RetrofitClient.apiService

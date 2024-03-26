@@ -81,6 +81,7 @@ import com.chat.whatsvass.commons.ONLINE_ARGUMENT
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
+import com.chat.whatsvass.commons.VIEW_FROM
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.ui.theme.Contrast
@@ -302,7 +303,7 @@ fun ChatItem(
     val lastMessage = messages.lastOrNull()
 
     // Formatear la fecha del mensaje para mostrar la hora y fecha
-    val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it, context) } ?: "N/A"
+    val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it, context) } ?: ""
 
     // Estado para controlar si el diálogo está mostrándose
     val showDialog = remember { mutableStateOf(false) }
@@ -510,6 +511,7 @@ fun TopBarHomeAndList(
             IconButton(
                 onClick = {
                     val intent = Intent(context, SettingsView::class.java)
+                    intent.putExtra(VIEW_FROM, "Home")
                     context.startActivity(intent)
                 },
             ) {

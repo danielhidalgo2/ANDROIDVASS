@@ -10,7 +10,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,10 +67,9 @@ import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.response.create_message.MessageRequest
+import com.chat.whatsvass.ui.theme.Contrast
 import com.chat.whatsvass.ui.theme.Dark
 import com.chat.whatsvass.ui.theme.DarkMode
-import com.chat.whatsvass.ui.theme.Gray
-import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
@@ -143,7 +141,7 @@ class ChatView : ComponentActivity() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(if (isDarkModeActive) DarkMode else White)
+                .background(if (isDarkModeActive) DarkMode else Color.White)
         ) {
             Column(
                 modifier = Modifier.weight(1f)
@@ -277,7 +275,7 @@ class ChatView : ComponentActivity() {
         val verticalPadding = 8.dp
 
 
-        val backgroundColor = if (isDarkModeActive) Gray else White
+        val backgroundColor = if (isDarkModeActive) Contrast.copy(alpha = 0.4f) else White
         val alignment = if (isSentByUser) TextAlign.Start else TextAlign.End
         val startPadding = if (isSentByUser) horizontalPadding else 0.dp
         val endPadding = if (isSentByUser) 0.dp else horizontalPadding
@@ -306,7 +304,7 @@ class ChatView : ComponentActivity() {
                 Column(modifier = Modifier.align(Alignment.BottomEnd)) {
                     Text(
                         text = messages.message ?: "No hay mensajes",
-                        color = Color.Black,
+                        color =  if (isDarkModeActive) White else Color.Black,
                         textAlign = alignment,
                     )
                     Spacer(modifier = Modifier.weight(1f))
@@ -314,7 +312,7 @@ class ChatView : ComponentActivity() {
 
                     Text(
                         text = formattedTime,
-                        style = TextStyle(fontSize = 14.sp, color =  if (isDarkModeActive) Color.Black else Color.Gray),
+                        style = TextStyle(fontSize = 14.sp, color =  if (isDarkModeActive) White else Color.Gray),
                     )
                 }
             }
@@ -340,7 +338,7 @@ class ChatView : ComponentActivity() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .padding(bottom = 35.dp),
+                .padding(bottom = 30.dp, top = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 

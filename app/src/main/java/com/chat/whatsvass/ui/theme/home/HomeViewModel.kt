@@ -24,6 +24,9 @@ class HomeViewModel : ViewModel() {
     private val isTextWithOutChatsVisible = MutableStateFlow(false)
     var isTextWithOutChatsVisibleFlow: Flow<Boolean> = isTextWithOutChatsVisible
 
+    private val isProgressBarVisible = MutableStateFlow(true)
+    var isProgressVisibleFlow: Flow<Boolean> = isProgressBarVisible
+
     private val _messages = MutableStateFlow<Map<String, List<Message>>>(emptyMap())
     val messages: StateFlow<Map<String, List<Message>>> = _messages
 
@@ -32,36 +35,47 @@ class HomeViewModel : ViewModel() {
             async {
                 getChatsList(token)
             }.await()
-            if (chats.value.isEmpty()){
+            if (chats.value.isEmpty()) {
+                isProgressBarVisible.value = false
                 isTextWithOutChatsVisible.value = true
             }
         }
     }
+
     private suspend fun getChatsList(token: String) {
-            try {
-                val chats = chatRepository.getChats(token)
-                _chats.value = chats
-                // Actualiza el estado en línea del usuario al obtener los chats
-                userRepository.updateUserOnlineStatus(token, true)
-                Log.d("HomeViewModel", "Chats obtenidos correctamente")
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error al obtener los chats", e)
-            }
+        try {
+            val chats = chatRepository.getChats(token)
+            _chats.value = chats
+            // Actualiza el estado en línea del usuario al obtener los chats
+            userRepository.updateUserOnlineStatus(token, true)
+            Log.d("HomeViewModel", "Chats obtenidos correctamente")
+        } catch (e: Exception) {
+            Log.e("HomeViewModel", "Error al obtener los chats", e)
+        }
     }
 
-    suspend fun getMessages(token: String, chatIds: List<String>, offset: Int, limit: Int) {
+    fun getMessages(token: String, chatIds: List<String>, offset: Int, limit: Int) {
         viewModelScope.launch {
-            try {
-                val messagesMap = mutableMapOf<String, List<Message>>()
-                chatIds.forEach { chatId ->
-                    val messages = chatRepository.getMessages(token, chatId, offset, limit)
-                    messagesMap[chatId] = messages
-                }
-                _messages.value = messagesMap
-                Log.d("HomeViewModel", "Mensajes obtenidos correctamente")
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error al obtener los mensajes", e)
+            async {
+                getMessagesList(token, chatIds, offset, limit)
+            }.await()
+            isProgressBarVisible.value = false
+        }
+
+    }
+
+    private suspend fun getMessagesList(token: String, chatIds: List<String>, offset: Int, limit: Int) {
+        try {
+            val messagesMap = mutableMapOf<String, List<Message>>()
+            chatIds.forEach { chatId ->
+                val messages = chatRepository.getMessages(token, chatId, offset, limit)
+                messagesMap[chatId] = messages
             }
+            _messages.value = messagesMap
+            Log.d("HomeViewModel", "Mensajes obtenidos correctamente")
+        } catch (e: Exception) {
+            Log.e("HomeViewModel", "Error al obtener los mensajes", e)
+
         }
     }
 

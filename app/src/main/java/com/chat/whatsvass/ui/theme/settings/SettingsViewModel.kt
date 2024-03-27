@@ -1,7 +1,9 @@
 package com.chat.whatsvass.ui.theme.settings
 
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.R
@@ -14,28 +16,19 @@ import kotlinx.coroutines.launch
 
 class SettingsViewModel : ViewModel() {
 
-    sealed class LogoutResult {
-        data class Success(val logout: String) : LogoutResult()
-        data class Error(val message: String) : LogoutResult()
-    }
-
     private val userRepository = UserRepository()
 
-    private val _logoutResult = MutableStateFlow<LogoutResult?>(null)
-    val logoutResult: StateFlow<LogoutResult?> = _logoutResult
+    private val _logoutResult = MutableStateFlow<String?>(null)
+    val logoutResult: StateFlow<String?> = _logoutResult
 
-    fun logoutUser(token: String) {
+    fun logoutUser(token: String, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val logout = userRepository.logoutUser(token)
                 Log.d("Mensaje de respuesta", logout.message)
-                if (logout.message == "Logout successful") {
-                    _logoutResult.value = LogoutResult.Success(logout.message)
-                } else {
-                    _logoutResult.value = LogoutResult.Error(R.string.failedToLogout.toString())
-                }
+                _logoutResult.value = logout.message
             } catch (e: Exception) {
-                _logoutResult.value = LogoutResult.Error("${R.string.failedToLogout}: ${e.message}")
+                Toast.makeText(context, R.string.failedToLogout, Toast.LENGTH_SHORT).show()
             }
         }
     }

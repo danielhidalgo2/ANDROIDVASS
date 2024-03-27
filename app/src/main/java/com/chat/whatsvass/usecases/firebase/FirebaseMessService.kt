@@ -6,7 +6,7 @@ import com.chat.whatsvass.R
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
-class FirebaseMessService: FirebaseMessagingService() {
+class FirebaseMessService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         showNotification(message)
@@ -22,4 +22,5 @@ class FirebaseMessService: FirebaseMessagingService() {
             .build()
         notificationManager.notify(1, notification)
     }
+
 }

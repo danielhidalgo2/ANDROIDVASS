@@ -530,10 +530,6 @@ fun CreateAccountText(navController: NavController) {
 }
 
 
-
-
-
-
 // Función auxiliar para mostrar mensajes en la aplicación
 fun showMessage(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()

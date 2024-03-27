@@ -73,6 +73,7 @@ import com.chat.whatsvass.ui.theme.DarkMode
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
+import com.chat.whatsvass.usecases.firebase.FirebaseMessService
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
@@ -359,6 +360,7 @@ class ChatView : ComponentActivity() {
 
             IconButton(
                 onClick = {
+
                     if (chatId != null && token != null) {
 
                         lifecycleScope.launch {
@@ -368,7 +370,6 @@ class ChatView : ComponentActivity() {
                             )
                         }
                     }
-
                     onSendMessage(messageText)
                     messageText = ""
 

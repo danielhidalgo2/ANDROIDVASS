@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -77,8 +79,8 @@ import com.chat.whatsvass.commons.KEY_USERNAME
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.ui.theme.Dark
-import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.DarkMode
+import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.home.HomeView
@@ -209,17 +211,24 @@ fun loginBiometric(
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
                     val decryptPassword = Encrypt().decryptPassword(password)
-                    viewModel.loginUser(username, decryptPassword)
-                    // Ir hacia la siguiente pantalla
-                    val intent = Intent(context, HomeView::class.java)
-                    context.startActivity(intent)
-                    showMessage(context, context.getString(R.string.welcome, username))
-                    auth(true)
+                    if (decryptPassword.isNotEmpty()) {
+                        viewModel.loginUser(username, decryptPassword)
+                        // Agregar un retraso antes de iniciar la siguiente actividad
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            val intent = Intent(context, HomeView::class.java)
+                            context.startActivity(intent)
+                            showMessage(context, context.getString(R.string.welcome, username))
+                        }, 500)
+                        auth(true)
+                    } else {
+                        // La contraseña desencriptada está vacía, manejar este caso según sea necesario
+                    }
                 }
             }).authenticate(prompt)
     } else {
         auth(true)
     }
+
 }
 
 fun hideKeyboard(activity: Activity) {
@@ -345,12 +354,6 @@ fun LoginScreen(
 
             LoginButton(
                 onClick = {
-                    // Guardar datos en sharedPreferences para utilizarlos en el biometrico
-                    val encryptPassword = Encrypt().encryptPassword(password)
-                    val edit = sharedPreferences.edit()
-                    edit.putString(KEY_USERNAME, username).apply()
-                    edit.putString(KEY_PASSWORD, encryptPassword).apply()
-
                     viewModel.loginUser(username, password)
                 }, modifier = Modifier
                     .fillMaxWidth()
@@ -379,6 +382,12 @@ fun LoginScreen(
 
             is LoginViewModel.LoginResult.Success -> {
                 if (username.isNotEmpty() && password.isNotEmpty()) {
+                    // Guardar datos en sharedPreferences para utilizarlos en el biometrico
+                    val encryptPassword = Encrypt().encryptPassword(password)
+                    val edit = sharedPreferences.edit()
+                    edit.putString(KEY_USERNAME, username).apply()
+                    edit.putString(KEY_PASSWORD, encryptPassword).apply()
+
                     val intent = Intent(context, HomeView::class.java)
                     context.startActivity(intent)
 

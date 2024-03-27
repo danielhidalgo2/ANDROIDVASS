@@ -13,7 +13,11 @@
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
     <application
+        android:name=".usecases.firebase.App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -54,13 +58,16 @@
         </activity>
         <activity
             android:name=".ui.theme.profile.ProfileView"
-            android:exported="true">
-
-        </activity>
             android:exported="true"/>
         <activity
             android:name=".ui.theme.contacts.ContactsView"
             android:exported="true"/>
+        <service android:name=".usecases.firebase.FirebaseMessService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

@@ -14,11 +14,10 @@ import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import com.chat.whatsvass.data.domain.repository.remote.response.login.LoginResponse
-import com.chat.whatsvass.usecases.Encrypt
+import com.chat.whatsvass.usecases.encrypt.Encrypt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.security.MessageDigest
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 

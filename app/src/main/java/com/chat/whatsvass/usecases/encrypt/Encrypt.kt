@@ -1,4 +1,4 @@
-package com.chat.whatsvass.usecases
+package com.chat.whatsvass.usecases.encrypt
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
@@ -23,7 +23,8 @@ class Encrypt {
             keyStore.load(null)
             if (!keyStore.containsAlias(KEY_ALIAS)) {
                 val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-                val keyGenParameterSpec = KeyGenParameterSpec.Builder(KEY_ALIAS,
+                val keyGenParameterSpec = KeyGenParameterSpec.Builder(
+                    KEY_ALIAS,
                     KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
                     .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)

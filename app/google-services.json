@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1091705625231",
+    "project_id": "whatvass",
+    "storage_bucket": "whatvass.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1091705625231:android:a1926d39f92f9035b4aefa",
+        "android_client_info": {
+          "package_name": "com.chat.whatsvass"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfh35hRYsMgaKRL-tgqCvuGW0OGcxWeqY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

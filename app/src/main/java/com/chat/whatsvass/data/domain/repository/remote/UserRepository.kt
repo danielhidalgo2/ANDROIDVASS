@@ -28,14 +28,14 @@ class UserRepository {
         return apiService.registerUser(request)
     }
     suspend fun logoutUser(token: String): Logout {
-        val request = apiService.logoutUser("$token")
+        val request = apiService.logoutUser(token)
         return LogoutMapper().mapResponse(request)
     }
 
     suspend fun updateUserOnlineStatus(token: String, isOnline: Boolean): Boolean {
         return try {
             val status = if (isOnline) "true" else "false"
-            val response = apiService.updateUserOnlineStatus(status, "$token")
+            val response = apiService.updateUserOnlineStatus(status, token)
             response.isSuccessful
         } catch (e: Exception) {
             // Manejar errores aquí

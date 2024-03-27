@@ -33,9 +33,6 @@
             android:name=".ui.theme.settings.SettingsView"
             android:exported="false" />
         <activity
-            android:name=".ui.theme.loading.LoadingActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.theme.splash.SplashView"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">

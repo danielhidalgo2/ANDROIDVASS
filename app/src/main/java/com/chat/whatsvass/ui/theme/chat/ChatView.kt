@@ -2,6 +2,7 @@ package com.chat.whatsvass.ui.theme.chat
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
@@ -72,6 +73,8 @@ import com.chat.whatsvass.ui.theme.Dark
 import com.chat.whatsvass.ui.theme.DarkMode
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
+import com.chat.whatsvass.ui.theme.home.HomeView
+import com.chat.whatsvass.ui.theme.home.HomeViewModel
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.usecases.firebase.FirebaseMessService
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -158,6 +161,7 @@ class ChatView : ComponentActivity() {
     @Composable
     fun TopBarChat(nick: String, online: String) {
         val userOnline = online.toBoolean()
+
         TopAppBar(
             backgroundColor = Main,
             elevation = 4.dp,
@@ -174,7 +178,7 @@ class ChatView : ComponentActivity() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = {
-                    finish()
+                    this@ChatView.finish()
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_arrow_back),

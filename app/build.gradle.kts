@@ -55,6 +55,8 @@ dependencies {
     //Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation ("com.google.firebase:firebase-messaging-ktx")
+
     //ViewModel
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     //Flows

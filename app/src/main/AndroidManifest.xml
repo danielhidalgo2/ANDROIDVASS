@@ -14,6 +14,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
+        android:name=".usecases.firebase.App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -29,12 +30,6 @@
             android:windowSoftInputMode="adjustResize"
             android:label="@string/title_activity_chat_view"
             android:theme="@style/Theme.WhatsVass" />
-        <activity
-            android:name=".ui.theme.settings.SettingsView"
-            android:exported="false" />
-        <activity
-            android:name=".ui.theme.loading.LoadingActivity"
-            android:exported="false" />
         <activity
             android:name=".ui.theme.splash.SplashView"
             android:exported="true"
@@ -57,13 +52,16 @@
         </activity>
         <activity
             android:name=".ui.theme.profile.ProfileView"
-            android:exported="true">
-
-        </activity>
             android:exported="true"/>
         <activity
             android:name=".ui.theme.contacts.ContactsView"
             android:exported="true"/>
+        <service android:name=".usecases.firebase.FirebaseMessService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

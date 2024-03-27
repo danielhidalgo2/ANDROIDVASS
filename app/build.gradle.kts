@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id ("com.google.gms.google-services")
 }
 
 android {
@@ -24,7 +25,10 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -52,20 +56,20 @@ android {
 
 dependencies {
     //ViewModel
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     //Flows
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     // Retrofit
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     //COMPOSE
-    implementation ("androidx.compose.ui:ui:1.6.2")
-    implementation ("androidx.compose.material:material:1.6.2")
-    implementation ("androidx.activity:activity-compose:1.8.2")
-    implementation ("androidx.core:core-ktx:1.12.0")
-    implementation ("androidx.appcompat:appcompat:1.6.1")
-    implementation ("androidx.navigation:navigation-compose:2.7.7")
-    implementation ("androidx.compose.ui:ui-tooling:1.6.2")
+    implementation("androidx.compose.ui:ui:1.6.2")
+    implementation("androidx.compose.material:material:1.6.2")
+    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.compose.ui:ui-tooling:1.6.2")
     implementation("io.coil-kt:coil-compose:2.0.0-rc01")
     //Splash Screen
     implementation("androidx.core:core-splashscreen:1.0.1")
@@ -73,10 +77,12 @@ dependencies {
     implementation("androidx.biometric:biometric:1.1.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     // SystemUiController, para cambiar color de statusBar
-    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
     // SwipeRefresh
-    implementation ("com.google.accompanist:accompanist-swiperefresh:0.24.13-rc")
-
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.24.13-rc")
+    // Firebase
+    implementation("com.google.firebase:firebase-bom:32.2.2")
+    implementation("com.google.firebase:firebase-messaging-ktx:23.4.1")
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")

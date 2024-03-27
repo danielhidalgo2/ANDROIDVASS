@@ -84,7 +84,7 @@ import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
-import com.chat.whatsvass.usecases.Encrypt
+import com.chat.whatsvass.usecases.encrypt.Encrypt
 
 const val Shape = 20
 

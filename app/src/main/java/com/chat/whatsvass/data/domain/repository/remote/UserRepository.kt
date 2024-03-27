@@ -9,7 +9,7 @@ import com.chat.whatsvass.data.domain.repository.remote.mapper.LogoutMapper
 import com.chat.whatsvass.data.domain.repository.remote.mapper.RegisterMapper
 import com.chat.whatsvass.data.domain.repository.remote.response.ApiService
 import com.chat.whatsvass.data.domain.repository.remote.response.RetrofitClient
-import com.chat.whatsvass.usecases.Encrypt
+import com.chat.whatsvass.usecases.encrypt.Encrypt
 
 class UserRepository {
     private val apiService: ApiService = RetrofitClient.apiService

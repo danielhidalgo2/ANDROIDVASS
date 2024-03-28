@@ -2,6 +2,7 @@ package com.chat.whatsvass.ui.theme.profile
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -42,6 +43,9 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.chat.whatsvass.R
+import com.chat.whatsvass.commons.DELAY_TO_ENCRYPT
+import com.chat.whatsvass.commons.KEY_PASSWORD
+import com.chat.whatsvass.commons.KEY_USERNAME
 import com.chat.whatsvass.ui.theme.Dark
 import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
@@ -52,7 +56,12 @@ import com.chat.whatsvass.ui.theme.components.GeneralComponents.TextFieldCustom
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.login.showMessage
-
+import com.chat.whatsvass.usecases.encrypt.Encrypt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class ProfileView : ComponentActivity() {
 
@@ -79,19 +88,13 @@ class ProfileView : ComponentActivity() {
     fun ProfileScreen(
         viewModel: ProfileViewModel,
         navController: NavController,
-        isDarkModeActive: Boolean
+        isDarkModeActive: Boolean,
+        sharedPreferences: SharedPreferences
     ) {
-
-        // Cambiar color de statusBar en compose
-        /*   val systemUiController = rememberSystemUiController()
-           systemUiController.setStatusBarColor(
-               color = Principal
-           )*/
 
         val context = LocalContext.current
         val registerResult by viewModel.registerResult.collectAsState()
         val keyboardController = LocalSoftwareKeyboardController.current
-        //Prueba
 
         Box(
             modifier = Modifier
@@ -145,12 +148,12 @@ class ProfileView : ComponentActivity() {
                     isDarkModeActive,
                     onImeActionPerformed = { action ->
                         if (action == ImeAction.Done || action == ImeAction.Next) {
-                            viewModel.registerUser(user, nick, password)
                             keyboardController?.hide()
                         }
                     },
                 )
                 Spacer(modifier = Modifier.weight(0.3f))
+
                 ButtonCustom(
                     onClick = {
                         if (user.isNullOrEmpty()) {
@@ -178,12 +181,33 @@ class ProfileView : ComponentActivity() {
                                 Toast.LENGTH_SHORT
                             )
                                 .show()
-                            Log.d("contraseña", password)
                         } else {
                             viewModel.registerUser(user, password, nick)
-                            Log.d("contraseña", password)
-                        }
+                            CoroutineScope(Dispatchers.Main).launch {
+                                val encryptPassword = Encrypt().encryptPassword(password)
+                                delay(DELAY_TO_ENCRYPT)
+                                if (registerResult == "success") {
+                                    Toast.makeText(
+                                        context, R.string.userCreatedSuccessfully,
+                                        Toast.LENGTH_SHORT
+                                    )
+                                        .show()
 
+                                    sharedPreferences.edit()
+                                        .putString(KEY_PASSWORD, encryptPassword).apply()
+                                    sharedPreferences.edit().putString(KEY_USERNAME, user).apply()
+
+                                    val intent = Intent(context, HomeView::class.java)
+                                    context.startActivity(intent)
+                                } else if (registerResult == "failed") {
+                                    Toast.makeText(
+                                        context, R.string.failedToCreateUser,
+                                        Toast.LENGTH_SHORT
+                                    )
+                                        .show()
+                                }
+                            }
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -194,34 +218,9 @@ class ProfileView : ComponentActivity() {
                 Spacer(modifier = Modifier.height(40.dp))
             }
         }
-
-        if (registerResult != null) {
-            when (registerResult) {
-                is ProfileViewModel.RegisterResult.Success -> {
-                    (registerResult as ProfileViewModel.RegisterResult.Success).register
-                    showMessage(
-                        context,
-                        stringResource(R.string.userCreatedSuccessfully)
-                    )
-                    // Ir hacia loading
-                    val intent = Intent(context, HomeView::class.java)
-                    context.startActivity(intent)
-
-                }
-
-                is ProfileViewModel.RegisterResult.Error -> {
-                    val errorMessage =
-                        (registerResult as ProfileViewModel.RegisterResult.Error).message
-                    showMessage(context, stringResource(R.string.failedToCreateUserTryAgain))
-                    Log.d("Error al crear usuario", "Error al crear usuario: $errorMessage")
-                }
-
-                else -> {}
-            }
-        }
-
     }
-    
+
+
     @Composable
     fun ImageProfile() {
         val selectedImage = remember { mutableStateOf<Uri?>(null) }

@@ -53,7 +53,7 @@
     <string name="createUser">Create User</string>
     <string name="userCreatedSuccessfully">User created successfully.</string>
     <string name="failedToCreateUserTryAgain">User already exists.</string>
-    <string name="failedToCreateUser">Failed to create user.</string>
+    <string name="failedToCreateUser">Failed to create user, try with another username.</string>
     <string name="failedToLogout">Failed to logout.</string>
     <string name="disconnectedUser">Disconnected user.</string>
     <string name="titleSettings">Settings</string>

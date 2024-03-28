@@ -53,7 +53,7 @@
     <string name="createUser">Crear Usuario</string>
     <string name="userCreatedSuccessfully">Usuario creado correctamente.</string>
     <string name="failedToCreateUserTryAgain">El usuario ya existe.</string>
-    <string name="failedToCreateUser">Error al crear usuario</string>
+    <string name="failedToCreateUser">No se pudo crear perfil, intente con otro nombre de usuario.</string>
     <string name="failedToLogout">Error al cerrar sesión</string>
     <string name="disconnectedUser">Usuario desconectado</string>
     <string name="titleSettings">Ajustes</string>

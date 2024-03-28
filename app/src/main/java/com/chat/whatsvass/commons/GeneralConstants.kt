@@ -33,4 +33,7 @@ const val LIMIT_GET_MESSAGES = 1
 const val OFFSET_GET_MESSAGES = 0
 const val DELAY_GET_MESSAGES = 1000L
 
+// Encrypt
+const val DELAY_TO_ENCRYPT = 500L
+
 

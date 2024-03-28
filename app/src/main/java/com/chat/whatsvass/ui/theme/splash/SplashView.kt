@@ -23,22 +23,13 @@ class SplashView : AppCompatActivity() {
     private lateinit var sharedPreferencesToken: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.statusBarColor = ContextCompat.getColor(this, R.color.light)
-        window.navigationBarColor = ContextCompat.getColor(this, R.color.light)
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
 
-        val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
         val isNotificationsActive = sharedPreferencesSettings.getBoolean(KEY_NOTIFICATIONS, false)
-
-        if (isDarkModeActive) {
-            enableDarkMode()
-        } else {
-            disableDarkMode()
-        }
 
         if (isNotificationsActive){
 
@@ -54,15 +45,5 @@ class SplashView : AppCompatActivity() {
             startActivity(Intent(this, HomeView::class.java))
             finish()
         }
-    }
-
-    private fun enableDarkMode() {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        delegate.applyDayNight()
-    }
-
-    private fun disableDarkMode() {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        delegate.applyDayNight()
     }
 }

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.R
@@ -50,7 +51,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     sharedPreferences.edit().putString(KEY_ID, login.user.id).apply()
                     sharedPreferences.edit().putString(KEY_NICK, login.user.nick).apply()
                     sharedPreferences.edit().putString(SOURCE_ID, login.user.id).apply()
-
 
                 } else {
                     _loginResult.value = LoginResult.Error(R.string.incorrectUserOrPassword.toString())

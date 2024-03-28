@@ -297,8 +297,7 @@ fun ChatItem(
     val colorWithOpacity = Contrast.copy(alpha = 0.4f)
     val context = LocalContext.current
 
-    val online = chat.targetOnline
-
+    var online = color == Color.Green
 
     // Obtener el último mensaje si existe
     val lastMessage = messages.lastOrNull()
@@ -329,8 +328,9 @@ fun ChatItem(
                             .putExtra(CHAT_ID_ARGUMENT, chat.chatId)
                             .putExtra(KNICK_ARGUMENT, name)
                             .putExtra(ONLINE_ARGUMENT, online.toString())
-                        context.startActivity(intent)
-                        Log.d("chatid", chat.chatId)
+                            context.startActivity(intent)
+                            Log.d("chatid", chat.chatId)
+
                     }
                 )
             },

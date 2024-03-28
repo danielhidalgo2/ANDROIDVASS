@@ -157,7 +157,7 @@ class LoginView : AppCompatActivity() {
                 }
                 composable("profile") {
                     window.statusBarColor = ContextCompat.getColor(this@LoginView, R.color.main)
-                    ProfileView().ProfileScreen(viewModelCreateUser, navController = navController, isDarkModeActive)
+                    ProfileView().ProfileScreen(viewModelCreateUser, navController = navController, isDarkModeActive, sharedPreferencesUserData)
                 }
                 // Agrega más composables para otras pantallas si es necesario
             }
@@ -211,6 +211,7 @@ fun loginBiometric(
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
+
                     val decryptPassword = Encrypt().decryptPassword(password)
                     if (decryptPassword.isNotEmpty()) {
                         viewModel.loginUser(username, decryptPassword)
@@ -253,6 +254,7 @@ fun LoginScreen(
 
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val keyboardController = LocalSoftwareKeyboardController.current
+    var isLoginPressed by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
 
@@ -309,6 +311,7 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(10.dp))
                 FloatingActionButton(
                     onClick = {
+
                         if (isBiometricActiveInDispositive) {
                             if (auth) {
                                 auth = false
@@ -355,6 +358,7 @@ fun LoginScreen(
 
             LoginButton(
                 onClick = {
+                    isLoginPressed = true
                     viewModel.loginUser(username, password)
                 }, modifier = Modifier
                     .fillMaxWidth()
@@ -375,31 +379,35 @@ fun LoginScreen(
             }
         }
     }
-    viewModel._loginResult.collectAsState().value?.let { result ->
-        when (result) {
-            is LoginViewModel.LoginResult.Error -> {
-                errorMessage = stringResource(R.string.credentialsAreNotCorrect)
-            }
 
-            is LoginViewModel.LoginResult.Success -> {
-                if (username.isNotEmpty() && password.isNotEmpty()) {
-                    // Guardar datos en sharedPreferences para utilizarlos en el biometrico
-                    val encryptPassword = Encrypt().encryptPassword(password)
-                    val edit = sharedPreferences.edit()
-                    edit.putString(KEY_USERNAME, username).apply()
-                    edit.putString(KEY_PASSWORD, encryptPassword).apply()
+    if (isLoginPressed){
+        viewModel._loginResult.collectAsState().value?.let { result ->
+            when (result) {
+                is LoginViewModel.LoginResult.Error -> {
+                    errorMessage = stringResource(R.string.credentialsAreNotCorrect)
+                }
 
-                    val intent = Intent(context, HomeView::class.java)
-                    context.startActivity(intent)
+                is LoginViewModel.LoginResult.Success -> {
+                    if (username.isNotEmpty() && password.isNotEmpty()) {
+                        // Guardar datos en sharedPreferences para utilizarlos en el biometrico
+                        val encryptPassword = Encrypt().encryptPassword(password)
+                        val edit = sharedPreferences.edit()
+                        edit.putString(KEY_USERNAME, username).apply()
+                        edit.putString(KEY_PASSWORD, encryptPassword).apply()
 
-                    errorMessage = null
-                } else {
-                    errorMessage = stringResource(R.string.pleaseEnterUserAndPassword)
+                        val intent = Intent(context, HomeView::class.java)
+                        context.startActivity(intent)
+
+                        errorMessage = null
+                    } else {
+                        errorMessage = stringResource(R.string.pleaseEnterUserAndPassword)
+                    }
                 }
             }
-
+            isLoginPressed = false
         }
     }
+
 }
 
 @Composable

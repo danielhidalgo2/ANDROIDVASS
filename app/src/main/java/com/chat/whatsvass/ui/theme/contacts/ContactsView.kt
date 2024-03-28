@@ -127,6 +127,13 @@ class ContactsView : ComponentActivity() {
             false
         }
     }
+
+    override fun onBackPressed() {
+        @Suppress("DEPRECATION")
+        super.onBackPressed()
+        val intent = Intent(this, HomeView::class.java)
+        startActivity(intent)
+    }
 }
 
 @Composable

@@ -2,6 +2,7 @@ package com.chat.whatsvass.ui.theme.chat
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
@@ -72,8 +73,8 @@ import com.chat.whatsvass.ui.theme.Dark
 import com.chat.whatsvass.ui.theme.DarkMode
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
+import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
-import com.chat.whatsvass.usecases.firebase.FirebaseMessService
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
@@ -88,6 +89,7 @@ private lateinit var sharedPreferencesSettings: SharedPreferences
 class ChatView : ComponentActivity() {
     private val viewModel: ChatViewModel by viewModels()
 
+    var online = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,7 +108,6 @@ class ChatView : ComponentActivity() {
 
         val chatId = intent.getStringExtra(CHAT_ID_ARGUMENT)
         val nick = intent.getStringExtra(KNICK_ARGUMENT)
-        val online = intent.getStringExtra(ONLINE_ARGUMENT)
 
         setContent {
             val messages by viewModel.message.collectAsState(emptyMap())
@@ -117,7 +118,7 @@ class ChatView : ComponentActivity() {
 
 
             if (nick != null) {
-                ChatScreen(chatId = chatId, messages = messages, nick = nick, online = online!!, isDarkModeActive)
+                ChatScreen(chatId = chatId, messages = messages, nick = nick, isDarkModeActive)
             }
 
 
@@ -134,7 +135,6 @@ class ChatView : ComponentActivity() {
         chatId: String?,
         messages: Map<String, List<Message>>,
         nick: String,
-        online: String,
         isDarkModeActive: Boolean
     ) {
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
@@ -147,7 +147,7 @@ class ChatView : ComponentActivity() {
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                TopBarChat(nick, online)
+                TopBarChat(nick)
                 chatId?.let { MessageList(chatId = it, messages = messages, token!!, isDarkModeActive) }
             }
             BottomBar(chatId, isDarkModeActive, onSendMessage = { /* Acción al enviar el mensaje */ })
@@ -156,8 +156,8 @@ class ChatView : ComponentActivity() {
 
 
     @Composable
-    fun TopBarChat(nick: String, online: String) {
-        val userOnline = online.toBoolean()
+    fun TopBarChat(nick: String) {
+        online = intent.getStringExtra(ONLINE_ARGUMENT).toBoolean()
         TopAppBar(
             backgroundColor = Main,
             elevation = 4.dp,
@@ -174,7 +174,8 @@ class ChatView : ComponentActivity() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = {
-                    finish()
+                    val intent = Intent(this@ChatView, HomeView::class.java)
+                    startActivity(intent)
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_arrow_back),
@@ -203,7 +204,7 @@ class ChatView : ComponentActivity() {
                         )
                     }
                     val color: Color
-                    if (userOnline)
+                    if (online)
                         color = Color.Green
                     else
                         color = Color.Red
@@ -236,7 +237,6 @@ class ChatView : ComponentActivity() {
             }
         }
     }
-
     @Composable
     fun MessageList(chatId: String, messages: Map<String, List<Message>>, token: String, isDarkModeActive: Boolean) {
         val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
@@ -390,5 +390,12 @@ class ChatView : ComponentActivity() {
         val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         val date = inputFormat.parse(dateTimeString)
         return outputFormat.format(date!!)
+    }
+
+    override fun onBackPressed() {
+        @Suppress("DEPRECATION")
+        super.onBackPressed()
+        val intent = Intent(this@ChatView, HomeView::class.java)
+        startActivity(intent)
     }
 }

@@ -296,7 +296,8 @@ fun ChatItem(
 ) {
     val colorWithOpacity = Contrast.copy(alpha = 0.4f)
     val context = LocalContext.current
-    val online: Boolean = color == Color.Green
+
+    var online = color == Color.Green
 
     // Obtener el último mensaje si existe
     val lastMessage = messages.lastOrNull()
@@ -327,8 +328,9 @@ fun ChatItem(
                             .putExtra(CHAT_ID_ARGUMENT, chat.chatId)
                             .putExtra(KNICK_ARGUMENT, name)
                             .putExtra(ONLINE_ARGUMENT, online.toString())
-                        context.startActivity(intent)
-                        Log.d("chatid", chat.chatId)
+                            context.startActivity(intent)
+                            Log.d("chatid", chat.chatId)
+
                     }
                 )
             },
@@ -379,7 +381,11 @@ fun ChatItem(
         ) {
             Text(
                 text = name,
-                style = TextStyle(fontSize = 16.sp, color = if (isDarkModeActive) White else Dark, fontWeight = FontWeight.Bold)
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    color = if (isDarkModeActive) White else Dark,
+                    fontWeight = FontWeight.Bold
+                )
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -549,7 +555,7 @@ fun TopBarHomeAndList(
     ) {
         Box(Modifier.fillMaxSize()) {
             var chatsNew = chats.toMutableList()
-            if (!isProgressBarVisible){
+            if (!isProgressBarVisible) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -586,6 +592,7 @@ fun TopBarHomeAndList(
                                 } else {
                                     Color.Red // Si no, asigna otro color
                                 }
+
                             ChatItem(
                                 chat = chat,
                                 messages = chatMessages,
@@ -637,7 +644,7 @@ fun TopBarHomeAndList(
                 }
             }
 
-            val textColor =  if (isDarkModeActive) White else Dark
+            val textColor = if (isDarkModeActive) White else Dark
             // Si no se encuentra el chat buscado se muestra texto: "Sin coincidencias"
             if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == R.string.textFieldSearch.toString())) {
                 Column(
@@ -667,7 +674,7 @@ fun TopBarHomeAndList(
                     Text(
                         text = stringResource(id = R.string.thereAreNoChats),
                         fontSize = 22.sp,
-                        color =  textColor
+                        color = textColor
                     )
                 }
             }

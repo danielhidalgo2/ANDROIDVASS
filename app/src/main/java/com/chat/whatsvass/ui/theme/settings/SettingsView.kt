@@ -9,6 +9,7 @@ import android.widget.Toast
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.chat.whatsvass.R
@@ -25,6 +26,7 @@ import com.chat.whatsvass.databinding.ActivitySettingsViewBinding
 import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.LoginView
+import com.chat.whatsvass.ui.theme.splash.SplashView
 import kotlinx.coroutines.launch
 
 class SettingsView : AppCompatActivity() {
@@ -184,10 +186,5 @@ class SettingsView : AppCompatActivity() {
         } else {
             finish() // Volver a la pantalla anterior cuando se presiona el botón de retroceso
         }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        finish() // Volver a la pantalla anterior cuando se presiona el botón de retroceso
-        return true
     }
 }

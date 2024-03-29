@@ -176,6 +176,7 @@ class ChatView : ComponentActivity() {
                 IconButton(onClick = {
                     val intent = Intent(this@ChatView, HomeView::class.java)
                     startActivity(intent)
+                    this@ChatView.finish()
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_arrow_back),

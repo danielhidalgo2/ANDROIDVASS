@@ -296,8 +296,10 @@ fun ChatItem(
 ) {
     val colorWithOpacity = Contrast.copy(alpha = 0.4f)
     val context = LocalContext.current
-
-    var online = color == Color.Green
+    var mutableColor = remember {
+        mutableStateOf(false)
+    }
+    mutableColor.value = color == Color.Green
 
     // Obtener el último mensaje si existe
     val lastMessage = messages.lastOrNull()
@@ -327,9 +329,9 @@ fun ChatItem(
                         intent
                             .putExtra(CHAT_ID_ARGUMENT, chat.chatId)
                             .putExtra(KNICK_ARGUMENT, name)
-                            .putExtra(ONLINE_ARGUMENT, online.toString())
-                            context.startActivity(intent)
-                            Log.d("chatid", chat.chatId)
+                            .putExtra(ONLINE_ARGUMENT, mutableColor.value.toString())
+                        context.startActivity(intent)
+                        Log.d("COLORSEND", mutableColor.value.toString())
 
                     }
                 )
@@ -369,7 +371,9 @@ fun ChatItem(
                         end = 5.dp, // Ajustamos el espaciado hacia la izquierda
                         bottom = 4.dp
                     )
+
             )
+            mutableColor.value = color == Color.Green
         }
 
 
@@ -571,9 +575,6 @@ fun TopBarHomeAndList(
                     }
                     chatsNew = chatsNew.distinct().toMutableList()
 
-                    for (i in chatsNew) {
-                        Log.d("CHATNEW", i.chatId)
-                    }
                     if (searchText.text.isNullOrEmpty() || searchText.text == R.string.textFieldSearch.toString()) {
                         items(
                             items = chatsNew,

@@ -16,6 +16,7 @@ const val KEY_PASSWORD = "PasswordKey"
 const val KEY_ID = "IdKey"
 const val KEY_NICK = "NickKey"
 const val SOURCE_ID = "Source"
+const val CHECK_BOX = "CheckBox"
 
 // PutExtra arguments
 const val CHAT_ID_ARGUMENT = "ChatID"

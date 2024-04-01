@@ -4,9 +4,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.chat.whatsvass.R
+import com.chat.whatsvass.commons.CHECK_BOX
+import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_NOTIFICATIONS
 import com.chat.whatsvass.commons.KEY_PASSWORD
 import com.chat.whatsvass.commons.KEY_TOKEN
@@ -17,15 +21,17 @@ import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.LoginView
 import com.chat.whatsvass.ui.theme.login.LoginViewModel
 import com.chat.whatsvass.usecases.encrypt.Encrypt
+import com.chat.whatsvass.usecases.firebase.App
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import okhttp3.internal.http2.Http2Reader
+import java.util.logging.Handler
 
 class SplashView : AppCompatActivity() {
     private lateinit var sharedPreferencesSettings: SharedPreferences
     private lateinit var sharedPreferencesUserData: SharedPreferences
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -36,21 +42,17 @@ class SplashView : AppCompatActivity() {
 
         val isNotificationsActive = sharedPreferencesSettings.getBoolean(KEY_NOTIFICATIONS, false)
 
-        if (isNotificationsActive) {
+        if (isNotificationsActive){
 
         }
-
-        setToken()
-
-        // Hacer comprobación de si se mantiene la sesión del usuario activa(o si se hizo o no logout)
-        val token = sharedPreferencesUserData.getString(KEY_TOKEN, null)
-        if (token.isNullOrEmpty()) {
+        val check = sharedPreferencesUserData.getBoolean(CHECK_BOX, false)
+        if (!check){
             splashScreen.setKeepOnScreenCondition { true }
             startActivity(Intent(this, LoginView::class.java))
             finish()
         } else {
             splashScreen.setKeepOnScreenCondition { true }
-            Handler().postDelayed({
+            android.os.Handler().postDelayed({
                 startActivity(Intent(this, HomeView::class.java))
                 finish()
             }, 2000)

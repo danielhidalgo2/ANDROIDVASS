@@ -65,4 +65,5 @@
     <string name="yesterday">Yesterday</string>
     <string name="couldNotDisconnect">Could not disconnect, try again.</string>
     <string name="today">Today</string>
+    <string name="startTheChat">Start the chat..</string>
 </resources>

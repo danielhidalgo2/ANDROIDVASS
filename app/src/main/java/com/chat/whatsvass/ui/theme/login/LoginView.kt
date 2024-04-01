@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -316,15 +317,20 @@ fun LoginScreen(
                 Checkbox(
                     checked = rememberCredentials,
                     onCheckedChange = { rememberCredentials = it },
-                    colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colors.primary),
-                    modifier = Modifier.padding(end = 8.dp)
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.colors.primary,
+                        uncheckedColor = Color.White
+                    ),
                 )
-                Log.d("CheckBox",rememberCredentials.toString())
+
                 Text(
-                    text = "Recordar usuario y contraseña",
-                    color = if (isDarkModeActive) White else Color.Black
+                    text = stringResource(R.string.checkBox),
+                    color = White
                 )
+                Spacer(modifier = Modifier.width(20.dp))
             }
+
+
 
             var auth by remember { mutableStateOf(false) }
             val isBiometricActiveInDispositive = setupAuthBiometric(context)
@@ -332,7 +338,6 @@ fun LoginScreen(
             val myPassword = sharedPreferences.getString(KEY_PASSWORD, null)
 
             if (isBiometricActive &&  myUsername != null) {
-                Spacer(modifier = Modifier.height(10.dp))
                 FloatingActionButton(
                     onClick = {
 
@@ -373,7 +378,7 @@ fun LoginScreen(
                     androidx.compose.material.Icon(
                         painter = painterResource(id = R.drawable.icon_fingerprint),
                         contentDescription = stringResource(R.string.biometric),
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier.size(40.dp)
                     )
                 }
             } else {

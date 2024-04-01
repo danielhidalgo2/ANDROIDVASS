@@ -265,9 +265,8 @@ class ChatView : ComponentActivity() {
         isDarkModeActive: Boolean
     ) {
         val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
-
         var refreshing by remember { mutableStateOf(false) }
-
+        var thereAreMessages by remember { mutableStateOf(false) }
         val chatMessages = messages[chatId] ?: emptyList()
 
         SwipeRefresh(
@@ -328,6 +327,21 @@ class ChatView : ComponentActivity() {
                         }
                     }
                 }
+
+                if (chatMessages.isEmpty()){
+                    Column (modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 200.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = stringResource(R.string.startTheChat),
+                            style = TextStyle(
+                                fontSize = 22.sp,
+                                color =  if (isDarkModeActive) White else Dark
+                            )
+                        )
+                    }
+                }
             }
         }
     }
@@ -336,7 +350,6 @@ class ChatView : ComponentActivity() {
     fun MessageItem(messages: Message, isSentByUser: Boolean, isDarkModeActive: Boolean) {
         val horizontalPadding = 30.dp
         val verticalPadding = 8.dp
-
 
         val backgroundColor = if (isDarkModeActive) Contrast.copy(alpha = 0.4f) else White
         val alignment = if (isSentByUser) TextAlign.Start else TextAlign.End

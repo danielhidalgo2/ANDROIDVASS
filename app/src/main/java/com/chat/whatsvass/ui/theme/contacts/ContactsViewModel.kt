@@ -3,7 +3,6 @@ package com.chat.whatsvass.ui.theme.contacts
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,7 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ContactsViewModel (application: Application) : AndroidViewModel(application) {
+class ContactsViewModel(application: Application) : AndroidViewModel(application) {
 
     private var sharedPreferences: SharedPreferences =
         application.getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
@@ -38,13 +37,13 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
     private val _contactsResult = MutableStateFlow<List<Contacts>>(emptyList())
     val contactsResult: StateFlow<List<Contacts>> = _contactsResult
 
-    fun getContacts (token: String){
+    fun getContacts(token: String) {
         viewModelScope.launch {
             async {
                 getContactsList(token)
-                if (_contactsResult.value.isNotEmpty()){
-                    for (i in _contactsResult.value){
-                        if (myNick != null){
+                if (_contactsResult.value.isNotEmpty()) {
+                    for (i in _contactsResult.value) {
+                        if (myNick != null) {
                             // Quitar mi usuario de la lista de contactos
                             val listOfContacts = _contactsResult.value.filter { it.nick != myNick }
                             _contactsResult.value = listOfContacts
@@ -52,23 +51,21 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
                     }
                 }
             }.await()
-            if (contactsResult.value.isEmpty()){
+            if (contactsResult.value.isEmpty()) {
                 isTextWithOutContactsVisible.value = true
             }
             isProgressBarVisible.value = false
         }
     }
+
     private suspend fun getContactsList(token: String) {
         try {
-            val contacts = contactsRepository.getContacts(token!!)
+            val contacts = contactsRepository.getContacts(token)
             _contactsResult.value = contacts
-            Log.d("Contactos", contacts.toString())
             isTextWithOutContactsVisible.value = false
         } catch (e: Exception) {
-            Log.d("Contactos", "$token")
-            Log.d("Contactos", "Error al mostrar contactos: ${e.message}")
+            _contactsResult.value = emptyList()
         }
-
     }
 
     private val _newChatResult = MutableStateFlow<CreatedChat?>(null)
@@ -76,7 +73,7 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
 
     private val isNewChatCreated = MutableStateFlow(false)
     var isNewChatCreatedFlow: Flow<Boolean> = isNewChatCreated
-    fun createNewChat(context: Context, token: String, chatRequest: ChatRequest){
+    fun createNewChat(context: Context, token: String, chatRequest: ChatRequest) {
         isNewChatCreated.value = false
         viewModelScope.launch(Dispatchers.IO) {
             async {
@@ -85,17 +82,22 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
             isNewChatCreated.value = true
         }
     }
-    private suspend fun createNewChatModel(context: Context, token: String, chatRequest: ChatRequest){
-            try {
-                val newChat = contactsRepository.createNewChat(token, chatRequest)
-                _newChatResult.value = newChat
-                Log.d("Nuevo chat", newChat.toString())
 
-            } catch (e: Exception) {
-                Toast.makeText(context,
-                    context.getString(R.string.errorCreatingChat), Toast.LENGTH_SHORT).show()
-                Log.d("Nuevo chat", "Error al crear chat: ${e.message}")
-            }
+    private suspend fun createNewChatModel(
+        context: Context,
+        token: String,
+        chatRequest: ChatRequest
+    ) {
+        try {
+            val newChat = contactsRepository.createNewChat(token, chatRequest)
+            _newChatResult.value = newChat
+
+        } catch (e: Exception) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.errorCreatingChat), Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 }
 

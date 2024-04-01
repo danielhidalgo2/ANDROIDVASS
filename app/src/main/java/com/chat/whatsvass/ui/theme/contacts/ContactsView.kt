@@ -5,14 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -140,7 +138,6 @@ class ContactsView : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Obtener el token de SharedPreferences
         val token = Token.token
         if (token != null) {
             // Actualizar el estado en línea del usuario como "en línea" cuando se reanuda la actividad
@@ -150,7 +147,6 @@ class ContactsView : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        // Obtener el token de SharedPreferences
         val token = Token.token
         if (token != null) {
             // Actualizar el estado en línea del usuario como "fuera de línea" cuando se pausa la actividad
@@ -224,8 +220,6 @@ fun TopBarAndList(
                     .clip(RoundedCornerShape(10.dp))
                     .background(White)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
-                    .clickable { /* Define action when search icon is clicked */ }
-
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
 
@@ -405,7 +399,6 @@ fun ContactItem(
             .background(colorWithOpacity)
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onPress = {},
                     onTap = {
                         viewModel.createNewChat(context, token, chatRequest)
                         CoroutineScope(Dispatchers.Main).launch {
@@ -417,7 +410,6 @@ fun ContactItem(
                                     .putExtra(KNICK_ARGUMENT, contact.nick)
                                     .putExtra(ONLINE_ARGUMENT, contact.online.toString())
                                 context.startActivity(intent)
-                                Log.d("CHATID", newChat!!.chat.id)
                             }
                         }
                     }

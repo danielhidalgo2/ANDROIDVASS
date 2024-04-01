@@ -175,20 +175,16 @@ class HomeView : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Obtener el token de SharedPreferences
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
         if (token != null) {
-            // Actualizar el estado en línea del usuario como "en línea" cuando se reanuda la actividad
             viewModel.updateUserOnlineStatus(token, true)
         }
     }
 
     override fun onPause() {
         super.onPause()
-        // Obtener el token de SharedPreferences
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
         if (token != null) {
-            // Actualizar el estado en línea del usuario como "fuera de línea" cuando se pausa la actividad
             viewModel.updateUserOnlineStatus(token, false)
         }
     }
@@ -201,7 +197,7 @@ fun HomeScreen(
     viewModel: HomeViewModel,
     token: String,
     isDarkModeActive: Boolean,
-    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
+    onDeleteChat: (chatId: String) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -260,7 +256,6 @@ fun ChatItem(
 
     val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it, context) } ?: ""
 
-    // Estado para controlar si el diálogo está mostrándose
     val showDialog = remember { mutableStateOf(false) }
 
     Row(
@@ -524,7 +519,6 @@ fun TopBarHomeAndList(
                         items(
                             items = chatsNew,
                             key = { chat ->
-                                // La llave sirve para que cada valor se mueva con su celda
                                 chat.chatId
                             }
                         ) { chat ->

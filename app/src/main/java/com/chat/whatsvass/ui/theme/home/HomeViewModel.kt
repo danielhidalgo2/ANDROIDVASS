@@ -7,6 +7,7 @@ import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.ChatRepository
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
+import com.chat.whatsvass.utils.DateTimeUtils.formatTimeFromApiToOrderList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -107,30 +108,6 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
-
-    fun orderChatsByDate(chats: List<Chat>, messages: Map<String, List<Message>>): List<String> {
-        // Ordenar chats por hora de ultimo mensaje
-        val mapOfChatIDandDateLast = mutableMapOf<String, String>()
-        for (i in chats) {
-            if (!messages[i.chatId].isNullOrEmpty()) {
-                if (!messages[i.chatId]!!.lastOrNull()!!.date.isNullOrEmpty()) {
-                    val formattedTime =
-                        messages[i.chatId]!!.lastOrNull()!!.date.let { formatTimeFromApiToOrderList(it) }
-                    mapOfChatIDandDateLast[i.chatId] = formattedTime
-                }
-            } else {
-                mapOfChatIDandDateLast[i.chatId] = "0"
-            }
-        }
-        val mapResultOrdered =
-            mapOfChatIDandDateLast.toList().sortedByDescending { (_, value) -> value }.toMap()
-        val listRestultOrdered = mapResultOrdered.keys.toList()
-        Log.d("Mensajes ordenados", listRestultOrdered.toString())
-
-        return listRestultOrdered
-    }
-
-
 }
 
 

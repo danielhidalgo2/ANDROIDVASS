@@ -414,7 +414,7 @@ fun TopBarHomeAndList(
     val context = LocalContext.current
     var refreshing by remember { mutableStateOf(false) }
 
-    val listRestultOrdered = viewModel.orderChatsByDate(chats, messages)
+    val listRestultOrdered = orderChatsByDate(chats, messages)
     Log.d("Mensajes ordenados", listRestultOrdered.toString())
 
     TopAppBar(

@@ -9,13 +9,8 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,12 +24,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Surface
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -54,12 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -89,16 +76,15 @@ import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.home.HomeViewModel
-import com.chat.whatsvass.ui.theme.home.formatTimeFromApi
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.usecases.token.Token
+import com.chat.whatsvass.utils.DateTimeUtils.formatTimeFromApiHourChatView
+import com.chat.whatsvass.utils.DateTimeUtils.formatTimeToSeparateMessages
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.JdkConstants.VerticalScrollBarPolicy
-import java.nio.file.WatchEvent
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -302,7 +288,7 @@ class ChatView : ComponentActivity() {
         ) {
             val messagesDates = mutableListOf<String>()
             for (i in chatMessages) {
-                messagesDates.add(formatTimeToSeparateMessages(i.date))
+                messagesDates.add(formatTimeToSeparateMessages(i.date, this))
             }
             val dates = messagesDates.distinct().sortedDescending()
 
@@ -333,7 +319,7 @@ class ChatView : ComponentActivity() {
                     )
 
                     chatMessages.forEach { message ->
-                        if (formatTimeToSeparateMessages(message.date) == i) {
+                        if (formatTimeToSeparateMessages(message.date, this@ChatView) == i) {
                             if (message.source == sourceId) {
                                 MessageItem(message, true, isDarkModeActive)
                             } else {
@@ -357,7 +343,7 @@ class ChatView : ComponentActivity() {
         val startPadding = if (isSentByUser) horizontalPadding else 0.dp
         val endPadding = if (isSentByUser) 0.dp else horizontalPadding
 
-        val formattedTime = formatTimeFromApiHour(messages.date) ?: "N/A"
+        val formattedTime = formatTimeFromApiHourChatView(messages.date) ?: "N/A"
 
 
         Row(
@@ -462,47 +448,6 @@ class ChatView : ComponentActivity() {
                 )
             }
         }
-    }
-
-    private fun formatTimeFromApiHour(dateTimeString: String): String {
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-        val date = inputFormat.parse(dateTimeString)
-        return outputFormat.format(date!!)
-    }
-
-    @SuppressLint("SimpleDateFormat")
-    private fun formatTimeToSeparateMessages(dateTimeString: String): String {
-        val calendar = Calendar.getInstance()
-        val day = calendar[Calendar.DAY_OF_MONTH]
-        val month = calendar[Calendar.MONTH] + 1
-        val year = calendar[Calendar.YEAR]
-        val today = "$day-$month-$year"
-        val todayMonthAndYear = "$month-$year"
-
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-        val outputFormatDate = SimpleDateFormat("d-M-yyyy")
-        val outputFormatDay = SimpleDateFormat("d")
-        val outputFormatMonthAndYear = SimpleDateFormat("M-yyyy")
-        val outputFormatDayToShow = SimpleDateFormat("d-M-yy")
-        val date = inputFormat.parse(dateTimeString)
-        val dateToCompare = outputFormatDate.format(date).toString()
-
-        // Si las fechas son iguales devuelve "hoy"
-        if (today == dateToCompare) {
-            return getString(R.string.today)
-            // Si el mes y año son iguales, se resta el dia de hoy con el del ultimo mensaje, si es 1, el mensaje es de ayer
-        } else if ((todayMonthAndYear == outputFormatMonthAndYear.format(date!!)) && ((day - outputFormatDay.format(
-                date
-            ).toString().toInt()) == 1)
-        ){
-            return outputFormat.format(date) + "\n${this.getString(R.string.yesterday)}"
-            // Para el resto se muestra la hora y fecha
-        } else {
-            return outputFormatDayToShow.format(date)
-        }
-
     }
 
     override fun onBackPressed() {

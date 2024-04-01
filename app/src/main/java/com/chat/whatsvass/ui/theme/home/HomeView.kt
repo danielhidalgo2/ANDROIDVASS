@@ -95,6 +95,8 @@ import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import com.chat.whatsvass.utils.DateTimeUtils.formatTimeFromApi
 import com.chat.whatsvass.utils.DateTimeUtils.orderChatsByDate
+import com.chat.whatsvass.usecases.firebase.FirebaseMessService
+import com.chat.whatsvass.usecases.token.Token
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
@@ -118,7 +120,9 @@ class HomeView : ComponentActivity() {
         }
 
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
-        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+    //    val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+
+        val token = Token.token
 
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
         val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
@@ -171,19 +175,25 @@ class HomeView : ComponentActivity() {
             hideKeyboard(this)
             false
         }
+
     }
 
     override fun onResume() {
         super.onResume()
-        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        // Obtener el token de SharedPreferences
+        // val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        val token = Token.token
         if (token != null) {
+            // Actualizar el estado en línea del usuario como "en línea" cuando se reanuda la actividad
             viewModel.updateUserOnlineStatus(token, true)
         }
     }
 
     override fun onPause() {
         super.onPause()
-        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        // Obtener el token de SharedPreferences
+        //val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        val token = Token.token
         if (token != null) {
             viewModel.updateUserOnlineStatus(token, false)
         }
@@ -423,8 +433,6 @@ fun TopBarHomeAndList(
                     .clip(RoundedCornerShape(10.dp))
                     .background(White)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
-                    .clickable {  }
-
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -559,6 +567,7 @@ fun TopBarHomeAndList(
                             }
                         items(listSearch,
                             key = { chat ->
+                                // La llave sirve para que cada valor se mueva con su celda
                                 chat.chatId
                             }) { chat ->
                             val chatMessages = messages[chat.chatId] ?: emptyList()

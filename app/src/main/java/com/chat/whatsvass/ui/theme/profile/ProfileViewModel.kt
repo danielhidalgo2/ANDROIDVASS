@@ -19,6 +19,8 @@ import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.model.register.Register
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
+import com.chat.whatsvass.ui.theme.login.LoginView
+import com.chat.whatsvass.usecases.token.Token
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
@@ -61,6 +63,8 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     sharedPreferences.edit().putString(SOURCE_ID, register.user.id).apply()
 
                     sharedPreferencesSettings.edit().putBoolean(KEY_BIOMETRIC, false).apply()
+
+                   Token.token = register.user.token
                 }
             } catch (e: Exception) {
                 _registerResult.value =  "failed"

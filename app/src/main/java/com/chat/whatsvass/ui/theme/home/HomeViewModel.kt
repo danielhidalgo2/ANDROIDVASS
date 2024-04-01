@@ -7,6 +7,7 @@ import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.ChatRepository
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
+import com.chat.whatsvass.utils.DateTimeUtils.formatTimeFromApiToOrderList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -107,7 +108,6 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
-
 }
 
 

@@ -24,12 +24,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -74,13 +75,18 @@ import com.chat.whatsvass.ui.theme.DarkMode
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.home.HomeView
+import com.chat.whatsvass.ui.theme.home.HomeViewModel
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
+import com.chat.whatsvass.usecases.token.Token
+import com.chat.whatsvass.utils.DateTimeUtils.formatTimeFromApiHourChatView
+import com.chat.whatsvass.utils.DateTimeUtils.formatTimeToSeparateMessages
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 private lateinit var sharedPreferencesToken: SharedPreferences
@@ -97,11 +103,14 @@ class ChatView : ComponentActivity() {
 
         window.decorView.apply {
             @Suppress("DEPRECATION")
-            systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            systemUiVisibility =
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         }
 
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
-        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        // val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+
+        val token = Token.token
 
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
         val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
@@ -113,7 +122,12 @@ class ChatView : ComponentActivity() {
             val messages by viewModel.message.collectAsState(emptyMap())
 
             if (token != null && chatId != null) {
-                viewModel.getMessagesForChat(token, chatId, OFFSET_GET_MESSAGESFORCHAT, LIMIT_GET_MESSAGESFORCHAT)
+                viewModel.getMessagesForChat(
+                    token,
+                    chatId,
+                    OFFSET_GET_MESSAGESFORCHAT,
+                    LIMIT_GET_MESSAGESFORCHAT
+                )
             }
 
 
@@ -148,9 +162,14 @@ class ChatView : ComponentActivity() {
                 modifier = Modifier.weight(1f)
             ) {
                 TopBarChat(nick)
-                chatId?.let { MessageList(chatId = it, messages = messages, token!!, isDarkModeActive) }
+                chatId?.let {
+                    MessageList(chatId = it, messages = messages, token!!, isDarkModeActive)
+                }
             }
-            BottomBar(chatId, isDarkModeActive, onSendMessage = { /* Acción al enviar el mensaje */ })
+            BottomBar(
+                chatId,
+                isDarkModeActive,
+                onSendMessage = { /* Acción al enviar el mensaje */ })
         }
     }
 
@@ -234,42 +253,84 @@ class ChatView : ComponentActivity() {
                 )
 
 
-
             }
         }
     }
+
     @Composable
-    fun MessageList(chatId: String, messages: Map<String, List<Message>>, token: String, isDarkModeActive: Boolean) {
+    fun MessageList(
+        chatId: String,
+        messages: Map<String, List<Message>>,
+        token: String,
+        isDarkModeActive: Boolean
+    ) {
         val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
 
         var refreshing by remember { mutableStateOf(false) }
 
         val chatMessages = messages[chatId] ?: emptyList()
 
-
         SwipeRefresh(
             state = rememberSwipeRefreshState(refreshing),
             onRefresh = {
                 refreshing = true
                 MainScope().launch {
-                    viewModel.getMessagesForChat(token, chatId, OFFSET_GET_MESSAGESFORCHAT, LIMIT_GET_MESSAGESFORCHAT)
+                    viewModel.getMessagesForChat(
+                        token,
+                        chatId,
+                        OFFSET_GET_MESSAGESFORCHAT,
+                        LIMIT_GET_MESSAGESFORCHAT
+                    )
                     delay(DELAY_GET_MESSAGESFORCHAT)
                     refreshing = false
                 }
             }
         ) {
-            LazyColumn(Modifier.fillMaxSize()) {
-                items(chatMessages) { message ->
-                    if (message.source == sourceId) {
-                        MessageItem(message, true, isDarkModeActive)
-                    } else {
-                        MessageItem(message, false, isDarkModeActive)
+            val messagesDates = mutableListOf<String>()
+            for (i in chatMessages) {
+                messagesDates.add(formatTimeToSeparateMessages(i.date, this))
+            }
+            val dates = messagesDates.distinct().sortedDescending()
+
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+            {
+                for (i in dates) {
+                    Divider(
+                        color = Color.Gray,
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                    Text(
+                        text = i,
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            color = if (isDarkModeActive) White else Color.Gray
+                        )
+                    )
+
+                    Spacer(
+                        modifier = Modifier
+                            .height(5.dp)
+                    )
+
+                    chatMessages.forEach { message ->
+                        if (formatTimeToSeparateMessages(message.date, this@ChatView) == i) {
+                            if (message.source == sourceId) {
+                                MessageItem(message, true, isDarkModeActive)
+                            } else {
+                                MessageItem(message, false, isDarkModeActive)
+                            }
+                        }
                     }
                 }
             }
         }
     }
-
 
     @Composable
     fun MessageItem(messages: Message, isSentByUser: Boolean, isDarkModeActive: Boolean) {
@@ -282,7 +343,7 @@ class ChatView : ComponentActivity() {
         val startPadding = if (isSentByUser) horizontalPadding else 0.dp
         val endPadding = if (isSentByUser) 0.dp else horizontalPadding
 
-        val formattedTime = formatTimeFromApiHour(messages.date) ?: "N/A"
+        val formattedTime = formatTimeFromApiHourChatView(messages.date) ?: "N/A"
 
 
         Row(
@@ -306,7 +367,7 @@ class ChatView : ComponentActivity() {
                 Column(modifier = Modifier.align(Alignment.BottomEnd)) {
                     Text(
                         text = messages.message ?: "No hay mensajes",
-                        color =  if (isDarkModeActive) White else Color.Black,
+                        color = if (isDarkModeActive) White else Color.Black,
                         textAlign = alignment,
                     )
                     Spacer(modifier = Modifier.weight(1f))
@@ -314,7 +375,10 @@ class ChatView : ComponentActivity() {
 
                     Text(
                         text = formattedTime,
-                        style = TextStyle(fontSize = 14.sp, color =  if (isDarkModeActive) White else Color.Gray),
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            color = if (isDarkModeActive) White else Color.Gray
+                        ),
                     )
                 }
             }
@@ -380,17 +444,10 @@ class ChatView : ComponentActivity() {
                     imageVector = Icons.AutoMirrored.Filled.Send,
                     contentDescription = stringResource(R.string.Send),
                     Modifier.size(40.dp),
-                    tint =  if (isDarkModeActive) White else Dark
+                    tint = if (isDarkModeActive) White else Dark
                 )
             }
         }
-    }
-
-    private fun formatTimeFromApiHour(dateTimeString: String): String {
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-        val date = inputFormat.parse(dateTimeString)
-        return outputFormat.format(date!!)
     }
 
     override fun onBackPressed() {
@@ -398,5 +455,26 @@ class ChatView : ComponentActivity() {
         super.onBackPressed()
         val intent = Intent(this@ChatView, HomeView::class.java)
         startActivity(intent)
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        // Obtener el token de SharedPreferences
+        val token = Token.token
+        if (token != null) {
+            // Actualizar el estado en línea del usuario como "en línea" cuando se reanuda la actividad
+            HomeViewModel().updateUserOnlineStatus(token, true)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Obtener el token de SharedPreferences
+        val token = Token.token
+        if (token != null) {
+            // Actualizar el estado en línea del usuario como "fuera de línea" cuando se pausa la actividad
+            HomeViewModel().updateUserOnlineStatus(token, false)
+        }
     }
 }

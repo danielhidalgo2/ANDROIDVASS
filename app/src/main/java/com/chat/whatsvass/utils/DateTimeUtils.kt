@@ -1,5 +1,6 @@
 package com.chat.whatsvass.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import com.chat.whatsvass.R
@@ -47,11 +48,10 @@ object DateTimeUtils {
 
     fun formatTimeFromApiToOrderList(dateTimeString: String): String {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault())
         val date = inputFormat.parse(dateTimeString)
         return outputFormat.format(date!!)
     }
-
     fun orderChatsByDate(chats: List<Chat>, messages: Map<String, List<Message>>): List<String> {
 
         val mapOfChatIDandDateLast = mutableMapOf<String, String>()
@@ -72,5 +72,46 @@ object DateTimeUtils {
         Log.d("Mensajes ordenados", listRestultOrdered.toString())
 
         return listRestultOrdered
+    }
+
+    fun formatTimeFromApiHourChatView(dateTimeString: String): String {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val date = inputFormat.parse(dateTimeString)
+        return outputFormat.format(date!!)
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    fun formatTimeToSeparateMessages(dateTimeString: String, context: Context): String {
+        val calendar = Calendar.getInstance()
+        val day = calendar[Calendar.DAY_OF_MONTH]
+        val month = calendar[Calendar.MONTH] + 1
+        val year = calendar[Calendar.YEAR]
+        val today = "$day-$month-$year"
+        val todayMonthAndYear = "$month-$year"
+
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+        val outputFormatDate = SimpleDateFormat("d-M-yyyy")
+        val outputFormatDay = SimpleDateFormat("d")
+        val outputFormatMonthAndYear = SimpleDateFormat("M-yyyy")
+        val outputFormatDayToShow = SimpleDateFormat("d-M-yy")
+        val date = inputFormat.parse(dateTimeString)
+        val dateToCompare = outputFormatDate.format(date).toString()
+
+        // Si las fechas son iguales devuelve "hoy"
+        if (today == dateToCompare) {
+            return context.getString(R.string.today)
+            // Si el mes y año son iguales, se resta el dia de hoy con el del ultimo mensaje, si es 1, el mensaje es de ayer
+        } else if ((todayMonthAndYear == outputFormatMonthAndYear.format(date!!)) && ((day - outputFormatDay.format(
+                date
+            ).toString().toInt()) == 1)
+        ){
+            return outputFormat.format(date) + "\n${context.getString(R.string.yesterday)}"
+            // Para el resto se muestra la hora y fecha
+        } else {
+            return outputFormatDayToShow.format(date)
+        }
+
     }
 }

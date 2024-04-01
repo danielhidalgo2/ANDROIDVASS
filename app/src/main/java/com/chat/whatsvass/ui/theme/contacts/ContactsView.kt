@@ -78,8 +78,10 @@ import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.home.HomeView
+import com.chat.whatsvass.ui.theme.home.HomeViewModel
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
+import com.chat.whatsvass.usecases.token.Token
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -103,7 +105,9 @@ class ContactsView : ComponentActivity() {
         }
 
         sharedPreferencesUserData = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
-        val token = sharedPreferencesUserData.getString(KEY_TOKEN, null)
+        //val token = sharedPreferencesUserData.getString(KEY_TOKEN, null)
+
+        val token = Token.token
         val myId = sharedPreferencesUserData.getString(KEY_ID, null)
 
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
@@ -133,6 +137,26 @@ class ContactsView : ComponentActivity() {
         super.onBackPressed()
         val intent = Intent(this, HomeView::class.java)
         startActivity(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Obtener el token de SharedPreferences
+        val token = Token.token
+        if (token != null) {
+            // Actualizar el estado en línea del usuario como "en línea" cuando se reanuda la actividad
+            HomeViewModel().updateUserOnlineStatus(token, true)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Obtener el token de SharedPreferences
+        val token = Token.token
+        if (token != null) {
+            // Actualizar el estado en línea del usuario como "fuera de línea" cuando se pausa la actividad
+            HomeViewModel().updateUserOnlineStatus(token, false)
+        }
     }
 }
 

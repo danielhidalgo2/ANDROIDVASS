@@ -93,6 +93,8 @@ import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
+import com.chat.whatsvass.utils.DateTimeUtils.formatTimeFromApi
+import com.chat.whatsvass.utils.DateTimeUtils.orderChatsByDate
 import com.chat.whatsvass.usecases.firebase.FirebaseMessService
 import com.chat.whatsvass.usecases.token.Token
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -100,9 +102,6 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 private lateinit var sharedPreferencesToken: SharedPreferences
 private lateinit var sharedPreferencesSettings: SharedPreferences
@@ -131,7 +130,6 @@ class HomeView : ComponentActivity() {
 
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // No hagas nada cuando se presiona el botón de retroceso
             }
         }
         onBackPressedDispatcher.addCallback(this, callback)
@@ -178,7 +176,6 @@ class HomeView : ComponentActivity() {
             false
         }
 
-        Log.d("TOKENSINGLETON", Token.token.toString())
     }
 
     override fun onResume() {
@@ -198,7 +195,6 @@ class HomeView : ComponentActivity() {
         //val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
         val token = Token.token
         if (token != null) {
-            // Actualizar el estado en línea del usuario como "fuera de línea" cuando se pausa la actividad
             viewModel.updateUserOnlineStatus(token, false)
         }
     }
@@ -211,7 +207,7 @@ fun HomeScreen(
     viewModel: HomeViewModel,
     token: String,
     isDarkModeActive: Boolean,
-    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
+    onDeleteChat: (chatId: String) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -250,48 +246,6 @@ fun HomeScreen(
     }
 }
 
-fun formatTimeFromApi(dateTimeString: String, context: Context): String {
-    val calendar = Calendar.getInstance()
-    val day = calendar[Calendar.DAY_OF_MONTH]
-    val month = calendar[Calendar.MONTH] + 1
-    val year = calendar[Calendar.YEAR]
-    val today = "$day-$month-$year"
-    val todayMonthAndYear = "$month-$year"
-    Log.d("FECHAACTUAL", todayMonthAndYear)
-
-    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-    val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-    val outputFormatDate = SimpleDateFormat("d-M-yyyy")
-    val outputFormatDay = SimpleDateFormat("d")
-    val outputFormatDayToShow = SimpleDateFormat("d-M-yy")
-    val outputFormatMonthAndYear = SimpleDateFormat("M-yyyy")
-    val date = inputFormat.parse(dateTimeString)
-    val dateToCompare = outputFormatDate.format(date).toString()
-    Log.d("FECHAACTUAL", outputFormatMonthAndYear.format(date!!))
-
-    // Si las fechas son iguales devuelve la hora
-    if (today == dateToCompare) {
-        return outputFormat.format(date)
-        // Si el mes y año son iguales, se resta el dia de hoy con el del ultimo mensaje, si es 1, el mensaje es de ayer
-    } else if ((todayMonthAndYear == outputFormatMonthAndYear.format(date!!)) && ((day - outputFormatDay.format(
-            date
-        ).toString().toInt()) == 1)
-    ){
-        return outputFormat.format(date) + "\n${context.getString(R.string.yesterday)}"
-        // Para el resto se muestra la hora y fecha
-    } else {
-        return outputFormat.format(date) + "\n${outputFormatDayToShow.format(date)}"
-    }
-
-}
-
-fun formatTimeFromApiToOrderList(dateTimeString: String): String {
-    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-    val outputFormat = SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault())
-    val date = inputFormat.parse(dateTimeString)
-    return outputFormat.format(date!!)
-}
-
 @Composable
 fun ChatItem(
     chat: Chat,
@@ -299,7 +253,7 @@ fun ChatItem(
     name: String,
     color: Color,
     isDarkModeActive: Boolean,
-    onDeleteChat: (chatId: String) -> Unit // Modificación del parámetro onDeleteChat
+    onDeleteChat: (chatId: String) -> Unit
 ) {
     val colorWithOpacity = Contrast.copy(alpha = 0.4f)
     val context = LocalContext.current
@@ -308,16 +262,12 @@ fun ChatItem(
     }
     mutableColor.value = color == Color.Green
 
-    // Obtener el último mensaje si existe
     val lastMessage = messages.lastOrNull()
 
-    // Formatear la fecha del mensaje para mostrar la hora y fecha
     val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it, context) } ?: ""
 
-    // Estado para controlar si el diálogo está mostrándose
     val showDialog = remember { mutableStateOf(false) }
 
-    // Agregar un evento LongPress para mostrar el diálogo de confirmación
     Row(
         modifier = Modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)
@@ -382,9 +332,6 @@ fun ChatItem(
             )
             mutableColor.value = color == Color.Green
         }
-
-
-
         Spacer(modifier = Modifier.width(16.dp))
 
         Column(
@@ -420,8 +367,6 @@ fun ChatItem(
 
         Spacer(modifier = Modifier.weight(0.1f))
         Spacer(modifier = Modifier.height(50.dp))
-
-        // Diálogo de confirmación
         if (showDialog.value) {
             AlertDialog(
                 onDismissRequest = { showDialog.value = false },
@@ -431,7 +376,7 @@ fun ChatItem(
                     Button(
                         onClick = {
                             showDialog.value = false
-                            onDeleteChat(chat.chatId) // Llamada al callback con el chatId
+                            onDeleteChat(chat.chatId)
                         }
                     ) {
                         Text(stringResource(R.string.yes))
@@ -458,7 +403,7 @@ fun TopBarHomeAndList(
     viewModel: HomeViewModel,
     token: String,
     isDarkModeActive: Boolean,
-    onDeleteChat: (chatId: String) -> Unit // Agregar parámetro onDeleteChat
+    onDeleteChat: (chatId: String) -> Unit
 ) {
     val isTextWithOutChatsVisible by viewModel.isTextWithOutChatsVisibleFlow.collectAsState(false)
     val isProgressBarVisible by viewModel.isProgressVisibleFlow.collectAsState(true)
@@ -469,7 +414,6 @@ fun TopBarHomeAndList(
     val context = LocalContext.current
     var refreshing by remember { mutableStateOf(false) }
 
-    // Llamar a funcion para ordenar chats por fecha y hora
     val listRestultOrdered = viewModel.orderChatsByDate(chats, messages)
     Log.d("Mensajes ordenados", listRestultOrdered.toString())
 
@@ -489,8 +433,6 @@ fun TopBarHomeAndList(
                     .clip(RoundedCornerShape(10.dp))
                     .background(White)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
-                    .clickable { /* Define action when search icon is clicked */ }
-
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -570,7 +512,6 @@ fun TopBarHomeAndList(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    //Nueva lista con los chats ordenados por fecha y hora
 
                     for (i in chats) {
                         for (j in listRestultOrdered) {
@@ -586,7 +527,6 @@ fun TopBarHomeAndList(
                         items(
                             items = chatsNew,
                             key = { chat ->
-                                // La llave sirve para que cada valor se mueva con su celda
                                 chat.chatId
                             }
                         ) { chat ->
@@ -596,9 +536,9 @@ fun TopBarHomeAndList(
                                 if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
                             val color: Color =
                                 if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
-                                    Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
+                                    Color.Green
                                 } else {
-                                    Color.Red // Si no, asigna otro color
+                                    Color.Red
                                 }
 
                             ChatItem(
@@ -636,9 +576,9 @@ fun TopBarHomeAndList(
                                 if (chat.sourceId == sourceId) chat.targetNick else chat.sourceNick
                             val color: Color =
                                 if (if (chat.sourceId == sourceId) chat.targetOnline else chat.sourceOnline) {
-                                    Color.Green // Si el online del target o del source es true, asigna "verde" a la variable color
+                                    Color.Green
                                 } else {
-                                    Color.Red // Si no, asigna otro color
+                                    Color.Red
                                 }
                             ChatItem(
                                 chat = chat,
@@ -653,7 +593,6 @@ fun TopBarHomeAndList(
             }
 
             val textColor = if (isDarkModeActive) White else Dark
-            // Si no se encuentra el chat buscado se muestra texto: "Sin coincidencias"
             if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == R.string.textFieldSearch.toString())) {
                 Column(
                     modifier = Modifier
@@ -669,8 +608,6 @@ fun TopBarHomeAndList(
                     )
                 }
             }
-
-            // Si no hay chats se muestra: "No tienes chats"
             if (isTextWithOutChatsVisible && chatsNew.isEmpty()) {
                 Column(
                     modifier = Modifier
@@ -686,8 +623,6 @@ fun TopBarHomeAndList(
                     )
                 }
             }
-
-            // Si hay chats y el searchText esta vacio se muestra el progressBar hasta que carguen
             if (isProgressBarVisible && searchText.text.isEmpty()) {
                 Column(
                     modifier = Modifier
@@ -706,6 +641,7 @@ fun TopBarHomeAndList(
         }
     }
 }
+
 
 
 

@@ -260,7 +260,6 @@ fun LoginScreen(
     isDarkModeActive: Boolean,
     onCredentialsChange: (String, String) -> Unit
 ) {
-    var errorMessage by remember { mutableStateOf<String?>(null) }
     val keyboardController = LocalSoftwareKeyboardController.current
     var isLoginPressed by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -398,14 +397,6 @@ fun LoginScreen(
             CreateAccountText(navController = navController)
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Mostrar mensaje de error si existe
-            errorMessage?.let {
-                Text(
-                    text = it,
-                    color = Color.Red,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-            }
         }
     }
 
@@ -413,7 +404,7 @@ fun LoginScreen(
         viewModel._loginResult.collectAsState().value?.let { result ->
             when (result) {
                 is LoginViewModel.LoginResult.Error -> {
-                    errorMessage = stringResource(R.string.credentialsAreNotCorrect)
+                    showMessage(context,stringResource(R.string.credentialsAreNotCorrect))
                 }
 
                 is LoginViewModel.LoginResult.Success -> {
@@ -427,9 +418,8 @@ fun LoginScreen(
                         val intent = Intent(context, HomeView::class.java)
                         context.startActivity(intent)
 
-                        errorMessage = null
                     } else {
-                        errorMessage = stringResource(R.string.pleaseEnterUserAndPassword)
+                        showMessage(context,stringResource(R.string.pleaseEnterUserAndPassword) )
                     }
                 }
             }
@@ -578,7 +568,6 @@ fun CreateAccountText(navController: NavController) {
 }
 
 
-// Función auxiliar para mostrar mensajes en la aplicación
 fun showMessage(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }

@@ -93,15 +93,13 @@ import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
-import com.chat.whatsvass.usecases.firebase.FirebaseMessService
+import com.chat.whatsvass.utils.DateTimeUtils.formatTimeFromApi
+import com.chat.whatsvass.utils.DateTimeUtils.orderChatsByDate
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 private lateinit var sharedPreferencesToken: SharedPreferences
 private lateinit var sharedPreferencesSettings: SharedPreferences
@@ -241,48 +239,6 @@ fun HomeScreen(
             )
         }
     }
-}
-
-fun formatTimeFromApi(dateTimeString: String, context: Context): String {
-    val calendar = Calendar.getInstance()
-    val day = calendar[Calendar.DAY_OF_MONTH]
-    val month = calendar[Calendar.MONTH] + 1
-    val year = calendar[Calendar.YEAR]
-    val today = "$day-$month-$year"
-    val todayMonthAndYear = "$month-$year"
-    Log.d("FECHAACTUAL", todayMonthAndYear)
-
-    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-    val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-    val outputFormatDate = SimpleDateFormat("d-M-yyyy")
-    val outputFormatDay = SimpleDateFormat("d")
-    val outputFormatDayToShow = SimpleDateFormat("d-M-yy")
-    val outputFormatMonthAndYear = SimpleDateFormat("M-yyyy")
-    val date = inputFormat.parse(dateTimeString)
-    val dateToCompare = outputFormatDate.format(date).toString()
-    Log.d("FECHAACTUAL", outputFormatMonthAndYear.format(date!!))
-
-    // Si las fechas son iguales devuelve la hora
-    if (today == dateToCompare) {
-        return outputFormat.format(date)
-        // Si el mes y año son iguales, se resta el dia de hoy con el del ultimo mensaje, si es 1, el mensaje es de ayer
-    } else if ((todayMonthAndYear == outputFormatMonthAndYear.format(date!!)) && ((day - outputFormatDay.format(
-            date
-        ).toString().toInt()) == 1)
-    ) {
-        return outputFormat.format(date) + "\n${context.getString(R.string.yesterday)}"
-        // Para el resto se muestra la hora y fecha
-    } else {
-        return outputFormat.format(date) + "\n${outputFormatDayToShow.format(date)}"
-    }
-
-}
-
-fun formatTimeFromApiToOrderList(dateTimeString: String): String {
-    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-    val outputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    val date = inputFormat.parse(dateTimeString)
-    return outputFormat.format(date!!)
 }
 
 @Composable
@@ -700,27 +656,7 @@ fun TopBarHomeAndList(
     }
 }
 
-fun orderChatsByDate(chats: List<Chat>, messages: Map<String, List<Message>>): List<String> {
-    // Ordenar chats por hora de ultimo mensaje
-    val mapOfChatIDandDateLast = mutableMapOf<String, String>()
-    for (i in chats) {
-        if (!messages[i.chatId].isNullOrEmpty()) {
-            if (!messages[i.chatId]!!.lastOrNull()!!.date.isNullOrEmpty()) {
-                val formattedTime =
-                    messages[i.chatId]!!.lastOrNull()!!.date.let { formatTimeFromApiToOrderList(it) }
-                mapOfChatIDandDateLast[i.chatId] = formattedTime
-            }
-        } else {
-            mapOfChatIDandDateLast[i.chatId] = "0"
-        }
-    }
-    val mapResultOrdered =
-        mapOfChatIDandDateLast.toList().sortedByDescending { (_, value) -> value }.toMap()
-    val listRestultOrdered = mapResultOrdered.keys.toList()
-    Log.d("Mensajes ordenados", listRestultOrdered.toString())
 
-    return listRestultOrdered
-}
 
 
 

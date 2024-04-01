@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
+import android.widget.CheckBox
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -26,17 +27,22 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Checkbox
+import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -97,6 +103,8 @@ class LoginView : AppCompatActivity() {
     private lateinit var sharedPreferencesSettings: SharedPreferences
     private lateinit var sharedPreferencesUserData: SharedPreferences
 
+
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,6 +129,7 @@ class LoginView : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, callback)
 
         setContent {
+
             val viewModel = remember { LoginViewModel(application) }
             val viewModelCreateUser = remember { ProfileViewModel(application) }
 
@@ -198,12 +207,12 @@ fun setupAuthBiometric(context: Context): Boolean {
 }
 
 fun loginBiometric(
-    navController: NavController,
     username: String,
     password: String,
     viewModel: LoginViewModel,
     activity: LoginView,
     context: Context,
+    checkBox: Boolean,
     auth: (auth: Boolean) -> Unit
 ) {
     if (canAuthenticate) {
@@ -214,7 +223,7 @@ fun loginBiometric(
 
                     val decryptPassword = Encrypt().decryptPassword(password)
                     if (decryptPassword.isNotEmpty()) {
-                        viewModel.loginUser(username, decryptPassword)
+                        viewModel.loginUser(username, decryptPassword, checkBox)
                         // Agregar un retraso antes de iniciar la siguiente actividad
                         Handler(Looper.getMainLooper()).postDelayed({
                             val intent = Intent(context, HomeView::class.java)
@@ -251,13 +260,13 @@ fun LoginScreen(
     isDarkModeActive: Boolean,
     onCredentialsChange: (String, String) -> Unit
 ) {
-
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val keyboardController = LocalSoftwareKeyboardController.current
     var isLoginPressed by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-
+    // Nuevo estado para manejar el estado del checkbox
+    var rememberCredentials by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -302,13 +311,33 @@ fun LoginScreen(
                 }
             )
 
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = rememberCredentials,
+                    onCheckedChange = { rememberCredentials = it },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.colors.primary,
+                        uncheckedColor = Color.White
+                    ),
+                )
+
+                Text(
+                    text = stringResource(R.string.checkBox),
+                    color = White
+                )
+                Spacer(modifier = Modifier.width(20.dp))
+            }
+
+
+
             var auth by remember { mutableStateOf(false) }
             val isBiometricActiveInDispositive = setupAuthBiometric(context)
             val myUsername = sharedPreferences.getString(KEY_USERNAME, null)
             val myPassword = sharedPreferences.getString(KEY_PASSWORD, null)
 
             if (isBiometricActive &&  myUsername != null) {
-                Spacer(modifier = Modifier.height(10.dp))
                 FloatingActionButton(
                     onClick = {
 
@@ -317,14 +346,14 @@ fun LoginScreen(
                                 auth = false
                             } else {
 
-                                if (myUsername != null && myPassword != null) {
+                                if (myPassword != null) {
                                     loginBiometric(
-                                        navController,
                                         myUsername,
                                         myPassword,
                                         viewModel,
                                         activity,
-                                        context
+                                        context,
+                                        rememberCredentials,
                                     ) { auth = it }
                                 } else {
                                     showMessage(
@@ -349,7 +378,7 @@ fun LoginScreen(
                     androidx.compose.material.Icon(
                         painter = painterResource(id = R.drawable.icon_fingerprint),
                         contentDescription = stringResource(R.string.biometric),
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier.size(40.dp)
                     )
                 }
             } else {
@@ -359,7 +388,7 @@ fun LoginScreen(
             LoginButton(
                 onClick = {
                     isLoginPressed = true
-                    viewModel.loginUser(username, password)
+                    viewModel.loginUser(username, password, rememberCredentials)
                 }, modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 95.dp)
@@ -409,6 +438,7 @@ fun LoginScreen(
     }
 
 }
+
 
 @Composable
 fun Logo() {

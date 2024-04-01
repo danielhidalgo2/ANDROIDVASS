@@ -26,6 +26,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,7 +37,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Checkbox
+import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -251,12 +255,13 @@ fun LoginScreen(
     isDarkModeActive: Boolean,
     onCredentialsChange: (String, String) -> Unit
 ) {
-
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val keyboardController = LocalSoftwareKeyboardController.current
     var isLoginPressed by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    // Nuevo estado para manejar el estado del checkbox
+    var rememberCredentials by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -301,6 +306,21 @@ fun LoginScreen(
                     }
                 }
             )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = rememberCredentials,
+                    onCheckedChange = { rememberCredentials = it },
+                    colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colors.primary),
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text(
+                    text = "Recordar usuario y contraseña",
+                    color = if (isDarkModeActive) White else Color.Black
+                )
+            }
 
             var auth by remember { mutableStateOf(false) }
             val isBiometricActiveInDispositive = setupAuthBiometric(context)
@@ -409,6 +429,7 @@ fun LoginScreen(
     }
 
 }
+
 
 @Composable
 fun Logo() {

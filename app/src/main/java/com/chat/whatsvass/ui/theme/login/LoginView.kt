@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
+import android.widget.CheckBox
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -101,6 +102,8 @@ class LoginView : AppCompatActivity() {
     private lateinit var sharedPreferencesSettings: SharedPreferences
     private lateinit var sharedPreferencesUserData: SharedPreferences
 
+
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,6 +128,7 @@ class LoginView : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, callback)
 
         setContent {
+
             val viewModel = remember { LoginViewModel(application) }
             val viewModelCreateUser = remember { ProfileViewModel(application) }
 
@@ -202,12 +206,12 @@ fun setupAuthBiometric(context: Context): Boolean {
 }
 
 fun loginBiometric(
-    navController: NavController,
     username: String,
     password: String,
     viewModel: LoginViewModel,
     activity: LoginView,
     context: Context,
+    checkBox: Boolean,
     auth: (auth: Boolean) -> Unit
 ) {
     if (canAuthenticate) {
@@ -218,7 +222,7 @@ fun loginBiometric(
 
                     val decryptPassword = Encrypt().decryptPassword(password)
                     if (decryptPassword.isNotEmpty()) {
-                        viewModel.loginUser(username, decryptPassword)
+                        viewModel.loginUser(username, decryptPassword, checkBox)
                         // Agregar un retraso antes de iniciar la siguiente actividad
                         Handler(Looper.getMainLooper()).postDelayed({
                             val intent = Intent(context, HomeView::class.java)
@@ -262,7 +266,6 @@ fun LoginScreen(
 
     // Nuevo estado para manejar el estado del checkbox
     var rememberCredentials by remember { mutableStateOf(false) }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -316,6 +319,7 @@ fun LoginScreen(
                     colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colors.primary),
                     modifier = Modifier.padding(end = 8.dp)
                 )
+                Log.d("CheckBox",rememberCredentials.toString())
                 Text(
                     text = "Recordar usuario y contraseña",
                     color = if (isDarkModeActive) White else Color.Black
@@ -337,14 +341,14 @@ fun LoginScreen(
                                 auth = false
                             } else {
 
-                                if (myUsername != null && myPassword != null) {
+                                if (myPassword != null) {
                                     loginBiometric(
-                                        navController,
                                         myUsername,
                                         myPassword,
                                         viewModel,
                                         activity,
-                                        context
+                                        context,
+                                        rememberCredentials,
                                     ) { auth = it }
                                 } else {
                                     showMessage(
@@ -379,7 +383,7 @@ fun LoginScreen(
             LoginButton(
                 onClick = {
                     isLoginPressed = true
-                    viewModel.loginUser(username, password)
+                    viewModel.loginUser(username, password, rememberCredentials)
                 }, modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 95.dp)

@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.R
+import com.chat.whatsvass.commons.CHECK_BOX
 import com.chat.whatsvass.commons.KEY_ID
 import com.chat.whatsvass.commons.KEY_NICK
 import com.chat.whatsvass.commons.KEY_TOKEN
@@ -34,7 +35,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     val _loginResult = MutableStateFlow<LoginResult?>(null)
 
-    fun loginUser(username: String, password: String) {
+    fun loginUser(username: String, password: String, checkBox: Boolean? = null) {
         if (username.isEmpty() || password.isEmpty()) {
             _loginResult.value = LoginResult.Error(R.string.pleaseEnterUserAndPassword.toString())
             return
@@ -45,15 +46,19 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val login = userRepository.loginUser(username, encryptedPassword)
                 if (login.token.isNotEmpty()) {
-                    _loginResult.value = LoginResult.Success(login)
-                    Log.d("LoginViewModel", "Inicio de sesión exitoso. Token: ${login.token}")
-                    sharedPreferences.edit().putString(KEY_TOKEN, login.token).apply()
-                    sharedPreferences.edit().putString(KEY_ID, login.user.id).apply()
-                    sharedPreferences.edit().putString(KEY_NICK, login.user.nick).apply()
-                    sharedPreferences.edit().putString(SOURCE_ID, login.user.id).apply()
+                    if (checkBox != null) {
+                        sharedPreferences.edit().putBoolean(CHECK_BOX, checkBox).apply()
+                    }
+                        _loginResult.value = LoginResult.Success(login)
+                        Log.d("LoginViewModel", "Inicio de sesión exitoso. Token: ${login.token}")
+                        sharedPreferences.edit().putString(KEY_TOKEN, login.token).apply()
+                        sharedPreferences.edit().putString(KEY_ID, login.user.id).apply()
+                        sharedPreferences.edit().putString(KEY_NICK, login.user.nick).apply()
+                        sharedPreferences.edit().putString(SOURCE_ID, login.user.id).apply()
 
                 } else {
-                    _loginResult.value = LoginResult.Error(R.string.incorrectUserOrPassword.toString())
+                    _loginResult.value =
+                        LoginResult.Error(R.string.incorrectUserOrPassword.toString())
                     Log.d(
                         "LoginViewModel",
                         "Inicio de sesión fallido. Usuario o contraseña incorrectos"
@@ -65,8 +70,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
-
 
 
 }

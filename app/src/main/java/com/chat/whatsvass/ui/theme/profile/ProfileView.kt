@@ -1,15 +1,11 @@
 package com.chat.whatsvass.ui.theme.profile
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
-import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,7 +35,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.chat.whatsvass.R
@@ -51,39 +46,16 @@ import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.ButtonCustom
 import com.chat.whatsvass.ui.theme.components.GeneralComponents.NavigationBarCustom
-import com.chat.whatsvass.ui.theme.components.GeneralComponents.PasswordTextFieldCustom
-import com.chat.whatsvass.ui.theme.components.GeneralComponents.TextFieldCustom
+import com.chat.whatsvass.ui.theme.components.GeneralComponents.passwordTextFieldCustom
+import com.chat.whatsvass.ui.theme.components.GeneralComponents.textFieldCustom
 import com.chat.whatsvass.ui.theme.home.HomeView
-import com.chat.whatsvass.ui.theme.login.hideKeyboard
-import com.chat.whatsvass.ui.theme.login.showMessage
 import com.chat.whatsvass.usecases.encrypt.Encrypt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class ProfileView : ComponentActivity() {
-
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        window.statusBarColor = ContextCompat.getColor(this, R.color.main)
-
-        setContent {
-
-//            val navController = rememberNavController()
-//            ProfileScreen(ProfileViewModel(), navController)
-
-        }
-        window.decorView.setOnTouchListener { _, _ ->
-            hideKeyboard(this)
-            false
-        }
-
-    }
-
     @Composable
     fun ProfileScreen(
         viewModel: ProfileViewModel,
@@ -113,7 +85,7 @@ class ProfileView : ComponentActivity() {
                 Spacer(modifier = Modifier.height(20.dp))
                 ImageProfile()
                 Spacer(modifier = Modifier.height(40.dp))
-                val user = TextFieldCustom(
+                val user = textFieldCustom(
                     stringResource(R.string.user),
                     isDarkModeActive,
                     onImeActionPerformed = { action ->
@@ -123,7 +95,7 @@ class ProfileView : ComponentActivity() {
                     },
                 )
                 Spacer(modifier = Modifier.height(20.dp))
-                val nick = TextFieldCustom(
+                val nick = textFieldCustom(
                     stringResource(R.string.nick),
                     isDarkModeActive,
                     onImeActionPerformed = { action ->
@@ -133,7 +105,7 @@ class ProfileView : ComponentActivity() {
                     },
                 )
                 Spacer(modifier = Modifier.height(20.dp))
-                val password = PasswordTextFieldCustom(
+                val password = passwordTextFieldCustom(
                     stringResource(R.string.password),
                     isDarkModeActive,
                     onImeActionPerformed = { action ->
@@ -143,7 +115,7 @@ class ProfileView : ComponentActivity() {
                     },
                 )
                 Spacer(modifier = Modifier.height(20.dp))
-                val confirmPassword = PasswordTextFieldCustom(
+                val confirmPassword = passwordTextFieldCustom(
                     stringResource(R.string.repeatPassword),
                     isDarkModeActive,
                     onImeActionPerformed = { action ->
@@ -156,19 +128,19 @@ class ProfileView : ComponentActivity() {
 
                 ButtonCustom(
                     onClick = {
-                        if (user.isNullOrEmpty()) {
+                        if (user.isEmpty()) {
                             Toast.makeText(
                                 context, R.string.enterYourUsername,
                                 Toast.LENGTH_SHORT
                             )
                                 .show()
-                        } else if (nick.isNullOrEmpty()) {
+                        } else if (nick.isEmpty()) {
                             Toast.makeText(context, R.string.enterYourNick, Toast.LENGTH_SHORT)
                                 .show()
-                        } else if (password.isNullOrEmpty()) {
+                        } else if (password.isEmpty()) {
                             Toast.makeText(context, R.string.enterAPassword, Toast.LENGTH_SHORT)
                                 .show()
-                        } else if (confirmPassword.isNullOrEmpty()) {
+                        } else if (confirmPassword.isEmpty()) {
                             Toast.makeText(
                                 context,
                                 R.string.confirmYourPassword,
@@ -239,9 +211,7 @@ class ProfileView : ComponentActivity() {
 
             var painter = painterResource(id = R.drawable.image_person)
             selectedImage.value?.let { uri ->
-                if (uri != null) {
-                    painter = rememberAsyncImagePainter(uri)
-                }
+                painter = rememberAsyncImagePainter(uri)
             }
             Image(
                 modifier = Modifier

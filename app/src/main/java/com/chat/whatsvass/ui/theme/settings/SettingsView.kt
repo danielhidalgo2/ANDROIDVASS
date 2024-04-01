@@ -27,6 +27,7 @@ import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.LoginView
 import com.chat.whatsvass.ui.theme.splash.SplashView
+import com.chat.whatsvass.usecases.token.Token
 import kotlinx.coroutines.launch
 
 class SettingsView : AppCompatActivity() {
@@ -81,7 +82,7 @@ class SettingsView : AppCompatActivity() {
         }
 
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
-        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        val token = Token.token
         initVars(sharedPreferencesSettings)
         setUpSwitchs(sharedPreferencesSettings)
 

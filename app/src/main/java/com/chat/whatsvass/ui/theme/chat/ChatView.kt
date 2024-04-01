@@ -266,7 +266,7 @@ class ChatView : ComponentActivity() {
     ) {
         val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
         var refreshing by remember { mutableStateOf(false) }
-        var thereAreMessages by remember { mutableStateOf(false) }
+        val isTextStartTheChatVisible by viewModel.isTextStartTheChatVisibleFlow.collectAsState(false)
         val chatMessages = messages[chatId] ?: emptyList()
 
         SwipeRefresh(
@@ -328,7 +328,7 @@ class ChatView : ComponentActivity() {
                     }
                 }
 
-                if (chatMessages.isEmpty()){
+                if (isTextStartTheChatVisible && dates.isEmpty()){
                     Column (modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 200.dp),

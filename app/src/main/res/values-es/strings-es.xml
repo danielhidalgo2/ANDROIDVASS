@@ -64,4 +64,5 @@
     <string name="btnLogout">Desconectar</string>
     <string name="yesterday">Ayer</string>
     <string name="couldNotDisconnect">No se pudo desconectar, intente de nuevo.</string>
+    <string name="today">Hoy</string>
 </resources>

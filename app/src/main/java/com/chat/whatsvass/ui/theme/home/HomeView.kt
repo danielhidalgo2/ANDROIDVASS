@@ -94,6 +94,7 @@ import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import com.chat.whatsvass.usecases.firebase.FirebaseMessService
+import com.chat.whatsvass.usecases.token.Token
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
@@ -120,7 +121,9 @@ class HomeView : ComponentActivity() {
         }
 
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
-        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+    //    val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+
+        val token = Token.token
 
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
         val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
@@ -174,12 +177,15 @@ class HomeView : ComponentActivity() {
             hideKeyboard(this)
             false
         }
+
+        Log.d("TOKENSINGLETON", Token.token.toString())
     }
 
     override fun onResume() {
         super.onResume()
         // Obtener el token de SharedPreferences
-        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        // val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        val token = Token.token
         if (token != null) {
             // Actualizar el estado en línea del usuario como "en línea" cuando se reanuda la actividad
             viewModel.updateUserOnlineStatus(token, true)
@@ -189,7 +195,8 @@ class HomeView : ComponentActivity() {
     override fun onPause() {
         super.onPause()
         // Obtener el token de SharedPreferences
-        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        //val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        val token = Token.token
         if (token != null) {
             // Actualizar el estado en línea del usuario como "fuera de línea" cuando se pausa la actividad
             viewModel.updateUserOnlineStatus(token, false)
@@ -269,7 +276,7 @@ fun formatTimeFromApi(dateTimeString: String, context: Context): String {
     } else if ((todayMonthAndYear == outputFormatMonthAndYear.format(date!!)) && ((day - outputFormatDay.format(
             date
         ).toString().toInt()) == 1)
-    ) {
+    ){
         return outputFormat.format(date) + "\n${context.getString(R.string.yesterday)}"
         // Para el resto se muestra la hora y fecha
     } else {
@@ -280,7 +287,7 @@ fun formatTimeFromApi(dateTimeString: String, context: Context): String {
 
 fun formatTimeFromApiToOrderList(dateTimeString: String): String {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-    val outputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault())
     val date = inputFormat.parse(dateTimeString)
     return outputFormat.format(date!!)
 }
@@ -463,7 +470,7 @@ fun TopBarHomeAndList(
     var refreshing by remember { mutableStateOf(false) }
 
     // Llamar a funcion para ordenar chats por fecha y hora
-    val listRestultOrdered = orderChatsByDate(chats, messages)
+    val listRestultOrdered = viewModel.orderChatsByDate(chats, messages)
     Log.d("Mensajes ordenados", listRestultOrdered.toString())
 
     TopAppBar(
@@ -700,27 +707,6 @@ fun TopBarHomeAndList(
     }
 }
 
-fun orderChatsByDate(chats: List<Chat>, messages: Map<String, List<Message>>): List<String> {
-    // Ordenar chats por hora de ultimo mensaje
-    val mapOfChatIDandDateLast = mutableMapOf<String, String>()
-    for (i in chats) {
-        if (!messages[i.chatId].isNullOrEmpty()) {
-            if (!messages[i.chatId]!!.lastOrNull()!!.date.isNullOrEmpty()) {
-                val formattedTime =
-                    messages[i.chatId]!!.lastOrNull()!!.date.let { formatTimeFromApiToOrderList(it) }
-                mapOfChatIDandDateLast[i.chatId] = formattedTime
-            }
-        } else {
-            mapOfChatIDandDateLast[i.chatId] = "0"
-        }
-    }
-    val mapResultOrdered =
-        mapOfChatIDandDateLast.toList().sortedByDescending { (_, value) -> value }.toMap()
-    val listRestultOrdered = mapResultOrdered.keys.toList()
-    Log.d("Mensajes ordenados", listRestultOrdered.toString())
-
-    return listRestultOrdered
-}
 
 
 

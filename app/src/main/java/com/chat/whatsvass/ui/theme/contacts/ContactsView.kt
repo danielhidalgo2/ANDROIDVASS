@@ -62,7 +62,6 @@ import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
 import com.chat.whatsvass.commons.KEY_ID
 import com.chat.whatsvass.commons.KEY_MODE
-import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.KNICK_ARGUMENT
 import com.chat.whatsvass.commons.ONLINE_ARGUMENT
 import com.chat.whatsvass.commons.SHARED_SETTINGS
@@ -87,7 +86,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
 const val DELAY_TO_OPEN_CHAT = 150L
 
 class ContactsView : ComponentActivity() {
@@ -101,11 +99,11 @@ class ContactsView : ComponentActivity() {
 
         window.decorView.apply {
             @Suppress("DEPRECATION")
-            systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            systemUiVisibility =
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         }
 
         sharedPreferencesUserData = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
-        //val token = sharedPreferencesUserData.getString(KEY_TOKEN, null)
 
         val token = Token.token
         val myId = sharedPreferencesUserData.getString(KEY_ID, null)
@@ -132,6 +130,7 @@ class ContactsView : ComponentActivity() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         @Suppress("DEPRECATION")
         super.onBackPressed()
@@ -282,11 +281,12 @@ fun TopBarAndList(
     }
 
 
-    Box(modifier = Modifier.fillMaxSize()){
-        if (!isProgressBarVisible){
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (!isProgressBarVisible) {
             LazyColumn {
                 // Ordenar contactos alfabeticamente
-                val sortedContacts = contacts.sortedBy {it.nick.replaceFirstChar { it.uppercaseChar()}}
+                val sortedContacts =
+                    contacts.sortedBy { it.nick.replaceFirstChar { name -> name.uppercaseChar() } }
                 if (searchText.text.isEmpty()) {
                     items(sortedContacts,
                         key = { contact ->
@@ -294,23 +294,42 @@ fun TopBarAndList(
                             contact.id
                         }
                     ) { contact ->
-                        ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
+                        ContactItem(
+                            context,
+                            contact,
+                            token,
+                            viewModel,
+                            ChatRequest(myId, contact.id),
+                            isDarkModeActive
+                        )
                     }
                 } else {
                     listSearch =
-                        sortedContacts.filter { it.nick.contains(searchText.text, ignoreCase = true) }
+                        sortedContacts.filter {
+                            it.nick.contains(
+                                searchText.text,
+                                ignoreCase = true
+                            )
+                        }
                     items(listSearch,
                         key = { contact ->
                             contact.id
                         }
                     ) { contact ->
-                        ContactItem(context, contact, token, viewModel ,ChatRequest(myId, contact.id), isDarkModeActive)
+                        ContactItem(
+                            context,
+                            contact,
+                            token,
+                            viewModel,
+                            ChatRequest(myId, contact.id),
+                            isDarkModeActive
+                        )
                     }
                 }
             }
         }
 
-        val textColor =  if (isDarkModeActive) White else Dark
+        val textColor = if (isDarkModeActive) White else Dark
         // Si no hay contactos se muestra: "Sin contactos"
         if (isTextWithOutContactsVisible) {
             Column(
@@ -323,13 +342,13 @@ fun TopBarAndList(
                 Text(
                     text = stringResource(R.string.withoutContacts),
                     fontSize = 22.sp,
-                    color =  textColor
+                    color = textColor
                 )
             }
         }
 
         // Si no se encuentra el contacto buscado se muestra texto: "Sin coincidencias"
-        if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == R.string.textFieldSearch.toString())) {
+        if (listSearch.isEmpty() && (searchText.text.isNotEmpty() || searchText.text == R.string.textFieldSearch.toString())) {
             Column(
                 modifier = Modifier
                     .height(400.dp)
@@ -340,7 +359,7 @@ fun TopBarAndList(
                 Text(
                     text = stringResource(R.string.noMatches),
                     fontSize = 22.sp,
-                    color =  textColor
+                    color = textColor
                 )
             }
         }
@@ -362,6 +381,7 @@ fun TopBarAndList(
         }
     }
 }
+
 @Composable
 fun ContactItem(
     context: Context,
@@ -432,7 +452,7 @@ fun ContactItem(
         ) {
             Text(
                 text = contact.nick,
-                style = TextStyle(fontSize = 16.sp, color =  if (isDarkModeActive) White else Dark),
+                style = TextStyle(fontSize = 16.sp, color = if (isDarkModeActive) White else Dark),
             )
         }
 

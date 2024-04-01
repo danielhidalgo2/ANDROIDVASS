@@ -7,7 +7,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.chat.whatsvass.commons.CHECK_BOX
-import com.chat.whatsvass.commons.KEY_NOTIFICATIONS
 import com.chat.whatsvass.commons.KEY_PASSWORD
 import com.chat.whatsvass.commons.KEY_USERNAME
 import com.chat.whatsvass.commons.SHARED_SETTINGS
@@ -22,7 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 const val DELAY_TO_GET_TOKEN = 2000L
-const val DELAY_TO_DECRYPT_PASSWORD= 300L
+const val DELAY_TO_DECRYPT_PASSWORD = 300L
 
 class SplashView : AppCompatActivity() {
     private lateinit var sharedPreferencesSettings: SharedPreferences
@@ -35,16 +34,10 @@ class SplashView : AppCompatActivity() {
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
         sharedPreferencesUserData = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
 
-        val isNotificationsActive = sharedPreferencesSettings.getBoolean(KEY_NOTIFICATIONS, false)
-
-        if (isNotificationsActive){
-
-        }
-
         setToken()
 
         val check = sharedPreferencesUserData.getBoolean(CHECK_BOX, false)
-        if (!check){
+        if (!check) {
             splashScreen.setKeepOnScreenCondition { true }
             startActivity(Intent(this, LoginView::class.java))
             finish()
@@ -65,10 +58,10 @@ class SplashView : AppCompatActivity() {
         if (username != null && password != null) {
             MainScope().launch {
                 async {
-                    val passwordDecrypt = Encrypt().decryptPassword(password!!)
+                    val passwordDecrypt = Encrypt().decryptPassword(password)
                     delay(DELAY_TO_DECRYPT_PASSWORD)
                     LoginViewModel(this@SplashView.application).loginUser(
-                        username!!,
+                        username,
                         passwordDecrypt
                     )
                 }.await()

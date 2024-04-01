@@ -12,7 +12,6 @@ import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -57,7 +56,8 @@ object GeneralComponents {
                 IconButton(
                     modifier = Modifier
                         .padding(start = 30.dp),
-                    onClick = onBackClick) {
+                    onClick = onBackClick
+                ) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_arrow_back),
                         contentDescription = stringResource(R.string.back),
@@ -83,12 +83,16 @@ object GeneralComponents {
     }
 
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun TextFieldCustom(label: String, isDarkModeActive: Boolean, onImeActionPerformed: (ImeAction) -> Unit): String {
+    fun textFieldCustom(
+        label: String,
+        isDarkModeActive: Boolean,
+        onImeActionPerformed: (ImeAction) -> Unit
+    ): String {
         var data by remember { mutableStateOf("") }
         val colorText = if (isDarkModeActive) White else Color.Black
 
+        val containerColor = if (isDarkModeActive) DarkMode else White
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -96,34 +100,42 @@ object GeneralComponents {
                 .height(60.dp),
             value = data,
             onValueChange = { data = it },
-            label = { androidx.compose.material.Text(
-                text = label,
-                color =  if (isDarkModeActive) White else Color.Black,
-                fontSize = 14.sp
-            )},
+            label = {
+                androidx.compose.material.Text(
+                    text = label,
+                    color = if (isDarkModeActive) White else Color.Black,
+                    fontSize = 14.sp
+                )
+            },
             shape = RoundedCornerShape(20.dp),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(onDone = { onImeActionPerformed(ImeAction.Next) }),
             singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = colorText,
+                unfocusedTextColor = colorText,
+                focusedContainerColor = containerColor,
+                unfocusedContainerColor = containerColor,
+                disabledContainerColor = containerColor,
+                cursorColor = colorText,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                containerColor = if (isDarkModeActive) DarkMode else White,
-                cursorColor = colorText,
-                focusedTextColor = colorText,
-                unfocusedTextColor = colorText
             )
         )
         return data
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun PasswordTextFieldCustom(label: String, isDarkModeActive: Boolean, onImeActionPerformed: (ImeAction) -> Unit): String {
+    fun passwordTextFieldCustom(
+        label: String,
+        isDarkModeActive: Boolean,
+        onImeActionPerformed: (ImeAction) -> Unit
+    ): String {
         var password by remember { mutableStateOf("") }
         var passwordVisibility by remember { mutableStateOf(false) }
         val colorText = if (isDarkModeActive) White else Color.Black
 
+        val containerColor = if (isDarkModeActive) DarkMode else White
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -131,27 +143,34 @@ object GeneralComponents {
                 .height(60.dp),
             value = password,
             onValueChange = { password = it },
-            label = { androidx.compose.material.Text(
-                text = label,
-                color =  if (isDarkModeActive) White else Color.Black,
-                fontSize = 14.sp
-            ) }, // Usar androidx.compose.material.Text
+            label = {
+                androidx.compose.material.Text(
+                    text = label,
+                    color = if (isDarkModeActive) White else Color.Black,
+                    fontSize = 14.sp
+                )
+            },
             shape = RoundedCornerShape(Shape.dp),
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Next
+            ),
             keyboardActions = KeyboardActions(onDone = { onImeActionPerformed(ImeAction.Next) }),
             visualTransformation = if (passwordVisibility) {
                 VisualTransformation.None
             } else {
                 PasswordVisualTransformation()
             },
-            colors = TextFieldDefaults.textFieldColors(
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = colorText,
+                unfocusedTextColor = colorText,
+                focusedContainerColor = containerColor,
+                unfocusedContainerColor = containerColor,
+                disabledContainerColor = containerColor,
+                cursorColor = colorText,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                containerColor = if (isDarkModeActive) DarkMode else White,
-                cursorColor = colorText,
-                focusedTextColor = colorText,
-                unfocusedTextColor = colorText
             ),
             trailingIcon = {
                 IconButton(
@@ -163,7 +182,11 @@ object GeneralComponents {
                     } else {
                         ImageVector.vectorResource(id = R.drawable.visible_on)
                     }
-                    Icon(icon, contentDescription = stringResource(R.string.togglePasswordVisibility), tint = if (isDarkModeActive) White else Color.Black)
+                    Icon(
+                        icon,
+                        contentDescription = stringResource(R.string.togglePasswordVisibility),
+                        tint = if (isDarkModeActive) White else Color.Black
+                    )
                 }
             }
         )

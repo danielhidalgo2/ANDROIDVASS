@@ -456,7 +456,6 @@ fun Logo() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserTextField(
     value: String,
@@ -495,7 +494,6 @@ fun UserTextField(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordTextField(
     value: String,

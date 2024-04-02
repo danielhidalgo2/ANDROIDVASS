@@ -239,15 +239,16 @@ fun loginBiometric(
                     if (decryptPassword.isNotEmpty()) {
                         viewModel.loginUser(username, decryptPassword, checkBox)
                         // Agregar un retraso antes de iniciar la siguiente actividad
-                        if (loginResult != null){
                             Handler(Looper.getMainLooper()).postDelayed({
+                                if (loginResult != null){
                                 val intent = Intent(context, HomeView::class.java)
                                 context.startActivity(intent)
                                 showMessage(context, context.getString(R.string.welcome, username))
+                                } else {
+                                    showMessage(context, context.getString(R.string.failedToLoginTryAgain))
+                                }
                             }, 500)
-                        } else {
-                            showMessage(context, context.getString(R.string.failedToLoginTryAgain))
-                        }
+
                         auth(true)
                     } else {
                         // La contraseña desencriptada está vacía, manejar este caso según sea necesario

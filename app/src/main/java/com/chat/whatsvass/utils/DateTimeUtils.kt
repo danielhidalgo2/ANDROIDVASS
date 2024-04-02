@@ -2,6 +2,7 @@ package com.chat.whatsvass.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import com.chat.whatsvass.R
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.message.Message
@@ -95,9 +96,9 @@ object DateTimeUtils {
         val mapOfChatIDandDateLast = mutableMapOf<String, String>()
         for (i in chats) {
             if (!messages[i.chatId].isNullOrEmpty()) {
-                if (messages[i.chatId]!!.lastOrNull()!!.date.isNotEmpty()) {
+                if (!messages[i.chatId]!!.lastOrNull()!!.date.isNullOrEmpty()) {
                     val formattedTime =
-                        formatTimeFromApiToOrderList(messages[i.chatId]!!.lastOrNull()!!.date)
+                        messages[i.chatId]!!.lastOrNull()!!.date.let { formatTimeFromApiToOrderList(it) }
                     mapOfChatIDandDateLast[i.chatId] = formattedTime
                 }
             } else {
@@ -106,7 +107,9 @@ object DateTimeUtils {
         }
         val mapResultOrdered =
             mapOfChatIDandDateLast.toList().sortedByDescending { (_, value) -> value }.toMap()
+        val listRestultOrdered = mapResultOrdered.keys.toList()
+        Log.d("Mensajes ordenados", listRestultOrdered.toString())
 
-        return mapResultOrdered.keys.toList()
+        return listRestultOrdered
     }
 }

@@ -266,7 +266,9 @@ class ChatView : ComponentActivity() {
     ) {
         val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
         var refreshing by remember { mutableStateOf(false) }
-        val isTextStartTheChatVisible by viewModel.isTextStartTheChatVisibleFlow.collectAsState(false)
+        val isTextStartTheChatVisible by viewModel.isTextStartTheChatVisibleFlow.collectAsState(
+            false
+        )
         val chatMessages = messages[chatId] ?: emptyList()
 
         SwipeRefresh(
@@ -305,7 +307,13 @@ class ChatView : ComponentActivity() {
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                     Text(
-                        text = i,
+                        text = if (i.contains(getString(R.string.today))) {
+                            getString(R.string.today)
+                        } else if (i.contains(getString(R.string.yesterday))) {
+                            getString(R.string.yesterday)
+                        } else {
+                            i
+                        },
                         style = TextStyle(
                             fontSize = 14.sp,
                             color = if (isDarkModeActive) White else Color.Gray
@@ -328,16 +336,18 @@ class ChatView : ComponentActivity() {
                     }
                 }
 
-                if (isTextStartTheChatVisible && dates.isEmpty()){
-                    Column (modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 200.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally) {
+                if (isTextStartTheChatVisible && dates.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 200.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Text(
                             text = stringResource(R.string.startTheChat),
                             style = TextStyle(
                                 fontSize = 22.sp,
-                                color =  if (isDarkModeActive) White else Dark
+                                color = if (isDarkModeActive) White else Dark
                             )
                         )
                     }

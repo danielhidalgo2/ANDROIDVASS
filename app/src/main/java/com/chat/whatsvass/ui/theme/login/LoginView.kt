@@ -174,7 +174,6 @@ class LoginView : AppCompatActivity() {
                     window.statusBarColor = ContextCompat.getColor(this@LoginView, R.color.main)
                     ProfileView().ProfileScreen(viewModelCreateUser, navController = navController, isDarkModeActive, sharedPreferencesUserData)
                 }
-                // Agrega más composables para otras pantallas si es necesario
             }
         }
 
@@ -200,7 +199,6 @@ fun setupAuthBiometric(context: Context): Boolean {
 
         prompt = BiometricPrompt.PromptInfo.Builder()
             .setTitle(context.getString(R.string.loginWithYourCredentials))
-            //.setSubtitle("Método alternativo")
             .setAllowedAuthenticators(
                 BiometricManager.Authenticators.BIOMETRIC_STRONG
                         or BiometricManager.Authenticators.DEVICE_CREDENTIAL
@@ -251,7 +249,6 @@ fun loginBiometric(
 
                         auth(true)
                     } else {
-                        // La contraseña desencriptada está vacía, manejar este caso según sea necesario
                     }
                 }
             }).authenticate(prompt)
@@ -322,7 +319,7 @@ fun LoginScreen(
                 modifier = textFieldModifier,
                 onImeActionPerformed = { action ->
                     if (action == ImeAction.Done || action == ImeAction.Next) {
-                        // Realizar la acción deseada, por ejemplo, pasar al siguiente campo o iniciar sesión
+                        // iniciar sesión
                         viewModel.loginUser(username, password)
                         keyboardController?.hide()
                     }
@@ -470,6 +467,7 @@ fun UserTextField(
 ) {
     val colorText = if (isDarkModeActive) White else Color.Black
 
+    val containerColor = if (isDarkModeActive) DarkMode else White
     TextField(
         value = value,
         onValueChange = onValueChange,
@@ -484,13 +482,15 @@ fun UserTextField(
         modifier = modifier,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         keyboardActions = KeyboardActions(onDone = { onImeActionPerformed(ImeAction.Next) }),
-        colors = TextFieldDefaults.textFieldColors(
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = colorText,
+            unfocusedTextColor = colorText,
+            focusedContainerColor = containerColor,
+            unfocusedContainerColor = containerColor,
+            disabledContainerColor = containerColor,
+            cursorColor = colorText,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            containerColor = if (isDarkModeActive) DarkMode else White,
-            cursorColor = colorText,
-            focusedTextColor = colorText,
-            unfocusedTextColor = colorText
         )
     )
 }
@@ -508,6 +508,7 @@ fun PasswordTextField(
     var passwordVisibility by remember { mutableStateOf(false) }
     val colorText = if (isDarkModeActive) White else Color.Black
 
+    val containerColor = if (isDarkModeActive) DarkMode else White
     TextField(
         value = value,
         onValueChange = onValueChange,
@@ -527,17 +528,17 @@ fun PasswordTextField(
         keyboardActions = KeyboardActions(onDone = { onImeActionPerformed(ImeAction.Done) }),
         visualTransformation = if (passwordVisibility) {
             VisualTransformation.None
-        } else {
-            PasswordVisualTransformation()
-        },
+        } else PasswordVisualTransformation(),
         modifier = modifier,
-        colors = TextFieldDefaults.textFieldColors(
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = colorText,
+            unfocusedTextColor = colorText,
+            focusedContainerColor = containerColor,
+            unfocusedContainerColor = containerColor,
+            disabledContainerColor = containerColor,
+            cursorColor = colorText,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            containerColor = if (isDarkModeActive) DarkMode else White,
-            cursorColor = colorText,
-            focusedTextColor = colorText,
-            unfocusedTextColor = colorText
         ),
         trailingIcon = {
             IconButton(
@@ -580,7 +581,6 @@ fun CreateAccountText(navController: NavController) {
         fontSize = 18.sp,
         modifier = Modifier.clickable {
             navController.navigate("profile")
-            // Lógica para manejar el click en el texto "Crear usuario"
         }
 
     )

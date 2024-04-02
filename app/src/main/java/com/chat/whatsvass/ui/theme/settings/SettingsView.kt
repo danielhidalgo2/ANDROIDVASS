@@ -4,12 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
-import android.window.OnBackInvokedDispatcher
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.chat.whatsvass.R
@@ -26,10 +23,10 @@ import com.chat.whatsvass.databinding.ActivitySettingsViewBinding
 import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.LoginView
-import com.chat.whatsvass.ui.theme.splash.SplashView
 import com.chat.whatsvass.usecases.token.Token
 import kotlinx.coroutines.launch
 
+@Suppress("DEPRECATION")
 class SettingsView : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsViewBinding
@@ -76,7 +73,7 @@ class SettingsView : AppCompatActivity() {
                 startActivity(intent)
                 finish()
             } else {
-                finish() // Volver a la pantalla anterior cuando se presiona el botón de retroceso
+                finish()
             }
 
         }
@@ -113,7 +110,7 @@ class SettingsView : AppCompatActivity() {
             viewModel.isLogoutFinishFlow.collect {
                 if (it) {
                     viewModel.logoutResult.collect { result ->
-                        if ( result == "Logout successful") {
+                        if (result == "Logout successful") {
                             sharedPreferencesToken.edit().putString(KEY_TOKEN, null).apply()
                             sharedPreferencesToken.edit().putString(SOURCE_ID, null).apply()
 
@@ -129,11 +126,9 @@ class SettingsView : AppCompatActivity() {
                                 getString(R.string.couldNotDisconnect), Toast.LENGTH_SHORT
                             ).show()
                         }
-
                     }
                 }
             }
-
         }
     }
 
@@ -152,7 +147,7 @@ class SettingsView : AppCompatActivity() {
         binding.switchNotifications.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 edit.putBoolean(KEY_NOTIFICATIONS, true)
-                edit.commit()
+                edit.apply()
             } else {
                 edit.putBoolean(KEY_NOTIFICATIONS, false)
                 edit.commit()
@@ -184,6 +179,7 @@ class SettingsView : AppCompatActivity() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         super.onBackPressed()
         val viewFrom = intent.getStringExtra(VIEW_FROM)
@@ -196,7 +192,7 @@ class SettingsView : AppCompatActivity() {
             startActivity(intent)
             finish()
         } else {
-            finish() // Volver a la pantalla anterior cuando se presiona el botón de retroceso
+            finish()
         }
     }
 }

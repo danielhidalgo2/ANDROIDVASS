@@ -99,12 +99,12 @@ class ChatView : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         window.decorView.apply {
-            @Suppress("DEPRECATION") systemUiVisibility =
+            @Suppress("DEPRECATION")
+            systemUiVisibility =
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         }
 
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
-        // val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
         val token = Token.token
 
@@ -156,7 +156,7 @@ class ChatView : ComponentActivity() {
                     MessageList(chatId = it, messages = messages, token!!, isDarkModeActive)
                 }
             }
-            BottomBar(chatId, isDarkModeActive, onSendMessage = { /* Acción al enviar el mensaje */ })
+            BottomBar(chatId, isDarkModeActive, onSendMessage = { })
         }
     }
 
@@ -209,9 +209,8 @@ class ChatView : ComponentActivity() {
                                 .padding(4.dp)
                         )
                     }
-                    val color: Color
-                    if (online) color = Color.Green
-                    else color = Color.Red
+                    val color: Color = if (online) Color.Green
+                    else Color.Red
                     Icon(
                         painter = painterResource(id = R.drawable.ic_circle),
                         contentDescription = stringResource(R.string.customIcon),
@@ -437,8 +436,9 @@ class ChatView : ComponentActivity() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        @Suppress("DEPRECATION") super.onBackPressed()
+        super.onBackPressed()
         val intent = Intent(this@ChatView, HomeView::class.java)
         startActivity(intent)
     }
@@ -446,7 +446,6 @@ class ChatView : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Obtener el token de SharedPreferences
         val token = Token.token
         if (token != null) {
             // Actualizar el estado en línea del usuario como "en línea" cuando se reanuda la actividad
@@ -456,7 +455,6 @@ class ChatView : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        // Obtener el token de SharedPreferences
         val token = Token.token
         if (token != null) {
             // Actualizar el estado en línea del usuario como "fuera de línea" cuando se pausa la actividad

@@ -85,9 +85,6 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 private lateinit var sharedPreferencesToken: SharedPreferences
 private lateinit var sharedPreferencesSettings: SharedPreferences
@@ -102,8 +99,7 @@ class ChatView : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         window.decorView.apply {
-            @Suppress("DEPRECATION")
-            systemUiVisibility =
+            @Suppress("DEPRECATION") systemUiVisibility =
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         }
 
@@ -123,10 +119,7 @@ class ChatView : ComponentActivity() {
 
             if (token != null && chatId != null) {
                 viewModel.getMessagesForChat(
-                    token,
-                    chatId,
-                    OFFSET_GET_MESSAGESFORCHAT,
-                    LIMIT_GET_MESSAGESFORCHAT
+                    token, chatId, OFFSET_GET_MESSAGESFORCHAT, LIMIT_GET_MESSAGESFORCHAT
                 )
             }
 
@@ -146,10 +139,7 @@ class ChatView : ComponentActivity() {
 
     @Composable
     fun ChatScreen(
-        chatId: String?,
-        messages: Map<String, List<Message>>,
-        nick: String,
-        isDarkModeActive: Boolean
+        chatId: String?, messages: Map<String, List<Message>>, nick: String, isDarkModeActive: Boolean
     ) {
         val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
 
@@ -166,10 +156,7 @@ class ChatView : ComponentActivity() {
                     MessageList(chatId = it, messages = messages, token!!, isDarkModeActive)
                 }
             }
-            BottomBar(
-                chatId,
-                isDarkModeActive,
-                onSendMessage = { /* Acción al enviar el mensaje */ })
+            BottomBar(chatId, isDarkModeActive, onSendMessage = { /* Acción al enviar el mensaje */ })
         }
     }
 
@@ -205,8 +192,7 @@ class ChatView : ComponentActivity() {
                 }
                 Spacer(modifier = Modifier.weight(0.1f))
                 Box(
-                    modifier = Modifier
-                        .size(53.dp)
+                    modifier = Modifier.size(53.dp)
                 ) {
                     Box(
                         modifier = Modifier
@@ -224,10 +210,8 @@ class ChatView : ComponentActivity() {
                         )
                     }
                     val color: Color
-                    if (online)
-                        color = Color.Green
-                    else
-                        color = Color.Red
+                    if (online) color = Color.Green
+                    else color = Color.Red
                     Icon(
                         painter = painterResource(id = R.drawable.ic_circle),
                         contentDescription = stringResource(R.string.customIcon),
@@ -259,10 +243,7 @@ class ChatView : ComponentActivity() {
 
     @Composable
     fun MessageList(
-        chatId: String,
-        messages: Map<String, List<Message>>,
-        token: String,
-        isDarkModeActive: Boolean
+        chatId: String, messages: Map<String, List<Message>>, token: String, isDarkModeActive: Boolean
     ) {
         val sourceId = sharedPreferencesToken.getString(SOURCE_ID, null)
         var refreshing by remember { mutableStateOf(false) }
@@ -271,22 +252,16 @@ class ChatView : ComponentActivity() {
         )
         val chatMessages = messages[chatId] ?: emptyList()
 
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(refreshing),
-            onRefresh = {
-                refreshing = true
-                MainScope().launch {
-                    viewModel.getMessagesForChat(
-                        token,
-                        chatId,
-                        OFFSET_GET_MESSAGESFORCHAT,
-                        LIMIT_GET_MESSAGESFORCHAT
-                    )
-                    delay(DELAY_GET_MESSAGESFORCHAT)
-                    refreshing = false
-                }
+        SwipeRefresh(state = rememberSwipeRefreshState(refreshing), onRefresh = {
+            refreshing = true
+            MainScope().launch {
+                viewModel.getMessagesForChat(
+                    token, chatId, OFFSET_GET_MESSAGESFORCHAT, LIMIT_GET_MESSAGESFORCHAT
+                )
+                delay(DELAY_GET_MESSAGESFORCHAT)
+                refreshing = false
             }
-        ) {
+        }) {
             val messagesDates = mutableListOf<String>()
             for (i in chatMessages) {
                 messagesDates.add(formatTimeToSeparateMessages(i.date, this))
@@ -298,8 +273,7 @@ class ChatView : ComponentActivity() {
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
-            )
-            {
+            ) {
                 for (i in dates) {
                     Divider(
                         color = Color.Gray,
@@ -313,16 +287,13 @@ class ChatView : ComponentActivity() {
                             getString(R.string.yesterday)
                         } else {
                             i
-                        },
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            color = if (isDarkModeActive) White else Color.Gray
+                        }, style = TextStyle(
+                            fontSize = 14.sp, color = if (isDarkModeActive) White else Color.Gray
                         )
                     )
 
                     Spacer(
-                        modifier = Modifier
-                            .height(5.dp)
+                        modifier = Modifier.height(5.dp)
                     )
 
                     chatMessages.forEach { message ->
@@ -344,10 +315,8 @@ class ChatView : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = stringResource(R.string.startTheChat),
-                            style = TextStyle(
-                                fontSize = 22.sp,
-                                color = if (isDarkModeActive) White else Dark
+                            text = stringResource(R.string.startTheChat), style = TextStyle(
+                                fontSize = 22.sp, color = if (isDarkModeActive) White else Dark
                             )
                         )
                     }
@@ -380,8 +349,7 @@ class ChatView : ComponentActivity() {
                 modifier = Modifier
                     .padding(start = startPadding, end = endPadding)
                     .background(
-                        color = backgroundColor,
-                        shape = RoundedCornerShape(16.dp)
+                        color = backgroundColor, shape = RoundedCornerShape(16.dp)
                     )
                     .padding(vertical = verticalPadding, horizontal = horizontalPadding)
 
@@ -399,8 +367,7 @@ class ChatView : ComponentActivity() {
                     Text(
                         text = formattedTime,
                         style = TextStyle(
-                            fontSize = 14.sp,
-                            color = if (isDarkModeActive) White else Color.Gray
+                            fontSize = 14.sp, color = if (isDarkModeActive) White else Color.Gray
                         ),
                     )
                 }
@@ -446,23 +413,20 @@ class ChatView : ComponentActivity() {
                 )
             )
 
-            IconButton(
-                onClick = {
+            IconButton(onClick = {
 
-                    if (chatId != null && token != null) {
+                if (chatId != null && token != null) {
 
-                        lifecycleScope.launch {
-                            viewModel.createNewMessageAndReload(
-                                token,
-                                MessageRequest(chatId, sourceID!!, messageText)
-                            )
-                        }
+                    lifecycleScope.launch {
+                        viewModel.createNewMessageAndReload(
+                            token, MessageRequest(chatId, sourceID!!, messageText)
+                        )
                     }
-                    onSendMessage(messageText)
-                    messageText = ""
-
                 }
-            ) {
+                onSendMessage(messageText)
+                messageText = ""
+
+            }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Send,
                     contentDescription = stringResource(R.string.Send),
@@ -474,8 +438,7 @@ class ChatView : ComponentActivity() {
     }
 
     override fun onBackPressed() {
-        @Suppress("DEPRECATION")
-        super.onBackPressed()
+        @Suppress("DEPRECATION") super.onBackPressed()
         val intent = Intent(this@ChatView, HomeView::class.java)
         startActivity(intent)
     }

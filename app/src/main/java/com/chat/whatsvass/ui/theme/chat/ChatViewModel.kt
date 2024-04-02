@@ -40,14 +40,11 @@ class ChatViewModel : ViewModel() {
             messagesMap[chatId] = messages
             _messages.value = messagesMap
             Log.d(
-                "HomeViewModel",
-                "Mensajes obtenidos correctamente para el chat con ID: $chatId"
+                "HomeViewModel", "Mensajes obtenidos correctamente para el chat con ID: $chatId"
             )
         } catch (e: Exception) {
             Log.e(
-                "HomeViewModel",
-                "Error al obtener los mensajes para el chat con ID: $chatId",
-                e
+                "HomeViewModel", "Error al obtener los mensajes para el chat con ID: $chatId", e
             )
         }
 
@@ -60,10 +57,7 @@ class ChatViewModel : ViewModel() {
                 val newMessage = chatRepository.createNewMessage(token, messageRequest)
                 // Recarga todos los mensajes
                 getMessagesForChat(
-                    token,
-                    messageRequest.chat,
-                    OFFSET_GET_MESSAGESFORCHAT,
-                    LIMIT_GET_MESSAGESFORCHAT
+                    token, messageRequest.chat, OFFSET_GET_MESSAGESFORCHAT, LIMIT_GET_MESSAGESFORCHAT
                 )
 
                 Log.d("Nuevo chat", newMessage.toString())

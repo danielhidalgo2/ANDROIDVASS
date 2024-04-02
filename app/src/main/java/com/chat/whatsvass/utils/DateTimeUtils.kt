@@ -68,26 +68,25 @@ object DateTimeUtils {
         val todayMonthAndYear = "$month-$year"
 
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
         val outputFormatDate = SimpleDateFormat("d-M-yyyy")
         val outputFormatDay = SimpleDateFormat("d")
         val outputFormatMonthAndYear = SimpleDateFormat("M-yyyy")
         val outputFormatDayToShow = SimpleDateFormat("M-d-yy")
         val date = inputFormat.parse(dateTimeString)
-        val dateToCompare = outputFormatDate.format(date).toString()
+        val dateToCompare = outputFormatDate.format(date!!).toString()
 
         // Si las fechas son iguales devuelve "hoy"
-        if (today == dateToCompare) {
-            return outputFormatDayToShow.format(date) + "\n${context.getString(R.string.today)}"
+        return if (today == dateToCompare) {
+            outputFormatDayToShow.format(date) + "\n${context.getString(R.string.today)}"
             // Si el mes y año son iguales, se resta el dia de hoy con el del ultimo mensaje, si es 1, el mensaje es de ayer
-        } else if ((todayMonthAndYear == outputFormatMonthAndYear.format(date!!)) && ((day - outputFormatDay.format(
+        } else if ((todayMonthAndYear == outputFormatMonthAndYear.format(date)) && ((day - outputFormatDay.format(
                 date
             ).toString().toInt()) == 1)
         ){
-            return outputFormatDayToShow.format(date) + "\n${context.getString(R.string.yesterday)}"
+            outputFormatDayToShow.format(date) + "\n${context.getString(R.string.yesterday)}"
             // Para el resto se muestra la hora y fecha
         } else {
-            return outputFormatDayToShow.format(date)
+            outputFormatDayToShow.format(date)
         }
 
     }
@@ -96,9 +95,9 @@ object DateTimeUtils {
         val mapOfChatIDandDateLast = mutableMapOf<String, String>()
         for (i in chats) {
             if (!messages[i.chatId].isNullOrEmpty()) {
-                if (!messages[i.chatId]!!.lastOrNull()!!.date.isNullOrEmpty()) {
+                if (messages[i.chatId]!!.lastOrNull()!!.date.isNotEmpty()) {
                     val formattedTime =
-                        messages[i.chatId]!!.lastOrNull()!!.date.let { formatTimeFromApiToOrderList(it) }
+                        formatTimeFromApiToOrderList(messages[i.chatId]!!.lastOrNull()!!.date)
                     mapOfChatIDandDateLast[i.chatId] = formattedTime
                 }
             } else {

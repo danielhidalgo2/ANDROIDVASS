@@ -9,9 +9,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.inputmethod.InputMethodManager
-import android.widget.CheckBox
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -93,7 +91,11 @@ import com.chat.whatsvass.ui.theme.White
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.profile.ProfileView
 import com.chat.whatsvass.ui.theme.profile.ProfileViewModel
+import com.chat.whatsvass.usecases.checkinternet.isInternetActive
 import com.chat.whatsvass.usecases.encrypt.Encrypt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 const val Shape = 20
 
@@ -102,8 +104,6 @@ class LoginView : AppCompatActivity() {
 
     private lateinit var sharedPreferencesSettings: SharedPreferences
     private lateinit var sharedPreferencesUserData: SharedPreferences
-
-
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,7 +128,13 @@ class LoginView : AppCompatActivity() {
         }
         onBackPressedDispatcher.addCallback(this, callback)
 
+        val isInternetActive = isInternetActive()
+
         setContent {
+
+            if (!isInternetActive){
+                Toast.makeText(this, stringResource(R.string.youNeedInternet), Toast.LENGTH_LONG).show()
+            }
 
             val viewModel = remember { LoginViewModel(application) }
             val viewModelCreateUser = remember { ProfileViewModel(application) }
@@ -215,6 +221,14 @@ fun loginBiometric(
     checkBox: Boolean,
     auth: (auth: Boolean) -> Unit
 ) {
+
+    var loginResult = viewModel.loginResult.value
+    CoroutineScope(Dispatchers.Main).launch {
+        viewModel.loginResult.collect{
+            loginResult = it
+        }
+    }
+
     if (canAuthenticate) {
         BiometricPrompt(activity, ContextCompat.getMainExecutor(context),
             object : BiometricPrompt.AuthenticationCallback() {
@@ -225,11 +239,15 @@ fun loginBiometric(
                     if (decryptPassword.isNotEmpty()) {
                         viewModel.loginUser(username, decryptPassword, checkBox)
                         // Agregar un retraso antes de iniciar la siguiente actividad
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            val intent = Intent(context, HomeView::class.java)
-                            context.startActivity(intent)
-                            showMessage(context, context.getString(R.string.welcome, username))
-                        }, 500)
+                        if (loginResult != null){
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                val intent = Intent(context, HomeView::class.java)
+                                context.startActivity(intent)
+                                showMessage(context, context.getString(R.string.welcome, username))
+                            }, 500)
+                        } else {
+                            showMessage(context, context.getString(R.string.failedToLoginTryAgain))
+                        }
                         auth(true)
                     } else {
                         // La contraseña desencriptada está vacía, manejar este caso según sea necesario
@@ -401,7 +419,7 @@ fun LoginScreen(
     }
 
     if (isLoginPressed){
-        viewModel._loginResult.collectAsState().value?.let { result ->
+        viewModel.loginResult.collectAsState().value?.let { result ->
             when (result) {
                 is LoginViewModel.LoginResult.Error -> {
                     showMessage(context,stringResource(R.string.credentialsAreNotCorrect))

@@ -58,7 +58,7 @@ class SettingsView : AppCompatActivity() {
         finalDarkMode = isDarkModeActive
         initialDarkMode = isDarkModeActive
 
-        if (isDarkModeActive){
+        if (isDarkModeActive) {
             window.navigationBarColor = ContextCompat.getColor(this, R.color.dark)
             binding.main.setBackgroundColor(getColor(R.color.dark))
         } else {
@@ -67,11 +67,11 @@ class SettingsView : AppCompatActivity() {
         }
 
         binding.btnBack.setOnClickListener {
-            if (viewFrom == "Home" && (initialDarkMode != finalDarkMode) ){
+            if (viewFrom == "Home" && (initialDarkMode != finalDarkMode)) {
                 val intent = Intent(this, HomeView::class.java)
                 startActivity(intent)
                 finish()
-            } else if (viewFrom == "Contacts" && (initialDarkMode != finalDarkMode)){
+            } else if (viewFrom == "Contacts" && (initialDarkMode != finalDarkMode)) {
                 val intent = Intent(this, ContactsView::class.java)
                 startActivity(intent)
                 finish()
@@ -89,7 +89,7 @@ class SettingsView : AppCompatActivity() {
         binding.btnLogout.setOnClickListener {
             if (token != null) {
                 setUpViewModel()
-                viewModel.logoutUser(token, this)
+                viewModel.logoutUser(token)
             } else {
                 Toast.makeText(this, getString(R.string.failedToLogout), Toast.LENGTH_SHORT).show()
             }
@@ -110,18 +110,30 @@ class SettingsView : AppCompatActivity() {
 
     private fun setUpViewModel() {
         lifecycleScope.launch {
-            viewModel.logoutResult.collect {
-                if (it == "Logout successful") {
-                    sharedPreferencesToken.edit().putString(KEY_TOKEN, null).apply()
-                    sharedPreferencesToken.edit().putString(SOURCE_ID, null).apply()
+            viewModel.isLogoutFinishFlow.collect {
+                if (it) {
+                    viewModel.logoutResult.collect { result ->
+                        if ( result == "Logout successful") {
+                            sharedPreferencesToken.edit().putString(KEY_TOKEN, null).apply()
+                            sharedPreferencesToken.edit().putString(SOURCE_ID, null).apply()
 
-                    Toast.makeText(this@SettingsView,
-                        getString(R.string.disconnectedUser), Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this@SettingsView, LoginView::class.java))
-                    finish()
+                            Toast.makeText(
+                                this@SettingsView,
+                                getString(R.string.disconnectedUser), Toast.LENGTH_SHORT
+                            ).show()
+                            startActivity(Intent(this@SettingsView, LoginView::class.java))
+                            finish()
+                        } else if (result == null) {
+                            Toast.makeText(
+                                this@SettingsView,
+                                getString(R.string.couldNotDisconnect), Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                    }
                 }
-                Log.d("Exitoso", it.toString())
             }
+
         }
     }
 
@@ -172,15 +184,14 @@ class SettingsView : AppCompatActivity() {
         }
     }
 
-    // Ver manera alternativa*
     override fun onBackPressed() {
         super.onBackPressed()
         val viewFrom = intent.getStringExtra(VIEW_FROM)
-        if (viewFrom == "Home" && (initialDarkMode != finalDarkMode) ){
+        if (viewFrom == "Home" && (initialDarkMode != finalDarkMode)) {
             val intent = Intent(this, HomeView::class.java)
             startActivity(intent)
             finish()
-        } else if (viewFrom == "Contacts" && (initialDarkMode != finalDarkMode)){
+        } else if (viewFrom == "Contacts" && (initialDarkMode != finalDarkMode)) {
             val intent = Intent(this, ContactsView::class.java)
             startActivity(intent)
             finish()

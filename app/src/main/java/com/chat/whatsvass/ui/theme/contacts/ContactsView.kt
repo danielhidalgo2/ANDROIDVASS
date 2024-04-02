@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -400,16 +401,24 @@ fun ContactItem(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
-                        viewModel.createNewChat(context, token, chatRequest)
+                        viewModel.createNewChat(token, chatRequest)
                         CoroutineScope(Dispatchers.Main).launch {
                             delay(DELAY_TO_OPEN_CHAT)
-                            if (isNewChatCreated) {
+                            if (isNewChatCreated && newChat != null) {
                                 val intent = Intent(context, ChatView::class.java)
                                 intent
                                     .putExtra(CHAT_ID_ARGUMENT, newChat!!.chat.id)
                                     .putExtra(KNICK_ARGUMENT, contact.nick)
                                     .putExtra(ONLINE_ARGUMENT, contact.online.toString())
                                 context.startActivity(intent)
+                            } else {
+                                Toast
+                                    .makeText(
+                                        context,
+                                        context.getString(R.string.couldNotCreateChat),
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
                             }
                         }
                     }

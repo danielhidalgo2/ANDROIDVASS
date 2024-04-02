@@ -14,6 +14,7 @@ import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.LoginView
 import com.chat.whatsvass.ui.theme.login.LoginViewModel
+import com.chat.whatsvass.usecases.checkinternet.isInternetActive
 import com.chat.whatsvass.usecases.encrypt.Encrypt
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
@@ -34,20 +35,24 @@ class SplashView : AppCompatActivity() {
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
         sharedPreferencesUserData = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
 
+        val isInternetActive = isInternetActive()
+
         setToken()
 
         val check = sharedPreferencesUserData.getBoolean(CHECK_BOX, false)
-        if (!check) {
+        if (!check || !isInternetActive) {
             splashScreen.setKeepOnScreenCondition { true }
             startActivity(Intent(this, LoginView::class.java))
             finish()
         } else {
-            splashScreen.setKeepOnScreenCondition { true }
-            @Suppress("DEPRECATION")
-            android.os.Handler().postDelayed({
-                startActivity(Intent(this, HomeView::class.java))
-                finish()
-            }, DELAY_TO_GET_TOKEN)
+            if (isInternetActive){
+                splashScreen.setKeepOnScreenCondition { true }
+                @Suppress("DEPRECATION")
+                android.os.Handler().postDelayed({
+                    startActivity(Intent(this, HomeView::class.java))
+                    finish()
+                }, DELAY_TO_GET_TOKEN)
+            }
         }
     }
 

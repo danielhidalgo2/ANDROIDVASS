@@ -73,18 +73,17 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
 
     private val isNewChatCreated = MutableStateFlow(false)
     var isNewChatCreatedFlow: Flow<Boolean> = isNewChatCreated
-    fun createNewChat(context: Context, token: String, chatRequest: ChatRequest) {
+    fun createNewChat(token: String, chatRequest: ChatRequest) {
         isNewChatCreated.value = false
         viewModelScope.launch(Dispatchers.IO) {
             async {
-                createNewChatModel(context, token, chatRequest)
+                createNewChatModel(token, chatRequest)
             }.await()
             isNewChatCreated.value = true
         }
     }
 
     private suspend fun createNewChatModel(
-        context: Context,
         token: String,
         chatRequest: ChatRequest
     ) {
@@ -93,10 +92,7 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
             _newChatResult.value = newChat
 
         } catch (e: Exception) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.errorCreatingChat), Toast.LENGTH_SHORT
-            ).show()
+           _newChatResult.value = null
         }
     }
 }

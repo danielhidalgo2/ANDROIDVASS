@@ -15,12 +15,14 @@ import com.chat.whatsvass.commons.KEY_NICK
 import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.commons.SHARED_USER_DATA
+import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import com.chat.whatsvass.data.domain.repository.remote.response.login.LoginResponse
 import com.chat.whatsvass.usecases.encrypt.Encrypt
 import com.chat.whatsvass.usecases.token.Token
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
@@ -35,7 +37,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private val userRepository = UserRepository()
 
-    val _loginResult = MutableStateFlow<LoginResult?>(null)
+    private val _loginResult = MutableStateFlow<LoginResult?>(null)
+    val loginResult: StateFlow<LoginResult?> = _loginResult
 
     fun loginUser(username: String, password: String, checkBox: Boolean? = null) {
         if (username.isEmpty() || password.isEmpty()) {
@@ -63,14 +66,10 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 } else {
                     _loginResult.value =
                         LoginResult.Error(R.string.incorrectUserOrPassword.toString())
-                    Log.d(
-                        "LoginViewModel",
-                        "Inicio de sesión fallido. Usuario o contraseña incorrectos"
-                    )
                 }
             } catch (e: Exception) {
                 _loginResult.value = LoginResult.Error("${R.string.failedToLogin} ${e.message}")
-                Log.e("LoginViewModel", "Error al iniciar sesión: ${e.message}")
+                _loginResult.value = null
             }
         }
     }

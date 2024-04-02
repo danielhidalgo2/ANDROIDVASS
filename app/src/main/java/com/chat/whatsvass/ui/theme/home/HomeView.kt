@@ -13,7 +13,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,7 +34,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -72,7 +70,6 @@ import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
 import com.chat.whatsvass.commons.DELAY_GET_MESSAGES
 import com.chat.whatsvass.commons.KEY_MODE
-import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.KNICK_ARGUMENT
 import com.chat.whatsvass.commons.LIMIT_GET_MESSAGES
 import com.chat.whatsvass.commons.OFFSET_GET_MESSAGES
@@ -95,7 +92,6 @@ import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
 import com.chat.whatsvass.utils.DateTimeUtils.formatTimeFromApi
 import com.chat.whatsvass.utils.DateTimeUtils.orderChatsByDate
-import com.chat.whatsvass.usecases.firebase.FirebaseMessService
 import com.chat.whatsvass.usecases.token.Token
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -394,8 +390,6 @@ fun ChatItem(
     }
 }
 
-
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TopBarHomeAndList(
     chats: List<Chat>,
@@ -414,8 +408,7 @@ fun TopBarHomeAndList(
     val context = LocalContext.current
     var refreshing by remember { mutableStateOf(false) }
 
-    val listRestultOrdered = orderChatsByDate(chats, messages)
-    Log.d("Mensajes ordenados", listRestultOrdered.toString())
+    val listResultOrdered = orderChatsByDate(chats, messages)
 
     TopAppBar(
         backgroundColor = Main,
@@ -514,10 +507,10 @@ fun TopBarHomeAndList(
                 ) {
 
                     for (i in chats) {
-                        for (j in listRestultOrdered) {
+                        for (j in listResultOrdered) {
                             if (i.chatId == j) {
-                                chatsNew.removeAt(listRestultOrdered.indexOf(j))
-                                chatsNew.add(listRestultOrdered.indexOf(j), i)
+                                chatsNew.removeAt(listResultOrdered.indexOf(j))
+                                chatsNew.add(listResultOrdered.indexOf(j), i)
                             }
                         }
                     }
@@ -593,7 +586,7 @@ fun TopBarHomeAndList(
             }
 
             val textColor = if (isDarkModeActive) White else Dark
-            if (listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == R.string.textFieldSearch.toString())) {
+            if (chatsNew.isNotEmpty() && listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == R.string.textFieldSearch.toString())) {
                 Column(
                     modifier = Modifier
                         .height(400.dp)

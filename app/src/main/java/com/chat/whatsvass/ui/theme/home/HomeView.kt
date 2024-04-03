@@ -89,9 +89,8 @@ import com.chat.whatsvass.ui.theme.chat.ChatView
 import com.chat.whatsvass.ui.theme.contacts.ContactsView
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.ui.theme.settings.SettingsView
-import com.chat.whatsvass.utils.DateTimeUtils.formatTimeFromApi
-import com.chat.whatsvass.utils.DateTimeUtils.orderChatsByDate
 import com.chat.whatsvass.usecases.token.Token
+import com.chat.whatsvass.utils.DateTimeUtils
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
@@ -258,7 +257,7 @@ fun ChatItem(
 
     val lastMessage = messages.lastOrNull()
 
-    val formattedTime = lastMessage?.date?.let { formatTimeFromApi(it, context) } ?: ""
+    val formattedTime = lastMessage?.date?.let { DateTimeUtils().formatTimeFromApi(it, context) } ?: ""
 
     val showDialog = remember { mutableStateOf(false) }
 
@@ -406,7 +405,7 @@ fun TopBarHomeAndList(
     val context = LocalContext.current
     var refreshing by remember { mutableStateOf(false) }
 
-    val listResultOrdered = orderChatsByDate(chats, messages)
+    val listResultOrdered = DateTimeUtils().orderChatsByDate(chats, messages)
 
     TopAppBar(
         backgroundColor = Main,

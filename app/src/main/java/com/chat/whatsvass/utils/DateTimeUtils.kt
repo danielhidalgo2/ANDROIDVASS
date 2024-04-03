@@ -10,7 +10,7 @@ import com.chat.whatsvass.data.domain.model.message.Message
 import java.text.SimpleDateFormat
 import java.util.*
 
-object DateTimeUtils {
+class DateTimeUtils {
 
     @SuppressLint("SimpleDateFormat")
     fun formatTimeFromApi(dateTimeString: String, context: Context): String {

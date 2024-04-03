@@ -77,8 +77,7 @@ import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.home.HomeViewModel
 import com.chat.whatsvass.ui.theme.login.hideKeyboard
 import com.chat.whatsvass.usecases.token.Token
-import com.chat.whatsvass.utils.DateTimeUtils.formatTimeFromApiHourChatView
-import com.chat.whatsvass.utils.DateTimeUtils.formatTimeToSeparateMessages
+import com.chat.whatsvass.utils.DateTimeUtils
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.MainScope
@@ -258,7 +257,7 @@ class ChatView : ComponentActivity() {
         }) {
             val messagesDates = mutableListOf<String>()
             for (i in chatMessages) {
-                messagesDates.add(formatTimeToSeparateMessages(i.date, this))
+                messagesDates.add(DateTimeUtils().formatTimeToSeparateMessages(i.date, this))
             }
             val dates = messagesDates.distinct().sortedDescending()
 
@@ -291,7 +290,7 @@ class ChatView : ComponentActivity() {
                     )
 
                     chatMessages.forEach { message ->
-                        if (formatTimeToSeparateMessages(message.date, this@ChatView) == i) {
+                        if (DateTimeUtils().formatTimeToSeparateMessages(message.date, this@ChatView) == i) {
                             if (message.source == sourceId) {
                                 MessageItem(message, true, isDarkModeActive)
                             } else {
@@ -329,7 +328,7 @@ class ChatView : ComponentActivity() {
         val startPadding = if (isSentByUser) horizontalPadding else 0.dp
         val endPadding = if (isSentByUser) 0.dp else horizontalPadding
 
-        val formattedTime = formatTimeFromApiHourChatView(messages.date)
+        val formattedTime = DateTimeUtils().formatTimeFromApiHourChatView(messages.date)
 
 
         Row(

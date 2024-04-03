@@ -44,7 +44,7 @@ class DateTimeUtils {
         }
     }
 
-    fun formatTimeFromApiToOrderList(dateTimeString: String): String {
+    private fun formatTimeFromApiToOrderList(dateTimeString: String): String {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
         val outputFormat = SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault())
         val date = inputFormat.parse(dateTimeString)

@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -114,8 +115,6 @@ class HomeView : ComponentActivity() {
         }
 
         sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
-    //    val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
-
         val token = Token.token
 
         sharedPreferencesSettings = getSharedPreferences(SHARED_SETTINGS, Context.MODE_PRIVATE)
@@ -129,20 +128,16 @@ class HomeView : ComponentActivity() {
         onBackPressedDispatcher.addCallback(this, callback)
 
         setContent {
-            // Observar el resultado del ViewModel para obtener los chats
             LaunchedEffect(key1 = viewModel) {
                 if (token != null) {
                     viewModel.getChats(token)
-                    Log.d("HomeView", "Obteniendo chats con token: $token")
                 }
             }
 
-            // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
             val chats by viewModel.chats.collectAsState(emptyList())
             val messages by viewModel.messages.collectAsState(emptyMap())
             var chatIds: List<String>
 
-            // Llamar a la función getMessages después de obtener los chats
             LaunchedEffect(key1 = chats) {
                 if (token != null && chats.isNotEmpty()) {
                     chatIds = chats.map { it.chatId }
@@ -255,6 +250,8 @@ fun ChatItem(
     }
     mutableColor.value = color == Color.Green
 
+    val sourceID = sharedPreferencesToken.getString(SOURCE_ID, null)
+
     val lastMessage = messages.lastOrNull()
 
     val formattedTime = lastMessage?.date?.let { DateTimeUtils().formatTimeFromApi(it, context) } ?: ""
@@ -318,7 +315,7 @@ fun ChatItem(
                     .align(Alignment.BottomEnd)
                     .size(17.dp)
                     .padding(
-                        end = 5.dp, // Ajustamos el espaciado hacia la izquierda
+                        end = 5.dp,
                         bottom = 4.dp
                     )
 
@@ -368,8 +365,12 @@ fun ChatItem(
                 confirmButton = {
                     Button(
                         onClick = {
-                            showDialog.value = false
-                            onDeleteChat(chat.chatId)
+                            if (chat.sourceId == sourceID) {
+                                showDialog.value = false
+                                onDeleteChat(chat.chatId)
+                            } else {
+                                Toast.makeText(context, "No puedes eliminar este chat", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     ) {
                         Text(stringResource(R.string.yes))
@@ -631,10 +632,3 @@ fun TopBarHomeAndList(
         }
     }
 }
-
-
-
-
-
-
-

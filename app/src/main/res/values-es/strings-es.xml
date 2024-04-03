@@ -67,5 +67,6 @@
     <string name="startTheChat">Inicia una conversación...</string>
     <string name="couldNotCreateChat">No se pudo crear chat, intente de nuevo.</string>
     <string name="youNeedInternet">Necesitas internet para usar la aplicación.</string>
+    <string name="cantDeleteChat">No puedes eliminar este chat.</string>
 
 </resources>

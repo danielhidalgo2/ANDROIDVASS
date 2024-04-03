@@ -33,8 +33,6 @@ class ChatRepository {
         try {
             apiService.deleteChat(chatId, token)
         } catch (e: Exception) {
-            // Manejar errores
-            Log.e("ChatRepository", "Error al eliminar el chat", e)
             throw e
         }
     }

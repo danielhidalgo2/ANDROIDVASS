@@ -3,10 +3,8 @@ package com.chat.whatsvass.ui.theme.contacts
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.KEY_NICK
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.data.domain.model.contacts.Contacts
@@ -92,7 +90,7 @@ class ContactsViewModel(application: Application) : AndroidViewModel(application
             _newChatResult.value = newChat
 
         } catch (e: Exception) {
-           _newChatResult.value = null
+            _newChatResult.value = null
         }
     }
 }

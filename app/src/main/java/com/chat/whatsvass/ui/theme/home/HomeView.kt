@@ -65,7 +65,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
 import com.chat.whatsvass.commons.DELAY_GET_MESSAGES
@@ -142,8 +141,7 @@ class HomeView : ComponentActivity() {
             // Observar el resultado del ViewModel y configurar el contenido de la pantalla de inicio
             val chats by viewModel.chats.collectAsState(emptyList())
             val messages by viewModel.messages.collectAsState(emptyMap())
-            val navController = rememberNavController()
-            var chatIds = listOf<String>()
+            var chatIds: List<String>
 
             // Llamar a la función getMessages después de obtener los chats
             LaunchedEffect(key1 = chats) {
@@ -253,7 +251,7 @@ fun ChatItem(
 ) {
     val colorWithOpacity = Contrast.copy(alpha = 0.4f)
     val context = LocalContext.current
-    var mutableColor = remember {
+    val mutableColor = remember {
         mutableStateOf(false)
     }
     mutableColor.value = color == Color.Green
@@ -483,7 +481,7 @@ fun TopBarHomeAndList(
         onRefresh = {
             refreshing = true
             MainScope().launch {
-                var listOfChatsIds = mutableListOf<String>()
+                val listOfChatsIds = mutableListOf<String>()
                 for (i in chatsUpdates) {
                     listOfChatsIds.add(i.chatId)
                 }
@@ -516,7 +514,7 @@ fun TopBarHomeAndList(
                     }
                     chatsNew = chatsNew.distinct().toMutableList()
 
-                    if (searchText.text.isNullOrEmpty() || searchText.text == R.string.textFieldSearch.toString()) {
+                    if (searchText.text.isEmpty() || searchText.text == R.string.textFieldSearch.toString()) {
                         items(
                             items = chatsNew,
                             key = { chat ->
@@ -586,7 +584,7 @@ fun TopBarHomeAndList(
             }
 
             val textColor = if (isDarkModeActive) White else Dark
-            if (chatsNew.isNotEmpty() && listSearch.isEmpty() && (!searchText.text.isNullOrEmpty() || searchText.text == R.string.textFieldSearch.toString())) {
+            if (chatsNew.isNotEmpty() && listSearch.isEmpty() && (searchText.text.isNotEmpty() || searchText.text == R.string.textFieldSearch.toString())) {
                 Column(
                     modifier = Modifier
                         .height(400.dp)

@@ -45,14 +45,13 @@ class SplashView : AppCompatActivity() {
             startActivity(Intent(this, LoginView::class.java))
             finish()
         } else {
-            if (isInternetActive){
-                splashScreen.setKeepOnScreenCondition { true }
-                @Suppress("DEPRECATION")
-                android.os.Handler().postDelayed({
-                    startActivity(Intent(this, HomeView::class.java))
-                    finish()
-                }, DELAY_TO_GET_TOKEN)
-            }
+            splashScreen.setKeepOnScreenCondition { true }
+            @Suppress("DEPRECATION")
+            android.os.Handler().postDelayed({
+                startActivity(Intent(this, HomeView::class.java))
+                finish()
+            }, DELAY_TO_GET_TOKEN)
+            
         }
     }
 

@@ -35,13 +35,13 @@
     <string name="credentialsAreNotCorrect">Los credenciales no son correctas</string>
     <string name="pleaseEnterUserAndPassword">Por favor, introduce usuario y contraseña</string>
     <string name="logo">Logo</string>
-    <string name="enterYourUser">Ingrese su usuario</string>
-    <string name="enterYourPassword">Ingrese su contraseña</string>
+    <string name="enterYourUser">Usuario</string>
+    <string name="enterYourPassword">Contraseña</string>
     <string name="incorrectUserOrPassword">Usuario o contraseña incorrectos</string>
     <string name="failedToLogin">Error al iniciar sesión:</string>
     <string name="createProfile">Crear Perfil</string>
     <string name="user">Usuario</string>
-    <string name="nick">Nick</string>
+    <string name="nick">Apodo</string>
     <string name="password">Contraseña</string>
     <string name="repeatPassword">Repetir Contraseña</string>
     <string name="enterYourUsername">Ingresa tu nombre de usuario</string>
@@ -64,7 +64,7 @@
     <string name="yesterday">Ayer</string>
     <string name="couldNotDisconnect">No se pudo desconectar, intente de nuevo.</string>
     <string name="today">Hoy</string>
-    <string name="startTheChat">Inicia una conversación..</string>
+    <string name="startTheChat">Inicia una conversación...</string>
     <string name="couldNotCreateChat">No se pudo crear chat, intente de nuevo.</string>
     <string name="youNeedInternet">Necesitas internet para usar la aplicación.</string>
 

@@ -31,13 +31,13 @@
     <string name="loginWithYourCredentials">Login with your credentials</string>
     <string name="welcome">¡Welcome %1$s!</string>
     <string name="failedToLoginTryAgain">Failed to login, try again.</string>
-    <string name="enableTheBiometricSensor">Enable the biometric sensor on your divice.</string>
+    <string name="enableTheBiometricSensor">Enable the biometric sensor on your device.</string>
     <string name="biometric">Biometric</string>
     <string name="credentialsAreNotCorrect">Credentials are not correct.</string>
     <string name="pleaseEnterUserAndPassword">Please, enter user and password.</string>
     <string name="logo">Logo</string>
-    <string name="enterYourUser">Enter your user</string>
-    <string name="enterYourPassword">Enter your password</string>
+    <string name="enterYourUser">User</string>
+    <string name="enterYourPassword">Password</string>
     <string name="incorrectUserOrPassword">Incorrect user or password.</string>
     <string name="failedToLogin">Failed to login:</string>
     <string name="createProfile">Create Profile</string>
@@ -65,7 +65,7 @@
     <string name="yesterday">Yesterday</string>
     <string name="couldNotDisconnect">Could not disconnect, try again.</string>
     <string name="today">Today</string>
-    <string name="startTheChat">Start the chat..</string>
+    <string name="startTheChat">Start the chat...</string>
     <string name="couldNotCreateChat">Could not create chat, try again.</string>
     <string name="youNeedInternet">You need internet to use the app.</string>
 </resources>

@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.commons.KEY_BIOMETRIC
 import com.chat.whatsvass.commons.KEY_ID
 import com.chat.whatsvass.commons.KEY_NICK
-import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
@@ -45,7 +44,6 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
             if (register.user.token.isNotEmpty()) {
                 _registerResult.value = "success"
 
-                sharedPreferences.edit().putString(KEY_TOKEN, register.user.token).apply()
                 sharedPreferences.edit().putString(KEY_ID, register.user.id).apply()
                 sharedPreferences.edit().putString(KEY_NICK, register.user.nick).apply()
                 sharedPreferences.edit().putString(SOURCE_ID, register.user.id).apply()

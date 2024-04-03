@@ -4,8 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import android.widget.CheckBox
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.R
@@ -13,9 +11,8 @@ import com.chat.whatsvass.commons.CHECK_BOX
 import com.chat.whatsvass.commons.KEY_ID
 import com.chat.whatsvass.commons.KEY_NICK
 import com.chat.whatsvass.commons.KEY_TOKEN
-import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.commons.SHARED_USER_DATA
-import com.chat.whatsvass.data.domain.model.message.Message
+import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import com.chat.whatsvass.data.domain.repository.remote.response.login.LoginResponse
 import com.chat.whatsvass.usecases.encrypt.Encrypt

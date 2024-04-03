@@ -31,7 +31,6 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -89,6 +88,7 @@ import kotlinx.coroutines.launch
 private lateinit var sharedPreferencesToken: SharedPreferences
 private lateinit var sharedPreferencesSettings: SharedPreferences
 
+@Suppress("DEPRECATION")
 class ChatView : ComponentActivity() {
     private val viewModel: ChatViewModel by viewModels()
 
@@ -123,11 +123,9 @@ class ChatView : ComponentActivity() {
                 )
             }
 
-
             if (nick != null) {
                 ChatScreen(chatId = chatId, messages = messages, nick = nick, isDarkModeActive)
             }
-
 
         }
         window.decorView.setOnTouchListener { _, _ ->
@@ -159,7 +157,6 @@ class ChatView : ComponentActivity() {
             BottomBar(chatId, isDarkModeActive, onSendMessage = { })
         }
     }
-
 
     @Composable
     fun TopBarChat(nick: String) {
@@ -214,12 +211,12 @@ class ChatView : ComponentActivity() {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_circle),
                         contentDescription = stringResource(R.string.customIcon),
-                        tint = color, // Comprobar si esta online / offline
+                        tint = color,
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .size(17.dp)
                             .padding(
-                                end = 5.dp, // Ajustamos el espaciado hacia la izquierda
+                                end = 5.dp,
                                 bottom = 4.dp
                             )
                     )
@@ -234,8 +231,6 @@ class ChatView : ComponentActivity() {
                         .padding(start = 40.dp)
                         .weight(1f)
                 )
-
-
             }
         }
     }
@@ -334,7 +329,7 @@ class ChatView : ComponentActivity() {
         val startPadding = if (isSentByUser) horizontalPadding else 0.dp
         val endPadding = if (isSentByUser) 0.dp else horizontalPadding
 
-        val formattedTime = formatTimeFromApiHourChatView(messages.date) ?: "N/A"
+        val formattedTime = formatTimeFromApiHourChatView(messages.date)
 
 
         Row(
@@ -356,7 +351,7 @@ class ChatView : ComponentActivity() {
 
                 Column(modifier = Modifier.align(Alignment.BottomEnd)) {
                     Text(
-                        text = messages.message ?: "No hay mensajes",
+                        text = messages.message,
                         color = if (isDarkModeActive) White else Color.Black,
                         textAlign = alignment,
                     )
@@ -371,13 +366,9 @@ class ChatView : ComponentActivity() {
                     )
                 }
             }
-
-
         }
     }
 
-
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun BottomBar(
         chatId: String?,
@@ -406,9 +397,9 @@ class ChatView : ComponentActivity() {
                     .background(Color.Transparent)
                     .clip(RoundedCornerShape(40.dp)),
                 placeholder = { Text(text = stringResource(R.string.writeAMessage)) },
-                colors = TextFieldDefaults.textFieldColors(
-                    focusedIndicatorColor = Color.Transparent, // Ocultar la línea de foco
-                    unfocusedIndicatorColor = Color.Transparent // Ocultar la línea de enfoque
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
                 )
             )
 

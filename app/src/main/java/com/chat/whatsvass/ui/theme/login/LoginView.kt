@@ -77,6 +77,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.chat.whatsvass.R
+import com.chat.whatsvass.commons.DELAY_TO_ENCRYPT
 import com.chat.whatsvass.commons.KEY_BIOMETRIC
 import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_PASSWORD
@@ -113,7 +114,7 @@ class LoginView : AppCompatActivity() {
 
         val isBiometricActive = sharedPreferencesSettings.getBoolean(KEY_BIOMETRIC, false)
         val isDarkModeActive = sharedPreferencesSettings.getBoolean(KEY_MODE, false)
-        if (isDarkModeActive){
+        if (isDarkModeActive) {
             window.statusBarColor = ContextCompat.getColor(this, R.color.dark)
             window.navigationBarColor = ContextCompat.getColor(this, R.color.dark)
         } else {
@@ -140,11 +141,11 @@ class LoginView : AppCompatActivity() {
 
 
             NavHost(navController = navController, startDestination = stringResource(R.string.login),
-                enterTransition = { fadeIn(animationSpec = tween(200))},
+                enterTransition = { fadeIn(animationSpec = tween(200)) },
                 exitTransition = { fadeOut(animationSpec = tween(200)) }) {
 
                 composable("login") {
-                    if (isDarkModeActive){
+                    if (isDarkModeActive) {
                         window.statusBarColor = ContextCompat.getColor(this@LoginView, R.color.dark)
                     } else {
                         window.statusBarColor = ContextCompat.getColor(this@LoginView, R.color.light)
@@ -166,7 +167,12 @@ class LoginView : AppCompatActivity() {
                 }
                 composable("profile") {
                     window.statusBarColor = ContextCompat.getColor(this@LoginView, R.color.main)
-                    ProfileView().ProfileScreen(viewModelCreateUser, navController = navController, isDarkModeActive, sharedPreferencesUserData)
+                    ProfileView().ProfileScreen(
+                        viewModelCreateUser,
+                        navController = navController,
+                        isDarkModeActive,
+                        sharedPreferencesUserData
+                    )
                 }
             }
         }
@@ -179,6 +185,16 @@ class LoginView : AppCompatActivity() {
         setupAuthBiometric(this)
     }
 
+}
+
+@Composable
+fun Logo() {
+    Image(
+        painter = painterResource(id = R.drawable.logo),
+        contentDescription = stringResource(R.string.logo),
+        modifier = Modifier.size(218.dp),
+        contentScale = ContentScale.Fit
+    )
 }
 
 private var canAuthenticate = false
@@ -216,7 +232,7 @@ fun loginBiometric(
 
     var loginResult = viewModel.loginResult.value
     CoroutineScope(Dispatchers.Main).launch {
-        viewModel.loginResult.collect{
+        viewModel.loginResult.collect {
             loginResult = it
         }
     }
@@ -231,15 +247,15 @@ fun loginBiometric(
                     if (decryptPassword.isNotEmpty()) {
                         viewModel.loginUser(username, decryptPassword, checkBox)
                         // Agregar un retraso antes de iniciar la siguiente actividad
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                if (loginResult != null){
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            if (loginResult != null) {
                                 val intent = Intent(context, HomeView::class.java)
                                 context.startActivity(intent)
                                 showMessage(context, context.getString(R.string.welcome, username))
-                                } else {
-                                    showMessage(context, context.getString(R.string.failedToLoginTryAgain))
-                                }
-                            }, 500)
+                            } else {
+                                showMessage(context, context.getString(R.string.failedToLoginTryAgain))
+                            }
+                        }, DELAY_TO_ENCRYPT)
 
                         auth(true)
                     }
@@ -273,7 +289,6 @@ fun LoginScreen(
     var isLoginPressed by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    // Nuevo estado para manejar el estado del checkbox
     var rememberCredentials by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
@@ -322,28 +337,27 @@ fun LoginScreen(
             val showDialog = remember { mutableStateOf(false) }
             val isDialogOpen = remember { mutableStateOf(false) }
 
-            if (!context.isInternetActive() && !isDialogOpen.value){
+            if (!context.isInternetActive() && !isDialogOpen.value) {
                 showDialog.value = true
             }
 
-            if(showDialog.value){
-                    AlertDialog(
-                        onDismissRequest = { showDialog.value = false },
-                        title = { Text(stringResource(R.string.internetRequired)) },
-                        text = { Text(stringResource(id = R.string.youNeedInternet)) },
-                        confirmButton = {
-                            Button(
-                                onClick = {
-                                    showDialog.value = false
-                                }
-                            ) {
-                                Text(stringResource(R.string.accept))
+            if (showDialog.value) {
+                AlertDialog(
+                    onDismissRequest = { showDialog.value = false },
+                    title = { Text(stringResource(R.string.internetRequired)) },
+                    text = { Text(stringResource(id = R.string.youNeedInternet)) },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                showDialog.value = false
                             }
+                        ) {
+                            Text(stringResource(R.string.accept))
                         }
-                    )
+                    }
+                )
                 isDialogOpen.value = true
             }
-
 
 
             Row(
@@ -366,13 +380,12 @@ fun LoginScreen(
             }
 
 
-
             var auth by remember { mutableStateOf(false) }
             val isBiometricActiveInDispositive = setupAuthBiometric(context)
             val myUsername = sharedPreferences.getString(KEY_USERNAME, null)
             val myPassword = sharedPreferences.getString(KEY_PASSWORD, null)
 
-            if (isBiometricActive &&  myUsername != null) {
+            if (isBiometricActive && myUsername != null) {
                 FloatingActionButton(
                     onClick = {
 
@@ -398,8 +411,10 @@ fun LoginScreen(
                                 }
                             }
                         } else {
-                            showMessage(context,
-                                context.getString(R.string.enableTheBiometricSensor))
+                            showMessage(
+                                context,
+                                context.getString(R.string.enableTheBiometricSensor)
+                            )
                         }
                     },
                     modifier = Modifier
@@ -436,11 +451,11 @@ fun LoginScreen(
         }
     }
 
-    if (isLoginPressed){
+    if (isLoginPressed) {
         viewModel.loginResult.collectAsState().value?.let { result ->
             when (result) {
                 is LoginViewModel.LoginResult.Error -> {
-                    showMessage(context,stringResource(R.string.credentialsAreNotCorrect))
+                    showMessage(context, stringResource(R.string.credentialsAreNotCorrect))
                 }
 
                 is LoginViewModel.LoginResult.Success -> {
@@ -455,7 +470,7 @@ fun LoginScreen(
                         context.startActivity(intent)
 
                     } else {
-                        showMessage(context,stringResource(R.string.pleaseEnterUserAndPassword) )
+                        showMessage(context, stringResource(R.string.pleaseEnterUserAndPassword))
                     }
                 }
             }
@@ -463,17 +478,6 @@ fun LoginScreen(
         }
     }
 
-}
-
-
-@Composable
-fun Logo() {
-    Image(
-        painter = painterResource(id = R.drawable.logo),
-        contentDescription = stringResource(R.string.logo),
-        modifier = Modifier.size(218.dp),
-        contentScale = ContentScale.Fit
-    )
 }
 
 @Composable
@@ -493,9 +497,10 @@ fun UserTextField(
         label = {
             Text(
                 text = stringResource(R.string.enterYourUser),
-                color =  if (isDarkModeActive) White else Color.Black,
+                color = if (isDarkModeActive) White else Color.Black,
                 fontSize = 14.sp
-            ) },
+            )
+        },
         shape = RoundedCornerShape(20.dp),
         singleLine = true,
         modifier = modifier,
@@ -533,10 +538,10 @@ fun PasswordTextField(
         label = {
             androidx.compose.material.Text(
                 text = stringResource(R.string.enterYourPassword),
-                color =  if (isDarkModeActive) White else Color.Black,
+                color = if (isDarkModeActive) White else Color.Black,
                 fontSize = 14.sp
             )
-                },
+        },
         shape = RoundedCornerShape(Shape.dp),
         singleLine = true,
         keyboardOptions = KeyboardOptions(
@@ -568,7 +573,11 @@ fun PasswordTextField(
                 } else {
                     ImageVector.vectorResource(id = R.drawable.visible_on)
                 }
-                Icon(icon, contentDescription = stringResource(id = R.string.togglePasswordVisibility), tint = if (isDarkModeActive) White else Color.Black)
+                Icon(
+                    icon,
+                    contentDescription = stringResource(id = R.string.togglePasswordVisibility),
+                    tint = if (isDarkModeActive) White else Color.Black
+                )
             }
         }
     )
@@ -592,7 +601,6 @@ fun LoginButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
 
 @Composable
 fun CreateAccountText(navController: NavController) {
-
     Text(
         text = stringResource(R.string.createUser),
         color = Color.White,
@@ -600,7 +608,6 @@ fun CreateAccountText(navController: NavController) {
         modifier = Modifier.clickable {
             navController.navigate("profile")
         }
-
     )
 }
 

@@ -107,7 +107,6 @@ class DateTimeUtils {
         val mapResultOrdered =
             mapOfChatIDandDateLast.toList().sortedByDescending { (_, value) -> value }.toMap()
         val listRestultOrdered = mapResultOrdered.keys.toList()
-        Log.d("Mensajes ordenados", listRestultOrdered.toString())
 
         return listRestultOrdered
     }

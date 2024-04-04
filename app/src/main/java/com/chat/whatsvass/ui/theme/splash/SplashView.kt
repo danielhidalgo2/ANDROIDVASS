@@ -51,7 +51,7 @@ class SplashView : AppCompatActivity() {
                 startActivity(Intent(this, HomeView::class.java))
                 finish()
             }, DELAY_TO_GET_TOKEN)
-            
+
         }
     }
 

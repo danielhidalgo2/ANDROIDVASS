@@ -21,7 +21,6 @@ class App : Application() {
                 return@addOnCompleteListener
             }
             val token = it.result
-            Log.d("TOKENFIREBASE",token)
             println("El token es> $token")
         }
         createNotificationChannel()

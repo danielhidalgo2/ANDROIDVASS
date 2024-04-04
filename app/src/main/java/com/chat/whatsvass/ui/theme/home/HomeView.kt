@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -168,8 +167,6 @@ class HomeView : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Obtener el token de SharedPreferences
-        // val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
         val token = Token.token
         if (token != null) {
             // Actualizar el estado en línea del usuario como "en línea" cuando se reanuda la actividad
@@ -179,8 +176,6 @@ class HomeView : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        // Obtener el token de SharedPreferences
-        //val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
         val token = Token.token
         if (token != null) {
             viewModel.updateUserOnlineStatus(token, false)
@@ -278,8 +273,6 @@ fun ChatItem(
                             .putExtra(KNICK_ARGUMENT, name)
                             .putExtra(ONLINE_ARGUMENT, mutableColor.value.toString())
                         context.startActivity(intent)
-                        Log.d("COLORSEND", mutableColor.value.toString())
-
                     }
                 )
             },

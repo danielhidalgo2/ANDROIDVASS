@@ -34,7 +34,7 @@ class Encrypt {
                 keyGenerator.generateKey()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error creating key: ${e.message}")
+            throw e
         }
     }
 
@@ -56,7 +56,6 @@ class Encrypt {
 
             return Base64.encodeToString(combined, Base64.DEFAULT)
         } catch (e: Exception) {
-            Log.e(TAG, "Error encrypting password: ${e.message}")
             throw RuntimeException("Error encrypting password: ${e.message}", e)
         }
     }
@@ -78,7 +77,6 @@ class Encrypt {
             val decryptedBytes = cipher.doFinal(encryptedBytes)
             return String(decryptedBytes)
         } catch (e: Exception) {
-            Log.e(TAG, "Error decrypting password: ${e.message}")
             throw RuntimeException("Error decrypting password: ${e.message}", e)
         }
     }

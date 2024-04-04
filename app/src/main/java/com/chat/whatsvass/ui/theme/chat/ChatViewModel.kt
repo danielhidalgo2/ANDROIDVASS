@@ -1,6 +1,5 @@
 package com.chat.whatsvass.ui.theme.chat
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.commons.LIMIT_GET_MESSAGESFORCHAT
@@ -40,9 +39,8 @@ class ChatViewModel : ViewModel() {
             messagesMap[chatId] = messages
             _messages.value = messagesMap
         } catch (e: Exception) {
-            Log.e(
-                "HomeViewModel", "Error al obtener los mensajes para el chat con ID: $chatId", e
-            )
+            throw e
+
         }
 
     }
@@ -56,7 +54,7 @@ class ChatViewModel : ViewModel() {
                     token, messageRequest.chat, OFFSET_GET_MESSAGESFORCHAT, LIMIT_GET_MESSAGESFORCHAT
                 )
             } catch (e: Exception) {
-                Log.d("Nuevo chat", "Error al crear mensaje: ${e.message}")
+                throw e
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.chat.whatsvass.ui.theme.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.data.domain.model.chat.Chat
@@ -48,9 +47,8 @@ class HomeViewModel : ViewModel() {
             _chats.value = chats
             // Actualiza el estado en línea del usuario al obtener los chats
             userRepository.updateUserOnlineStatus(token, true)
-            Log.d("HomeViewModel", "Chats obtenidos correctamente")
         } catch (e: Exception) {
-            Log.e("HomeViewModel", "Error al obtener los chats", e)
+            throw e
         }
     }
 
@@ -72,10 +70,8 @@ class HomeViewModel : ViewModel() {
                 messagesMap[chatId] = messages
             }
             _messages.value = messagesMap
-            Log.d("HomeViewModel", "Mensajes obtenidos correctamente")
         } catch (e: Exception) {
-            Log.e("HomeViewModel", "Error al obtener los mensajes", e)
-
+            throw e
         }
     }
 
@@ -87,12 +83,9 @@ class HomeViewModel : ViewModel() {
                     // Una vez eliminado el chat, actualiza la lista de chats
                     val updatedChats = _chats.value.filter { it.chatId != chatId }
                     _chats.value = updatedChats
-                    Log.d("HomeViewModel", "Chat eliminado correctamente")
-                } else {
-                    Log.e("HomeViewModel", "No se proporcionó un token válido")
                 }
             } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error al eliminar el chat", e)
+                throw e
             }
         }
     }
@@ -101,9 +94,8 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 userRepository.updateUserOnlineStatus(token, isOnline)
-                Log.d("HomeViewModel", "Estado en línea del usuario actualizado correctamente")
             } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error al actualizar el estado en línea del usuario", e)
+                throw e
             }
         }
     }

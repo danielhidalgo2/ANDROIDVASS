@@ -3,7 +3,6 @@ package com.chat.whatsvass.ui.theme.login
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.R
@@ -51,12 +50,11 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     if (checkBox != null) {
                         sharedPreferences.edit().putBoolean(CHECK_BOX, checkBox).apply()
                     }
-                        _loginResult.value = LoginResult.Success(login)
-                        Log.d("LoginViewModel", "Inicio de sesión exitoso. Token: ${login.token}")
-                        sharedPreferences.edit().putString(KEY_TOKEN, login.token).apply()
-                        sharedPreferences.edit().putString(KEY_ID, login.user.id).apply()
-                        sharedPreferences.edit().putString(KEY_NICK, login.user.nick).apply()
-                        sharedPreferences.edit().putString(SOURCE_ID, login.user.id).apply()
+                    _loginResult.value = LoginResult.Success(login)
+                    sharedPreferences.edit().putString(KEY_TOKEN, login.token).apply()
+                    sharedPreferences.edit().putString(KEY_ID, login.user.id).apply()
+                    sharedPreferences.edit().putString(KEY_NICK, login.user.nick).apply()
+                    sharedPreferences.edit().putString(SOURCE_ID, login.user.id).apply()
 
                     Token.token = login.token
 
@@ -70,7 +68,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
 
 }
 

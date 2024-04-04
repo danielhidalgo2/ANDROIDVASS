@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.chat.whatsvass.commons.KEY_NICK
-import com.chat.whatsvass.commons.SHARED_USER_DATA
+import com.chat.whatsvass.data.constants.KEY_NICK
+import com.chat.whatsvass.data.constants.SHARED_USER_DATA
 import com.chat.whatsvass.data.domain.model.contacts.Contacts
 import com.chat.whatsvass.data.domain.model.create_chat.CreatedChat
 import com.chat.whatsvass.data.domain.repository.remote.ContactsRepository

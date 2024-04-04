@@ -1,4 +1,4 @@
-package com.chat.whatsvass.commons
+package com.chat.whatsvass.data.constants
 
 // SharedPreferences settings
 const val SHARED_SETTINGS = "Settings"

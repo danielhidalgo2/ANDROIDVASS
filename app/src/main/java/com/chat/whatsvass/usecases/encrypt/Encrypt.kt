@@ -3,7 +3,6 @@ package com.chat.whatsvass.usecases.encrypt
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
-import android.util.Log
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -11,8 +10,6 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
 
 class Encrypt {
-    private val TAG = "Encrypt"
-
     init {
         createKeyIfNecessary()
     }

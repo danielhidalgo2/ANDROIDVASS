@@ -10,7 +10,6 @@ const val KEY_BIOMETRIC = "Biometric"
 
 // SharedPreferences user data
 const val SHARED_USER_DATA = "User"
-const val KEY_TOKEN = "TokenKey"
 const val KEY_USERNAME = "UserKey"
 const val KEY_PASSWORD = "PasswordKey"
 const val KEY_ID = "IdKey"

@@ -1,6 +1,5 @@
 package com.chat.whatsvass.data.domain.repository.remote
 
-import android.util.Log
 import com.chat.whatsvass.data.domain.model.chat.Chat
 import com.chat.whatsvass.data.domain.model.create_message.CreateMessage
 import com.chat.whatsvass.data.domain.model.message.Message
@@ -36,6 +35,7 @@ class ChatRepository {
             throw e
         }
     }
+
     suspend fun createNewMessage(token: String, messageRequest: MessageRequest): CreateMessage {
         val createdMessageResponses = apiService.createNewMessage(token, messageRequest)
         return createdMessageMapper.mapResponse(createdMessageResponses)

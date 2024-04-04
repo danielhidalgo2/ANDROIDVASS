@@ -6,11 +6,11 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.chat.whatsvass.commons.CHECK_BOX
-import com.chat.whatsvass.commons.KEY_PASSWORD
-import com.chat.whatsvass.commons.KEY_USERNAME
-import com.chat.whatsvass.commons.SHARED_SETTINGS
-import com.chat.whatsvass.commons.SHARED_USER_DATA
+import com.chat.whatsvass.data.constants.CHECK_BOX
+import com.chat.whatsvass.data.constants.KEY_PASSWORD
+import com.chat.whatsvass.data.constants.KEY_USERNAME
+import com.chat.whatsvass.data.constants.SHARED_SETTINGS
+import com.chat.whatsvass.data.constants.SHARED_USER_DATA
 import com.chat.whatsvass.ui.theme.home.HomeView
 import com.chat.whatsvass.ui.theme.login.LoginView
 import com.chat.whatsvass.ui.theme.login.LoginViewModel

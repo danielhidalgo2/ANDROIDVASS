@@ -6,11 +6,11 @@ import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.chat.whatsvass.R
-import com.chat.whatsvass.commons.CHECK_BOX
-import com.chat.whatsvass.commons.KEY_ID
-import com.chat.whatsvass.commons.KEY_NICK
-import com.chat.whatsvass.commons.SHARED_USER_DATA
-import com.chat.whatsvass.commons.SOURCE_ID
+import com.chat.whatsvass.data.constants.CHECK_BOX
+import com.chat.whatsvass.data.constants.KEY_ID
+import com.chat.whatsvass.data.constants.KEY_NICK
+import com.chat.whatsvass.data.constants.SHARED_USER_DATA
+import com.chat.whatsvass.data.constants.SOURCE_ID
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
 import com.chat.whatsvass.data.domain.repository.remote.response.login.LoginResponse
 import com.chat.whatsvass.usecases.encrypt.Encrypt

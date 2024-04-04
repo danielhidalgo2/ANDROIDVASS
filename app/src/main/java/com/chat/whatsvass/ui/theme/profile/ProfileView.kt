@@ -38,9 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.chat.whatsvass.R
-import com.chat.whatsvass.commons.DELAY_TO_ENCRYPT
-import com.chat.whatsvass.commons.KEY_PASSWORD
-import com.chat.whatsvass.commons.KEY_USERNAME
+import com.chat.whatsvass.data.constants.DELAY_TO_ENCRYPT
+import com.chat.whatsvass.data.constants.KEY_PASSWORD
+import com.chat.whatsvass.data.constants.KEY_USERNAME
 import com.chat.whatsvass.ui.theme.Dark
 import com.chat.whatsvass.ui.theme.Light
 import com.chat.whatsvass.ui.theme.Main

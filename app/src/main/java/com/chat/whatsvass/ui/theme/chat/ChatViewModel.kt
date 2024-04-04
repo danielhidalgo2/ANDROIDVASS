@@ -2,8 +2,8 @@ package com.chat.whatsvass.ui.theme.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.chat.whatsvass.commons.LIMIT_GET_MESSAGESFORCHAT
-import com.chat.whatsvass.commons.OFFSET_GET_MESSAGESFORCHAT
+import com.chat.whatsvass.data.constants.LIMIT_GET_MESSAGESFORCHAT
+import com.chat.whatsvass.data.constants.OFFSET_GET_MESSAGESFORCHAT
 import com.chat.whatsvass.data.domain.model.message.Message
 import com.chat.whatsvass.data.domain.repository.remote.ChatRepository
 import com.chat.whatsvass.data.domain.repository.remote.response.create_message.MessageRequest

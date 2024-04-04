@@ -6,18 +6,13 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.hardware.fingerprint.FingerprintManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -42,6 +37,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Checkbox
 import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.FloatingActionButton
@@ -76,7 +72,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -101,7 +96,6 @@ import com.chat.whatsvass.usecases.encrypt.Encrypt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.crypto.KeyGenerator
 
 const val Shape = 20
 
@@ -134,13 +128,7 @@ class LoginView : AppCompatActivity() {
         }
         onBackPressedDispatcher.addCallback(this, callback)
 
-        val isInternetActive = isInternetActive()
-
         setContent {
-
-            if (!isInternetActive){
-                Toast.makeText(this, stringResource(R.string.youNeedInternet), Toast.LENGTH_LONG).show()
-            }
 
             val viewModel = remember { LoginViewModel(application) }
             val viewModelCreateUser = remember { ProfileViewModel(application) }
@@ -254,7 +242,6 @@ fun loginBiometric(
                             }, 500)
 
                         auth(true)
-                    } else {
                     }
                 }
             }).authenticate(prompt)
@@ -331,6 +318,33 @@ fun LoginScreen(
                     }
                 }
             )
+
+            val showDialog = remember { mutableStateOf(false) }
+            val isDialogOpen = remember { mutableStateOf(false) }
+
+            if (!context.isInternetActive() && !isDialogOpen.value){
+                showDialog.value = true
+            }
+
+            if(showDialog.value){
+                    AlertDialog(
+                        onDismissRequest = { showDialog.value = false },
+                        title = { Text(stringResource(R.string.internetRequired)) },
+                        text = { Text(stringResource(id = R.string.youNeedInternet)) },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    showDialog.value = false
+                                }
+                            ) {
+                                Text(stringResource(R.string.accept))
+                            }
+                        }
+                    )
+                isDialogOpen.value = true
+            }
+
+
 
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -559,74 +573,6 @@ fun PasswordTextField(
         }
     )
 }
-
-@Suppress("DEPRECATION")
-@RequiresApi(Build.VERSION_CODES.M)
-private fun Context.checkFingerprintSupport() {
-    val fingerprintManager = getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
-
-    if (!fingerprintManager.isHardwareDetected) {
-        // Device doesn't support fingerprint authentication
-        Toast.makeText(this, "El dispositivo no soporta autenticación con huella dactilar", Toast.LENGTH_SHORT).show()
-        return
-    }
-    if (!fingerprintManager.hasEnrolledFingerprints()) {
-        // No fingerprint is enrolled
-        Toast.makeText(this, "No hay huellas dactilares registradas en el dispositivo", Toast.LENGTH_SHORT).show()
-    } else {
-        // At least one fingerprint is enrolled
-        Toast.makeText(this, "Hay huellas dactilares registradas en el dispositivo", Toast.LENGTH_SHORT).show()
-    }
-}
-
-private fun generateSecretKey() {
-    val KEY_NAME = "example_key"
-
-    val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-    val keyGenParameterSpec = KeyGenParameterSpec.Builder(
-        KEY_NAME,
-        KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-    )
-        .setInvalidatedByBiometricEnrollment(true)
-        .build()
-    keyGenerator.init(keyGenParameterSpec)
-    keyGenerator.generateKey()
-}
-
-/*private fun checkBiometricSupport() {
-    val biometricManager = androidx.biometric.BiometricManager.from(this)
-    when (biometricManager.canAuthenticate()) {
-        BiometricManager.BIOMETRIC_SUCCESS -> {
-            // Biometric authentication is supported
-            setupBiometricPrompt()
-        }
-        BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
-            // No biometric features available on this device
-            Toast.makeText(
-                this,
-                "No hay soporte de biometría en este dispositivo",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-        BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
-            // Biometric features are currently unavailable
-            Toast.makeText(
-                this,
-                "La biometría no está disponible en este momento",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
-            // The user hasn't enrolled any biometrics
-            Toast.makeText(
-                this,
-                "No hay huellas dactilares registradas en este dispositivo",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-}*/
-
 
 @Composable
 fun LoginButton(onClick: () -> Unit, modifier: Modifier = Modifier) {

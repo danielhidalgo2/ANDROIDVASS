@@ -68,5 +68,7 @@
     <string name="couldNotCreateChat">No se pudo crear chat, intente de nuevo.</string>
     <string name="youNeedInternet">Necesitas internet para usar la aplicación.</string>
     <string name="cantDeleteChat">No puedes eliminar este chat.</string>
+    <string name="internetRequired">Internet requerido</string>
+    <string name="accept">Aceptar</string>
 
 </resources>

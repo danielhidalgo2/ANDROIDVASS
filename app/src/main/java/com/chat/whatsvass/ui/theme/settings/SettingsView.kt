@@ -14,7 +14,6 @@ import com.chat.whatsvass.commons.KEY_BIOMETRIC
 import com.chat.whatsvass.commons.KEY_LANGUAGE
 import com.chat.whatsvass.commons.KEY_MODE
 import com.chat.whatsvass.commons.KEY_NOTIFICATIONS
-import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_SETTINGS
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
@@ -32,7 +31,7 @@ class SettingsView : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsViewBinding
     private val viewModel by viewModels<SettingsViewModel>()
     private lateinit var sharedPreferencesSettings: SharedPreferences
-    private lateinit var sharedPreferencesToken: SharedPreferences
+    private lateinit var sharedPreferencesUserData: SharedPreferences
     private var isNotificationsChecked = false
     private var isDarkModeChecked = false
     private var isBiometricChecked = false
@@ -78,7 +77,7 @@ class SettingsView : AppCompatActivity() {
 
         }
 
-        sharedPreferencesToken = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
+        sharedPreferencesUserData = getSharedPreferences(SHARED_USER_DATA, Context.MODE_PRIVATE)
         val token = Token.token
         initVars(sharedPreferencesSettings)
         setUpSwitchs(sharedPreferencesSettings)
@@ -111,8 +110,7 @@ class SettingsView : AppCompatActivity() {
                 if (it) {
                     viewModel.logoutResult.collect { result ->
                         if (result == "Logout successful") {
-                            sharedPreferencesToken.edit().putString(KEY_TOKEN, null).apply()
-                            sharedPreferencesToken.edit().putString(SOURCE_ID, null).apply()
+                            sharedPreferencesUserData.edit().putString(SOURCE_ID, null).apply()
 
                             Toast.makeText(
                                 this@SettingsView,

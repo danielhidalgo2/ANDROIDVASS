@@ -9,7 +9,6 @@ import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHECK_BOX
 import com.chat.whatsvass.commons.KEY_ID
 import com.chat.whatsvass.commons.KEY_NICK
-import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.SHARED_USER_DATA
 import com.chat.whatsvass.commons.SOURCE_ID
 import com.chat.whatsvass.data.domain.repository.remote.UserRepository
@@ -51,7 +50,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                         sharedPreferences.edit().putBoolean(CHECK_BOX, checkBox).apply()
                     }
                     _loginResult.value = LoginResult.Success(login)
-                    sharedPreferences.edit().putString(KEY_TOKEN, login.token).apply()
                     sharedPreferences.edit().putString(KEY_ID, login.user.id).apply()
                     sharedPreferences.edit().putString(KEY_NICK, login.user.nick).apply()
                     sharedPreferences.edit().putString(SOURCE_ID, login.user.id).apply()

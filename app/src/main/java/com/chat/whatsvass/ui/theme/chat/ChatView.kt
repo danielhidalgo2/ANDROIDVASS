@@ -58,7 +58,6 @@ import com.chat.whatsvass.R
 import com.chat.whatsvass.commons.CHAT_ID_ARGUMENT
 import com.chat.whatsvass.commons.DELAY_GET_MESSAGESFORCHAT
 import com.chat.whatsvass.commons.KEY_MODE
-import com.chat.whatsvass.commons.KEY_TOKEN
 import com.chat.whatsvass.commons.KNICK_ARGUMENT
 import com.chat.whatsvass.commons.LIMIT_GET_MESSAGESFORCHAT
 import com.chat.whatsvass.commons.OFFSET_GET_MESSAGESFORCHAT
@@ -138,7 +137,7 @@ class ChatView : ComponentActivity() {
     fun ChatScreen(
         chatId: String?, messages: Map<String, List<Message>>, nick: String, isDarkModeActive: Boolean
     ) {
-        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        val token = Token.token
 
         Column(
             modifier = Modifier
@@ -375,7 +374,7 @@ class ChatView : ComponentActivity() {
         onSendMessage: (String) -> Unit,
     ) {
         var messageText by remember { mutableStateOf("") }
-        val token = sharedPreferencesToken.getString(KEY_TOKEN, null)
+        val token = Token.token
         val sourceID = sharedPreferencesToken.getString(SOURCE_ID, null)
 
 

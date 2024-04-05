@@ -403,7 +403,7 @@ class ChatView : ComponentActivity() {
 
             IconButton(onClick = {
 
-                if (chatId != null && token != null) {
+                if ((chatId != null) && (token != null) && messageText.isNotEmpty()) {
 
                     lifecycleScope.launch {
                         viewModel.createNewMessageAndReload(
